@@ -1584,6 +1584,82 @@
       content: ' 🔒';
       font-size: 10px;
     }
+
+    .settings-section-label {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 16px;
+      margin-top: 32px;
+    }
+    .settings-section-num {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.02em;
+    }
+    .settings-section-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .settings-flow-sep {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0;
+    }
+    .settings-flow-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border-glass);
+    }
+    .settings-flow-arrow-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 8px 16px;
+      white-space: nowrap;
+      backdrop-filter: blur(10px);
+    }
+    .settings-flow-icon { font-size: 14px; }
+    .settings-flow-text { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
+    .settings-flow-arrow { font-size: 11px; color: var(--text-secondary); opacity: 0.5; }
+
+    .settings-practice {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 640px) {
+      .settings-practice { grid-template-columns: 1fr; }
+      .settings-flow-arrow-box { padding: 6px 10px; gap: 4px; }
+      .settings-flow-text { display: none; }
+    }
+
+    /* locked radio-card / toggle-chip */
+    .radio-card.locked {
+      opacity: 0.45;
+      cursor: pointer;
+      position: relative;
+    }
+    .radio-card.locked .radio-card-inner::after {
+      content: ' 🔒';
+      font-size: 11px;
+      display: block;
+      margin-top: 4px;
+    }
+    .toggle-chip.locked {
+      opacity: 0.45;
+      cursor: pointer;
+      position: relative;
+    }
+    .toggle-chip.locked .toggle-chip-inner::after {
+      content: ' 🔒';
+      font-size: 10px;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1995,6 +2071,13 @@
           <p class="section-subtitle">あなたのレベルと目標を選んでください。</p>
         </div>
 
+        <!-- 基本設定セクション -->
+        <div class="settings-section-label">
+          <span class="settings-section-num">基本設定</span>
+          <span class="settings-section-sub">何を・どのレベルで練習するか</span>
+        </div>
+        <div class="settings-basic">
+
         <!-- 1. English Level -->
         <div class="settings-group glass-card scroll-reveal">
           <div class="settings-label">
@@ -2002,7 +2085,7 @@
             英語レベル
           </div>
           <div class="radio-cards cols-3">
-            <label class="radio-card">
+            <label class="radio-card" data-level="beginner">
               <input type="radio" name="level" value="beginner" />
               <div class="radio-card-inner">
                 <span class="radio-card-emoji">🌱</span>
@@ -2010,7 +2093,7 @@
                 <div class="radio-card-desc">基本的なフレーズから</div>
               </div>
             </label>
-            <label class="radio-card">
+            <label class="radio-card" data-level="intermediate">
               <input type="radio" name="level" value="intermediate" checked />
               <div class="radio-card-inner">
                 <span class="radio-card-emoji">🌿</span>
@@ -2018,7 +2101,7 @@
                 <div class="radio-card-desc">日常会話レベル</div>
               </div>
             </label>
-            <label class="radio-card">
+            <label class="radio-card" data-level="advanced">
               <input type="radio" name="level" value="advanced" />
               <div class="radio-card-inner">
                 <span class="radio-card-emoji">🌳</span>
@@ -2036,7 +2119,7 @@
             トピック
           </div>
           <div class="radio-cards cols-5">
-            <label class="radio-card">
+            <label class="radio-card" data-topic="daily">
               <input type="radio" name="topic" value="daily" checked />
               <div class="radio-card-inner">
                 <span class="radio-card-emoji">💬</span>
@@ -2044,7 +2127,7 @@
                 <div class="radio-card-desc">日常会話</div>
               </div>
             </label>
-            <label class="radio-card">
+            <label class="radio-card" data-topic="business">
               <input type="radio" name="topic" value="business" />
               <div class="radio-card-inner">
                 <span class="radio-card-emoji">💼</span>
@@ -2052,7 +2135,7 @@
                 <div class="radio-card-desc">ビジネス</div>
               </div>
             </label>
-            <label class="radio-card">
+            <label class="radio-card" data-topic="travel">
               <input type="radio" name="topic" value="travel" />
               <div class="radio-card-inner">
                 <span class="radio-card-emoji">✈️</span>
@@ -2060,7 +2143,7 @@
                 <div class="radio-card-desc">旅行</div>
               </div>
             </label>
-            <label class="radio-card">
+            <label class="radio-card" data-topic="news">
               <input type="radio" name="topic" value="news" />
               <div class="radio-card-inner">
                 <span class="radio-card-emoji">📰</span>
@@ -2068,7 +2151,7 @@
                 <div class="radio-card-desc">ニュース</div>
               </div>
             </label>
-            <label class="radio-card">
+            <label class="radio-card" data-topic="academic">
               <input type="radio" name="topic" value="academic" />
               <div class="radio-card-inner">
                 <span class="radio-card-emoji">🎓</span>
@@ -2086,25 +2169,25 @@
             フォーカス <span style="font-size:13px;font-weight:400;color:var(--text-secondary);">（複数選択可）</span>
           </div>
           <div class="toggle-chips">
-            <label class="toggle-chip">
+            <label class="toggle-chip" data-focus="pronunciation">
               <input type="checkbox" name="focus" value="pronunciation" checked />
               <div class="toggle-chip-inner">
                 <span>🔊</span><span>Pronunciation</span>
               </div>
             </label>
-            <label class="toggle-chip">
+            <label class="toggle-chip" data-focus="grammar">
               <input type="checkbox" name="focus" value="grammar" />
               <div class="toggle-chip-inner">
                 <span>📝</span><span>Grammar</span>
               </div>
             </label>
-            <label class="toggle-chip">
+            <label class="toggle-chip" data-focus="natural_expressions">
               <input type="checkbox" name="focus" value="natural_expressions" checked />
               <div class="toggle-chip-inner">
                 <span>💡</span><span>Natural Expressions</span>
               </div>
             </label>
-            <label class="toggle-chip">
+            <label class="toggle-chip" data-focus="vocabulary">
               <input type="checkbox" name="focus" value="vocabulary" />
               <div class="toggle-chip-inner">
                 <span>📖</span><span>Vocabulary</span>
@@ -2113,9 +2196,38 @@
           </div>
         </div>
 
+        </div><!-- /.settings-basic -->
+
+        <!-- セクション間セパレーター -->
+        <div class="settings-flow-sep">
+          <div class="settings-flow-line"></div>
+          <div class="settings-flow-arrow-box">
+            <span class="settings-flow-icon">🗣</span>
+            <span class="settings-flow-text">シャドーイング</span>
+            <span class="settings-flow-arrow">→</span>
+            <span class="settings-flow-icon">💬</span>
+            <span class="settings-flow-text">フリートーク</span>
+            <span class="settings-flow-arrow">→</span>
+            <span class="settings-flow-icon">📊</span>
+            <span class="settings-flow-text">評価</span>
+          </div>
+          <div class="settings-flow-line"></div>
+        </div>
+
+        <!-- 練習設定セクション -->
+        <div class="settings-section-label">
+          <span class="settings-section-num">練習設定</span>
+          <span class="settings-section-sub">どう練習するか</span>
+        </div>
+        <div class="settings-practice">
+          <div class="settings-practice-col">
+
         <!-- 4. Sentence Count -->
         <div class="settings-group glass-card scroll-reveal">
-          <label class="settings-label">シャドーイング回数</label>
+          <div class="settings-label">
+            <span class="settings-label-num">4</span>
+            シャドーイング回数
+          </div>
           <p class="settings-sublabel">フリートークに移る前に練習するセンテンス数</p>
           <div class="segment-control" id="count-segment">
             <button class="segment-btn" data-value="3">3文</button>
@@ -2123,6 +2235,9 @@
             <button class="segment-btn" data-value="8">8文</button>
           </div>
         </div>
+
+          </div><!-- /.settings-practice-col -->
+          <div class="settings-practice-col">
 
         <!-- 5. Intervention Frequency -->
         <div class="settings-group glass-card scroll-reveal">
@@ -2148,29 +2263,8 @@
           </div>
         </div>
 
-        <!-- Session Preview -->
-        <div class="session-preview scroll-reveal" id="session-preview">
-          <div class="session-preview-label">セッションの流れ（現在の設定）</div>
-          <div class="session-preview-track">
-            <div class="session-preview-phase phase-shadowing">
-              <div class="phase-icon">🗣</div>
-              <div class="phase-name">シャドーイング</div>
-              <div class="phase-detail" id="preview-count">5文</div>
-            </div>
-            <div class="session-preview-arrow">→</div>
-            <div class="session-preview-phase phase-freetalk">
-              <div class="phase-icon">💬</div>
-              <div class="phase-name">フリートーク</div>
-              <div class="phase-detail" id="preview-intervention">2〜3ターンに1回フィードバック</div>
-            </div>
-            <div class="session-preview-arrow">→</div>
-            <div class="session-preview-phase phase-eval">
-              <div class="phase-icon">📊</div>
-              <div class="phase-name">評価 & 次回プロンプト</div>
-              <div class="phase-detail">自動生成</div>
-            </div>
-          </div>
-        </div>
+          </div><!-- /.settings-practice-col -->
+        </div><!-- /.settings-practice -->
 
         <!-- 6. Previous Prompt Paste -->
         <div class="settings-group glass-card scroll-reveal">
@@ -2179,14 +2273,16 @@
             前回AIからのプロンプト
             <span class="optional-tag">任意</span>
           </div>
-          <label class="textarea-label">前回のセッション終了時にAIが出力した「次回用プロンプト」を貼り付けてください。</label>
-          <div class="textarea-wrap">
-            <textarea
-              id="prev-prompt-input"
-              class="app-textarea"
-              placeholder="=== NEXT SESSION PROMPT ===&#10;（ここに貼り付け）"
-              rows="4"
-            ></textarea>
+          <div id="prev-prompt-wrapper">
+            <label class="textarea-label">前回のセッション終了時にAIが出力した「次回用プロンプト」を貼り付けてください。</label>
+            <div class="textarea-wrap">
+              <textarea
+                id="prev-prompt-input"
+                class="app-textarea"
+                placeholder="=== NEXT SESSION PROMPT ===&#10;（ここに貼り付け）"
+                rows="4"
+              ></textarea>
+            </div>
           </div>
         </div>
 
@@ -2425,55 +2521,107 @@
     }
 
     function applyFeatureGates(isLoggedIn) {
-      // 介入頻度: ログアウト時は key_moments のみ選択可能
-      const freqOptions = document.querySelectorAll('#segment-control .segment-option')
-      freqOptions.forEach(label => {
+      // --- 英語レベル: Advanced をロック ---
+      document.querySelectorAll('.level-card, [data-level]').forEach(el => {
+        const val = el.dataset.level || el.dataset.value
+        if (!isLoggedIn && val === 'advanced') {
+          el.classList.add('locked')
+          if (!el._lockHandler) {
+            el._lockHandler = (e) => { if (!currentUser) { e.stopImmediatePropagation(); e.preventDefault(); openAuthModal() } }
+            el.addEventListener('click', el._lockHandler, true)
+          }
+        } else {
+          el.classList.remove('locked')
+          if (el._lockHandler) { el.removeEventListener('click', el._lockHandler, true); el._lockHandler = null }
+        }
+      })
+
+      // --- トピック: Travel / News / Academic をロック ---
+      const lockedTopics = ['travel', 'news', 'academic']
+      document.querySelectorAll('[data-topic]').forEach(el => {
+        if (!isLoggedIn && lockedTopics.includes(el.dataset.topic)) {
+          el.classList.add('locked')
+          if (!el._lockHandler) {
+            el._lockHandler = (e) => { if (!currentUser) { e.stopImmediatePropagation(); e.preventDefault(); openAuthModal() } }
+            el.addEventListener('click', el._lockHandler, true)
+          }
+        } else {
+          el.classList.remove('locked')
+          if (el._lockHandler) { el.removeEventListener('click', el._lockHandler, true); el._lockHandler = null }
+        }
+      })
+
+      // --- フォーカス: Pronunciation / Grammar をロック ---
+      const lockedFocus = ['pronunciation', 'grammar']
+      document.querySelectorAll('[data-focus]').forEach(el => {
+        if (!isLoggedIn && lockedFocus.includes(el.dataset.focus)) {
+          el.classList.add('locked')
+          if (!el._lockHandler) {
+            el._lockHandler = (e) => { if (!currentUser) { e.stopImmediatePropagation(); e.preventDefault(); openAuthModal() } }
+            el.addEventListener('click', el._lockHandler, true)
+          }
+        } else {
+          el.classList.remove('locked')
+          if (el._lockHandler) { el.removeEventListener('click', el._lockHandler, true); el._lockHandler = null }
+        }
+      })
+
+      // --- シャドーイング回数: 3文・8文をロック ---
+      document.querySelectorAll('#count-segment .segment-btn').forEach(btn => {
+        if (!isLoggedIn && btn.dataset.value !== '5') {
+          btn.classList.add('locked')
+          if (!btn._lockHandler) {
+            btn._lockHandler = (e) => { if (!currentUser) { e.stopImmediatePropagation(); e.preventDefault(); openAuthModal() } }
+            btn.addEventListener('click', btn._lockHandler, true)
+          }
+        } else {
+          btn.classList.remove('locked')
+          if (btn._lockHandler) { btn.removeEventListener('click', btn._lockHandler, true); btn._lockHandler = null }
+        }
+      })
+
+      // --- 介入頻度: every_turn / occasionally をロック ---
+      document.querySelectorAll('#segment-control .segment-option').forEach(label => {
         const input = label.querySelector('input[name="intervention"]')
         if (!input) return
         if (!isLoggedIn && input.value !== 'key_moments') {
           label.classList.add('locked')
-          // 既存のロックハンドラーが重複しないよう一度削除してから付け直す
           if (!label._lockHandler) {
-            label._lockHandler = function(e) {
-              if (!currentUser) {
-                e.preventDefault()
-                e.stopImmediatePropagation()
-                openAuthModal()
-              }
-            }
+            label._lockHandler = (e) => { if (!currentUser) { e.stopImmediatePropagation(); e.preventDefault(); openAuthModal() } }
+            label.addEventListener('click', label._lockHandler, true)
           }
-          label.addEventListener('click', label._lockHandler, true)
-          if (input) input.disabled = true
         } else {
           label.classList.remove('locked')
-          if (label._lockHandler) {
-            label.removeEventListener('click', label._lockHandler, true)
-          }
-          if (input) input.disabled = false
+          if (label._lockHandler) { label.removeEventListener('click', label._lockHandler, true); label._lockHandler = null }
         }
       })
 
-      // シャドーイング回数: ログアウト時は 5 のみ選択可能
-      const countBtns = document.querySelectorAll('#count-segment .segment-btn')
-      countBtns.forEach(btn => {
-        if (!isLoggedIn && btn.dataset.value !== '5') {
-          btn.classList.add('locked')
-          if (!btn._lockHandler) {
-            btn._lockHandler = function(e) {
-              if (!currentUser) {
-                e.stopImmediatePropagation()
-                openAuthModal()
-              }
-            }
+      // --- 前回AIからのプロンプト: ログアウト時は無効化 ---
+      const prevPromptArea = document.getElementById('prev-prompt-input')
+      const prevPromptWrapper = document.getElementById('prev-prompt-wrapper')
+      if (prevPromptArea) {
+        prevPromptArea.disabled = !isLoggedIn
+        prevPromptArea.placeholder = isLoggedIn
+          ? 'AIが出力した「次回用プロンプト」を貼り付けてください（任意）'
+          : '🔒 ログインすると利用できます'
+      }
+      if (prevPromptWrapper) {
+        prevPromptWrapper.style.opacity = isLoggedIn ? '1' : '0.45'
+        prevPromptWrapper.style.pointerEvents = isLoggedIn ? '' : 'none'
+        if (!isLoggedIn) {
+          prevPromptWrapper.style.cursor = 'pointer'
+          if (!prevPromptWrapper._lockHandler) {
+            prevPromptWrapper._lockHandler = () => { if (!currentUser) openAuthModal() }
+            prevPromptWrapper.addEventListener('click', prevPromptWrapper._lockHandler)
           }
-          btn.addEventListener('click', btn._lockHandler, true)
         } else {
-          btn.classList.remove('locked')
-          if (btn._lockHandler) {
-            btn.removeEventListener('click', btn._lockHandler, true)
+          prevPromptWrapper.style.cursor = ''
+          if (prevPromptWrapper._lockHandler) {
+            prevPromptWrapper.removeEventListener('click', prevPromptWrapper._lockHandler)
+            prevPromptWrapper._lockHandler = null
           }
         }
-      })
+      }
     }
 
     function openAuthModal() {
