@@ -712,6 +712,41 @@
       font-weight: 600;
     }
 
+    /* Segment Button (button-based variant for count-segment) */
+    .segment-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      border-radius: 9px;
+      padding: 10px 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.2s, background 0.2s;
+      font-family: inherit;
+      position: relative;
+      z-index: 1;
+    }
+
+    .segment-btn.active {
+      color: var(--text-primary);
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    [data-theme="light"] .segment-btn.active {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    /* settings-sublabel */
+    .settings-sublabel {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      margin-top: -8px;
+    }
+
     /* Textarea */
     .textarea-wrap {
       position: relative;
@@ -1339,7 +1374,102 @@
       font-weight: 700;
       padding: 0 6px;
     }
+
+    /* ===== AUTH ===== */
+    .nav-auth { display: flex; align-items: center; gap: 12px; }
+
+    .btn-auth-login {
+      font-size: 13px; font-weight: 600;
+      padding: 7px 16px; border-radius: 20px;
+      background: var(--accent); color: #fff; border: none;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-auth-login:hover { opacity: 0.85; }
+
+    .user-menu { position: relative; cursor: pointer; }
+    .user-avatar { font-size: 24px; display: block; }
+    .user-dropdown {
+      position: absolute; right: 0; top: 36px;
+      background: var(--bg-secondary); border: 1px solid var(--border-glass);
+      border-radius: 12px; padding: 12px; min-width: 180px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 100;
+    }
+    .user-email { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; word-break: break-all; }
+    .user-plan-badge {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 10px; margin-bottom: 10px;
+      background: var(--bg-tertiary); color: var(--text-secondary);
+    }
+    .user-plan-badge.pro { background: var(--accent); color: #fff; }
+    .user-dropdown button {
+      width: 100%; text-align: left; background: none; border: none;
+      color: var(--text-primary); font-size: 13px; padding: 6px 0;
+      cursor: pointer; opacity: 0.7; transition: opacity 0.2s;
+    }
+    .user-dropdown button:hover { opacity: 1; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-card {
+      width: 100%; max-width: 420px;
+      position: relative; padding: 36px 32px;
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none; color: var(--text-secondary);
+      font-size: 18px; cursor: pointer; line-height: 1;
+    }
+    .modal-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .modal-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; }
+
+    .btn-google {
+      width: 100%; display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 12px; border-radius: 12px;
+      background: var(--bg-secondary); border: 1px solid var(--border-glass);
+      color: var(--text-primary); font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-google:hover { background: var(--bg-tertiary); }
+
+    .auth-divider {
+      text-align: center; margin: 20px 0; position: relative;
+      color: var(--text-secondary); font-size: 12px;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: ''; position: absolute; top: 50%;
+      width: 42%; height: 1px; background: var(--border-glass);
+    }
+    .auth-divider::before { left: 0; }
+    .auth-divider::after { right: 0; }
+
+    .auth-tabs { display: flex; margin-bottom: 16px; border-bottom: 1px solid var(--border-glass); }
+    .auth-tab {
+      flex: 1; padding: 8px; background: none; border: none;
+      color: var(--text-secondary); font-size: 14px; cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: all 0.2s;
+    }
+    .auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+    .auth-input {
+      width: 100%; padding: 12px 14px; border-radius: 10px; margin-bottom: 10px;
+      background: var(--bg-secondary); border: 1px solid var(--border-glass);
+      color: var(--text-primary); font-size: 14px; box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    .auth-input:focus { outline: none; border-color: var(--accent); }
+
+    .auth-error { color: #ff375f; font-size: 13px; margin-bottom: 10px; }
+
+    .auth-submit { width: 100%; margin-top: 4px; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <!-- ============================================================
@@ -1347,6 +1477,17 @@
   ============================================================ -->
   <nav id="main-nav">
     <div class="nav-logo">Shadow<span>Cast</span></div>
+    <div class="nav-auth" id="nav-auth">
+      <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
+      <div class="user-menu hidden" id="user-menu">
+        <span class="user-avatar" id="user-avatar">👤</span>
+        <div class="user-dropdown hidden" id="user-dropdown">
+          <div class="user-email" id="user-email-display"></div>
+          <div class="user-plan-badge" id="user-plan-badge">FREE</div>
+          <button onclick="signOut()">ログアウト</button>
+        </div>
+      </div>
+    </div>
     <button class="theme-toggle" id="theme-toggle" aria-label="テーマ切替">
       <span class="icon" id="theme-icon">☀️</span>
     </button>
@@ -1877,10 +2018,21 @@
           </div>
         </div>
 
-        <!-- 5. Previous Prompt Paste -->
+        <!-- 5. Sentence Count -->
+        <div class="settings-group glass-card scroll-reveal">
+          <label class="settings-label">シャドーイング回数</label>
+          <p class="settings-sublabel">フリートークに移る前に練習するセンテンス数</p>
+          <div class="segment-control" id="count-segment">
+            <button class="segment-btn" data-value="3">3文</button>
+            <button class="segment-btn active" data-value="5">5文</button>
+            <button class="segment-btn" data-value="8">8文</button>
+          </div>
+        </div>
+
+        <!-- 6. Previous Prompt Paste -->
         <div class="settings-group glass-card scroll-reveal">
           <div class="settings-label">
-            <span class="settings-label-num">5</span>
+            <span class="settings-label-num">6</span>
             前回AIからのプロンプト
             <span class="optional-tag">任意</span>
           </div>
@@ -2012,12 +2164,177 @@
     </section>
 
     <div class="footer-space"></div>
+
+    <!-- AUTH MODAL -->
+    <div class="modal-overlay hidden" id="auth-modal">
+      <div class="modal-card glass-card">
+        <button class="modal-close" onclick="closeAuthModal()">✕</button>
+        <h2 class="modal-title">ShadowCastへようこそ</h2>
+        <p class="modal-subtitle">アカウントを作成してセッション履歴を保存</p>
+
+        <!-- Google Login -->
+        <button class="btn-google" onclick="signInWithGoogle()">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
+          Googleでログイン
+        </button>
+
+        <div class="auth-divider"><span>または</span></div>
+
+        <!-- Email form -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tab-signin" onclick="switchTab('signin')">ログイン</button>
+          <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">新規登録</button>
+        </div>
+        <div id="auth-form">
+          <input class="auth-input" type="email" id="auth-email" placeholder="メールアドレス" />
+          <input class="auth-input" type="password" id="auth-password" placeholder="パスワード（8文字以上）" />
+          <div id="auth-error" class="auth-error hidden"></div>
+          <button class="btn btn-primary auth-submit" id="auth-submit" onclick="submitAuth()">ログイン</button>
+        </div>
+      </div>
+    </div>
   </main>
 
   <!-- ============================================================
        JAVASCRIPT
   ============================================================ -->
   <script>
+    // ============================================================
+    // SUPABASE AUTH
+    // ============================================================
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL'         // ← 後でユーザーが設定
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY' // ← 後でユーザーが設定
+
+    let supabaseClient = null
+    try {
+      supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    } catch(e) {}
+
+    let currentUser = null
+    let currentPlan = 'free'
+    let authMode = 'signin' // 'signin' | 'signup'
+
+    async function initAuth() {
+      if (!supabaseClient) return
+      const { data: { session } } = await supabaseClient.auth.getSession()
+      if (session?.user) {
+        await onAuthStateChange(session.user, session.access_token)
+      }
+      supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        if (session?.user) {
+          await onAuthStateChange(session.user, session.access_token)
+        } else {
+          onSignOut()
+        }
+      })
+    }
+
+    async function onAuthStateChange(user, token) {
+      currentUser = user
+      try {
+        const res = await fetch('/api/get-user-plan', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        const data = await res.json()
+        currentPlan = data.plan || 'free'
+      } catch(e) {
+        currentPlan = 'free'
+      }
+      updateAuthUI()
+    }
+
+    function onSignOut() {
+      currentUser = null
+      currentPlan = 'free'
+      updateAuthUI()
+    }
+
+    function updateAuthUI() {
+      const btnLogin = document.getElementById('btn-login')
+      const userMenu = document.getElementById('user-menu')
+      const emailDisplay = document.getElementById('user-email-display')
+      const planBadge = document.getElementById('user-plan-badge')
+
+      if (currentUser) {
+        btnLogin?.classList.add('hidden')
+        userMenu?.classList.remove('hidden')
+        if (emailDisplay) emailDisplay.textContent = currentUser.email
+        if (planBadge) {
+          planBadge.textContent = currentPlan === 'pro' ? 'PRO' : 'FREE'
+          planBadge.className = 'user-plan-badge' + (currentPlan === 'pro' ? ' pro' : '')
+        }
+      } else {
+        btnLogin?.classList.remove('hidden')
+        userMenu?.classList.add('hidden')
+      }
+    }
+
+    function openAuthModal() {
+      document.getElementById('auth-modal')?.classList.remove('hidden')
+    }
+    function closeAuthModal() {
+      document.getElementById('auth-modal')?.classList.add('hidden')
+    }
+
+    function switchTab(mode) {
+      authMode = mode
+      document.getElementById('tab-signin')?.classList.toggle('active', mode === 'signin')
+      document.getElementById('tab-signup')?.classList.toggle('active', mode === 'signup')
+      const submit = document.getElementById('auth-submit')
+      if (submit) submit.textContent = mode === 'signin' ? 'ログイン' : '新規登録'
+    }
+
+    async function signInWithGoogle() {
+      if (!supabaseClient) return
+      await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin }
+      })
+    }
+
+    async function submitAuth() {
+      if (!supabaseClient) return
+      const email = document.getElementById('auth-email')?.value
+      const password = document.getElementById('auth-password')?.value
+      const errorEl = document.getElementById('auth-error')
+      if (errorEl) errorEl.classList.add('hidden')
+
+      try {
+        let result
+        if (authMode === 'signup') {
+          result = await supabaseClient.auth.signUp({ email, password })
+        } else {
+          result = await supabaseClient.auth.signInWithPassword({ email, password })
+        }
+        if (result.error) throw result.error
+        closeAuthModal()
+      } catch(err) {
+        if (errorEl) {
+          errorEl.textContent = err.message
+          errorEl.classList.remove('hidden')
+        }
+      }
+    }
+
+    async function signOut() {
+      if (!supabaseClient) return
+      await supabaseClient.auth.signOut()
+      document.getElementById('user-dropdown')?.classList.add('hidden')
+    }
+
+    // アバタークリックでドロップダウン
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('user-menu')
+      const dropdown = document.getElementById('user-dropdown')
+      if (menu && dropdown) {
+        if (menu.contains(e.target)) {
+          dropdown.classList.toggle('hidden')
+        } else {
+          dropdown.classList.add('hidden')
+        }
+      }
+    })
+
     // ============================================================
     // STATE MANAGEMENT
     // ============================================================
@@ -2026,7 +2343,8 @@
         level: 'intermediate',
         topic: 'daily',
         focus: ['pronunciation', 'natural_expressions'],
-        interventionFrequency: 'occasionally'
+        interventionFrequency: 'occasionally',
+        sentenceCount: 5
       },
       previousEvaluation: null,
       nextSessionPrompt: null,
@@ -2127,6 +2445,24 @@
     });
 
     // ============================================================
+    // SENTENCE COUNT SEGMENT CONTROL
+    // ============================================================
+    document.querySelectorAll('#count-segment .segment-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#count-segment .segment-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        appState.settings.sentenceCount = parseInt(btn.dataset.value, 10);
+      });
+    });
+
+    function applySentenceCountToDOM(count) {
+      const val = String(count || 5);
+      document.querySelectorAll('#count-segment .segment-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.value === val);
+      });
+    }
+
+    // ============================================================
     // COLLECT SETTINGS FROM DOM
     // ============================================================
     function collectSettings() {
@@ -2134,7 +2470,9 @@
       const topic = document.querySelector('[name="topic"]:checked')?.value || 'daily';
       const focus = Array.from(document.querySelectorAll('[name="focus"]:checked')).map(el => el.value);
       const interventionFrequency = document.querySelector('[name="intervention"]:checked')?.value || 'occasionally';
-      return { level, topic, focus, interventionFrequency };
+      const activeCountBtn = document.querySelector('#count-segment .segment-btn.active');
+      const sentenceCount = activeCountBtn ? parseInt(activeCountBtn.dataset.value, 10) : 5;
+      return { level, topic, focus, interventionFrequency, sentenceCount };
     }
 
     // ============================================================
@@ -2160,6 +2498,11 @@
       if (settings.interventionFrequency) {
         const intInput = document.querySelector(`[name="intervention"][value="${settings.interventionFrequency}"]`);
         if (intInput) intInput.checked = true;
+      }
+
+      // Sentence Count
+      if (settings.sentenceCount) {
+        applySentenceCountToDOM(settings.sentenceCount);
       }
 
       updateSegmentSlider();
@@ -2327,14 +2670,20 @@ d. If successful, praise briefly and move on. If not, repeat the full sentence d
 - Ignore noise/garbled parts. Extract only the meaningful English and respond to that.
 - Do not comment on or correct the garbled noise itself.
 
-After 5–8 sentences (adjust based on the student's pace), ask:
-- Continue shadowing?
-- Move to Free Talk (Phase 2)?
-- End the session (Phase 3)?
+**Sentence count target:** Practice exactly ${settings.sentenceCount} sentences in Phase 1.
+- Count only sentences the student successfully completes (full sentence, not just parts).
+- After each successfully completed sentence, say: "Nice work! Any questions about that expression or anything you'd like to try again? [Wait briefly] Okay, let's move on."
+- After completing ${settings.sentenceCount} sentences, automatically proceed: "Great, we've done ${settings.sentenceCount} sentences! Ready to move on to Free Talk?"
+- Do NOT ask the student to choose — just announce the transition naturally.
 
 ## Phase 2: Free Talk
 
 Switch to conversational mode.
+**Topic initiation:** You must bring up the first topic. Do NOT ask "What would you like to talk about?" — instead, open with a natural question or comment related to ${topicName}. Example openings:
+- "So, tell me — do you have any fun plans for the weekend?"
+- "What does your typical morning look like?"
+- "Have you been anywhere interesting lately?"
+Choose one that fits naturally. Then let the conversation flow from there.
 
 1. Have a natural conversation on the topic of ${topicName} or related subjects.
 2. The student may speak in broken English — respond to the CONTENT, not the form.
@@ -2378,7 +2727,9 @@ Switch to conversational mode.
 
 ## Phase 3: Session End
 
-When the student wants to end (or after ~20 minutes of conversation), output the following:
+**IMPORTANT: You MUST output the full evaluation below. Do not summarize or skip any section. The student needs this to save for next time.**
+
+When the student says they want to end, or when ~20 minutes have passed, output the COMPLETE evaluation in this exact format — no exceptions:
 
 === SESSION EVALUATION ===
 
@@ -2670,6 +3021,9 @@ Now begin. Greet the student and start Phase 1.`;
 
       // Init scroll reveal
       initScrollReveal();
+
+      // Init auth
+      initAuth();
     }
 
     // ============================================================
