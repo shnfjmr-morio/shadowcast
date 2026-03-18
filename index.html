@@ -1144,6 +1144,9 @@
     .how-section {
       padding: 0 0 80px;
       position: relative;
+      /* Override section base flex centering that constrains track width */
+      align-items: stretch;
+      min-height: auto;
     }
 
     .how-header {
@@ -1170,6 +1173,8 @@
 
     .how-track-wrapper {
       position: relative;
+      width: 100%;
+      overflow: hidden;
     }
 
     /* fade edges */
@@ -1197,13 +1202,17 @@
       gap: 16px;
       overflow-x: scroll;
       scroll-snap-type: x mandatory;
+      scroll-padding-left: 48px;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
       padding: 16px 48px 32px;
       cursor: grab;
+      /* Ensure the track is wide enough to scroll */
+      width: 100%;
     }
     .how-track::-webkit-scrollbar { display: none; }
     .how-track.is-dragging { cursor: grabbing; scroll-snap-type: none; }
+    .how-track.is-dragging .how-card { transform: none !important; }
 
     .how-card {
       flex: 0 0 300px;
@@ -2696,24 +2705,26 @@ Now begin. Greet the student and start Phase 1.`;
 
       let isDown = false, startX, scrollLeft;
 
+      // --- Mouse drag (PC) ---
       track.addEventListener('mousedown', e => {
         isDown = true;
         startX = e.clientX;
         scrollLeft = track.scrollLeft;
+        track.classList.add('is-dragging');
         track.style.scrollSnapType = 'none';
-        track.style.cursor = 'grabbing';
         e.preventDefault();
       });
 
       document.addEventListener('mouseup', () => {
         if (!isDown) return;
         isDown = false;
+        track.classList.remove('is-dragging');
         track.style.scrollSnapType = '';
-        track.style.cursor = '';
       });
 
       document.addEventListener('mousemove', e => {
         if (!isDown) return;
+        e.preventDefault();
         const dx = e.clientX - startX;
         track.scrollLeft = scrollLeft - dx;
       });
