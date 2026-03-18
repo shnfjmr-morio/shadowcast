@@ -1172,16 +1172,23 @@
       position: relative;
     }
 
-    /* fade right edge only */
+    /* fade edges */
+    .how-track-wrapper::before,
     .how-track-wrapper::after {
       content: '';
       position: absolute;
       top: 0;
       bottom: 0;
-      right: 0;
-      width: 60px;
+      width: 48px;
       z-index: 2;
       pointer-events: none;
+    }
+    .how-track-wrapper::before {
+      left: 0;
+      background: linear-gradient(to right, var(--bg-primary), transparent);
+    }
+    .how-track-wrapper::after {
+      right: 0;
       background: linear-gradient(to left, var(--bg-primary), transparent);
     }
 
@@ -1192,7 +1199,7 @@
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
-      padding: 16px 24px 32px;
+      padding: 16px 48px 32px;
       cursor: grab;
     }
     .how-track::-webkit-scrollbar { display: none; }
@@ -2682,26 +2689,33 @@ Now begin. Greet the student and start Phase 1.`;
     // ============================================================
     // BOOT
     // ============================================================
-    // ===== HOW-IT-WORKS DRAG & TOUCH SCROLL =====
+    // ===== HOW-IT-WORKS DRAG SCROLL =====
     (function() {
       const track = document.getElementById('howTrack');
       if (!track) return;
 
-      // --- Mouse drag (desktop) ---
       let isDown = false, startX, scrollLeft;
 
       track.addEventListener('mousedown', e => {
         isDown = true;
-        track.classList.add('is-dragging');
-        startX = e.pageX - track.offsetLeft;
+        startX = e.clientX;
         scrollLeft = track.scrollLeft;
-      });
-      document.addEventListener('mouseup', () => { isDown = false; track.classList.remove('is-dragging'); });
-      track.addEventListener('mousemove', e => {
-        if (!isDown) return;
+        track.style.scrollSnapType = 'none';
+        track.style.cursor = 'grabbing';
         e.preventDefault();
-        const x = e.pageX - track.offsetLeft;
-        track.scrollLeft = scrollLeft - (x - startX) * 1.5;
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (!isDown) return;
+        isDown = false;
+        track.style.scrollSnapType = '';
+        track.style.cursor = '';
+      });
+
+      document.addEventListener('mousemove', e => {
+        if (!isDown) return;
+        const dx = e.clientX - startX;
+        track.scrollLeft = scrollLeft - dx;
       });
 
       // --- Hide scroll hint after first scroll ---
