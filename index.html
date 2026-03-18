@@ -1555,6 +1555,35 @@
         font-size: 14px;
       }
     }
+
+    /* ===== NAV RIGHT ===== */
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ===== FEATURE GATES (locked segment options) ===== */
+    .segment-btn.locked {
+      opacity: 0.45;
+      cursor: pointer;
+      position: relative;
+    }
+    .segment-btn.locked::after {
+      content: '🔒';
+      font-size: 10px;
+      margin-left: 4px;
+    }
+
+    .segment-option.locked {
+      opacity: 0.45;
+      cursor: pointer;
+      position: relative;
+    }
+    .segment-option.locked .segment-option-inner::after {
+      content: ' 🔒';
+      font-size: 10px;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1564,20 +1593,22 @@
   ============================================================ -->
   <nav id="main-nav">
     <div class="nav-logo">Shadow<span>Cast</span></div>
-    <div class="nav-auth" id="nav-auth">
-      <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
-      <div class="user-menu hidden" id="user-menu">
-        <span class="user-avatar" id="user-avatar">👤</span>
-        <div class="user-dropdown hidden" id="user-dropdown">
-          <div class="user-email" id="user-email-display"></div>
-          <div class="user-plan-badge" id="user-plan-badge">FREE</div>
-          <button onclick="signOut()">ログアウト</button>
+    <div class="nav-right">
+      <div class="nav-auth" id="nav-auth">
+        <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
+        <div class="user-menu hidden" id="user-menu">
+          <span class="user-avatar" id="user-avatar">👤</span>
+          <div class="user-dropdown hidden" id="user-dropdown">
+            <div class="user-email" id="user-email-display"></div>
+            <div class="user-plan-badge" id="user-plan-badge">FREE</div>
+            <button onclick="signOut()">ログアウト</button>
+          </div>
         </div>
       </div>
+      <button class="theme-toggle" id="theme-toggle" aria-label="テーマ切替">
+        <span class="icon" id="theme-icon">☀️</span>
+      </button>
     </div>
-    <button class="theme-toggle" id="theme-toggle" aria-label="テーマ切替">
-      <span class="icon" id="theme-icon">☀️</span>
-    </button>
   </nav>
 
   <main>
@@ -2390,6 +2421,59 @@
         btnLogin?.classList.remove('hidden')
         userMenu?.classList.add('hidden')
       }
+      applyFeatureGates(!!currentUser)
+    }
+
+    function applyFeatureGates(isLoggedIn) {
+      // 介入頻度: ログアウト時は key_moments のみ選択可能
+      const freqOptions = document.querySelectorAll('#segment-control .segment-option')
+      freqOptions.forEach(label => {
+        const input = label.querySelector('input[name="intervention"]')
+        if (!input) return
+        if (!isLoggedIn && input.value !== 'key_moments') {
+          label.classList.add('locked')
+          // 既存のロックハンドラーが重複しないよう一度削除してから付け直す
+          if (!label._lockHandler) {
+            label._lockHandler = function(e) {
+              if (!currentUser) {
+                e.preventDefault()
+                e.stopImmediatePropagation()
+                openAuthModal()
+              }
+            }
+          }
+          label.addEventListener('click', label._lockHandler, true)
+          if (input) input.disabled = true
+        } else {
+          label.classList.remove('locked')
+          if (label._lockHandler) {
+            label.removeEventListener('click', label._lockHandler, true)
+          }
+          if (input) input.disabled = false
+        }
+      })
+
+      // シャドーイング回数: ログアウト時は 5 のみ選択可能
+      const countBtns = document.querySelectorAll('#count-segment .segment-btn')
+      countBtns.forEach(btn => {
+        if (!isLoggedIn && btn.dataset.value !== '5') {
+          btn.classList.add('locked')
+          if (!btn._lockHandler) {
+            btn._lockHandler = function(e) {
+              if (!currentUser) {
+                e.stopImmediatePropagation()
+                openAuthModal()
+              }
+            }
+          }
+          btn.addEventListener('click', btn._lockHandler, true)
+        } else {
+          btn.classList.remove('locked')
+          if (btn._lockHandler) {
+            btn.removeEventListener('click', btn._lockHandler, true)
+          }
+        }
+      })
     }
 
     function openAuthModal() {
@@ -3171,6 +3255,9 @@ Now begin. Greet the student and start Phase 1.`;
 
       // Init auth
       initAuth();
+
+      // Apply feature gates for logged-out state (overridden by updateAuthUI once auth resolves)
+      applyFeatureGates(false)
     }
 
     // ============================================================
