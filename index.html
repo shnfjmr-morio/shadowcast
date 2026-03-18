@@ -1639,6 +1639,51 @@
       .settings-flow-text { display: none; }
     }
 
+    /* ===== SAVE EXTRA FIELDS ===== */
+    .save-extra-fields .optional-tag { color: var(--text-tertiary); font-weight: 400; }
+    .save-extra-fields { display: flex; flex-direction: column; gap: 16px; }
+    .save-field-row { display: flex; flex-direction: column; gap: 8px; }
+    .star-rating { display: flex; gap: 6px; }
+    .star { font-size: 28px; color: var(--bg-tertiary, #3a3a3a); cursor: pointer; transition: color 0.15s; user-select: none; }
+    .star.active { color: #FF9F0A; }
+    .star:hover { color: #FF9F0A; opacity: 0.7; }
+
+    /* ===== SESSION HISTORY ===== */
+    #session-history { padding: 80px 0; }
+    .history-row { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border-glass); cursor: pointer; transition: background 0.15s; }
+    .history-row:last-child { border-bottom: none; }
+    .history-row:hover { background: rgba(255,255,255,0.03); }
+    .history-date { font-size: 13px; color: var(--text-tertiary); min-width: 60px; }
+    .history-badges { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+    .history-badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; background: rgba(255,255,255,0.08); color: var(--text-secondary); }
+    .history-badge.level-beginner { background: rgba(48,209,88,0.15); color: #30D158; }
+    .history-badge.level-intermediate { background: rgba(255,159,10,0.15); color: #FF9F0A; }
+    .history-badge.level-advanced { background: rgba(255,55,95,0.15); color: #FF375F; }
+    .history-stars { font-size: 12px; color: #FF9F0A; letter-spacing: -1px; min-width: 65px; }
+    .history-duration { font-size: 12px; color: var(--text-tertiary); min-width: 40px; }
+    .history-detail { padding: 16px 24px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border-glass); display: none; }
+    .history-detail.open { display: block; }
+    .history-detail pre { white-space: pre-wrap; font-size: 13px; color: var(--text-secondary); font-family: inherit; margin: 0 0 12px; }
+    .history-load-btn { padding: 8px 16px; border-radius: 20px; background: var(--accent); color: white; border: none; cursor: pointer; font-size: 13px; }
+
+    /* ===== PRESETS BAR ===== */
+    .presets-bar { padding: 16px 20px; }
+    .preset-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; background: rgba(255,255,255,0.08); border: 1px solid var(--border-glass); cursor: pointer; font-size: 13px; color: var(--text-secondary); transition: all 0.15s; }
+    .preset-chip:hover { background: rgba(255,255,255,0.12); }
+    .preset-chip.active { border-color: var(--accent); color: var(--accent); }
+    .preset-chip-delete { font-size: 14px; color: var(--text-tertiary); line-height: 1; }
+    .preset-chip-delete:hover { color: #FF375F; }
+
+    /* ===== PROGRESS SECTION ===== */
+    #progress-section { padding: 80px 0; }
+    .progress-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 768px) { .progress-charts { grid-template-columns: 1fr; } }
+    .streak-grid { display: grid; grid-template-rows: repeat(7, 12px); grid-auto-flow: column; grid-auto-columns: 12px; gap: 2px; overflow-x: auto; }
+    .streak-cell { border-radius: 2px; background: var(--bg-tertiary, rgba(255,255,255,0.06)); }
+    .streak-cell[data-count="1"] { background: rgba(0,113,227,0.3); }
+    .streak-cell[data-count="2"] { background: rgba(0,113,227,0.6); }
+    .streak-cell[data-count="3"] { background: var(--accent); }
+
     /* locked radio-card / toggle-chip */
     .radio-card.locked {
       opacity: 0.45;
@@ -2071,6 +2116,14 @@
           <p class="section-subtitle">あなたのレベルと目標を選んでください。</p>
         </div>
 
+        <div class="presets-bar glass-card scroll-reveal" id="presets-bar" style="display:none; margin-bottom: 24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:13px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.08em;">プリセット</span>
+            <button class="btn btn-secondary" style="padding:6px 14px; font-size:13px;" id="save-preset-btn" onclick="saveCurrentPreset()">+ 保存</button>
+          </div>
+          <div class="presets-list" id="presets-list" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; min-height:32px;"></div>
+        </div>
+
         <!-- 基本設定セクション -->
         <div class="settings-section-label">
           <span class="settings-section-num">基本設定</span>
@@ -2159,6 +2212,16 @@
                 <div class="radio-card-desc">アカデミック</div>
               </div>
             </label>
+            <label class="radio-card" data-topic="custom">
+              <input type="radio" name="topic" value="custom">
+              <div class="radio-card-inner">
+                <span class="radio-card-icon">✏️</span>
+                <span class="radio-card-label">カスタム</span>
+              </div>
+            </label>
+          </div>
+          <div id="custom-topic-wrapper" style="display:none; margin-top:12px;">
+            <input type="text" id="custom-topic-input" class="auth-input" placeholder="例: 料理、音楽制作、映画..." maxlength="50">
           </div>
         </div>
 
@@ -2387,6 +2450,26 @@
               </div>
             </div>
 
+            <div class="save-extra-fields">
+              <div class="save-field-row">
+                <label class="textarea-label">練習時間 <span class="optional-tag">任意</span></label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input type="number" id="session-duration" class="auth-input" style="width:90px;padding:8px 12px;" min="1" max="180" placeholder="20">
+                  <span style="color:var(--text-secondary);font-size:14px;">分</span>
+                </div>
+              </div>
+              <div class="save-field-row">
+                <label class="textarea-label">セッションの評価</label>
+                <div class="star-rating" id="star-rating" data-rating="0">
+                  <span class="star" data-value="1">★</span>
+                  <span class="star" data-value="2">★</span>
+                  <span class="star" data-value="3">★</span>
+                  <span class="star" data-value="4">★</span>
+                  <span class="star" data-value="5">★</span>
+                </div>
+              </div>
+            </div>
+
             <div class="save-actions">
               <button class="save-btn" id="save-btn" onclick="handleSave()">
                 <span id="save-icon">💾</span>
@@ -2397,6 +2480,59 @@
                 <span>保存しました！次回の練習に反映されます。</span>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION F: SESSION HISTORY
+    ============================================================ -->
+    <section id="session-history" class="hidden">
+      <div class="container">
+        <div class="section-header scroll-reveal">
+          <span class="section-tag">履歴</span>
+          <h2 class="section-title">練習ログ</h2>
+          <p class="section-subtitle">これまでのセッション記録</p>
+        </div>
+        <div class="glass-card scroll-reveal" style="padding: 0; overflow: hidden;">
+          <div id="history-list">
+            <p style="padding: 32px; text-align: center; color: var(--text-secondary);">まだセッションがありません</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION G: PROGRESS
+    ============================================================ -->
+    <section id="progress-section" class="hidden">
+      <div class="container">
+        <div class="section-header scroll-reveal">
+          <span class="section-tag">進捗</span>
+          <h2 class="section-title">あなたの成長</h2>
+          <p class="section-subtitle">練習の積み重ねを可視化します</p>
+        </div>
+
+        <!-- Summary stats -->
+        <div class="eval-cards scroll-reveal" id="progress-stats" style="margin-bottom:24px;"></div>
+
+        <!-- Charts grid -->
+        <div class="progress-charts scroll-reveal">
+          <div class="glass-card" id="chart-streak" style="padding:24px;">
+            <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">練習カレンダー</h3>
+            <div class="streak-grid" id="streak-grid"></div>
+            <div style="display:flex; gap:8px; align-items:center; margin-top:12px; font-size:12px; color:var(--text-tertiary);">
+              <span>少ない</span>
+              <div style="width:12px;height:12px;border-radius:2px;background:rgba(0,113,227,0.2);"></div>
+              <div style="width:12px;height:12px;border-radius:2px;background:rgba(0,113,227,0.5);"></div>
+              <div style="width:12px;height:12px;border-radius:2px;background:var(--accent);"></div>
+              <span>多い</span>
+            </div>
+          </div>
+          <div class="glass-card" id="chart-focus" style="padding:24px;">
+            <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">フォーカス分布</h3>
+            <div id="focus-chart-container" style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;"></div>
           </div>
         </div>
       </div>
@@ -2518,6 +2654,18 @@
         userMenu?.classList.add('hidden')
       }
       applyFeatureGates(!!currentUser)
+
+      // Show/hide history, progress, presets sections based on login state
+      const isLoggedIn = !!currentUser;
+      document.getElementById('session-history')?.classList.toggle('hidden', !isLoggedIn);
+      document.getElementById('progress-section')?.classList.toggle('hidden', !isLoggedIn);
+      const presetsBar = document.getElementById('presets-bar');
+      if (presetsBar) presetsBar.style.display = isLoggedIn ? 'block' : 'none';
+      if (isLoggedIn) {
+        renderHistory();
+        renderProgress();
+        renderPresets();
+      }
     }
 
     function applyFeatureGates(isLoggedIn) {
@@ -2704,7 +2852,11 @@
       previousEvaluation: null,
       nextSessionPrompt: null,
       sessionCount: 0,
-      theme: 'dark'
+      theme: 'dark',
+      customTopic: null,
+      history: [],
+      presets: [],
+      activePresetId: null
     };
 
     // ============================================================
@@ -2745,6 +2897,24 @@
       try {
         localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
       } catch (e) {}
+    }
+
+    // localStorage helpers for history and presets
+    function loadHistory() {
+      try {
+        return JSON.parse(localStorage.getItem('shadowcast_history') || '[]');
+      } catch { return []; }
+    }
+    function saveHistory(arr) {
+      localStorage.setItem('shadowcast_history', JSON.stringify(arr));
+    }
+    function loadPresets() {
+      try {
+        return JSON.parse(localStorage.getItem('shadowcast_presets') || '[]');
+      } catch { return []; }
+    }
+    function savePresets(arr) {
+      localStorage.setItem('shadowcast_presets', JSON.stringify(arr));
     }
 
     // ============================================================
@@ -2964,8 +3134,14 @@
 
     function generatePrompt(settings, previousEvaluation, nextSessionPrompt, sessionCount) {
       const levelDesc       = levelDescriptions[settings.level] || levelDescriptions.intermediate;
-      const topicDesc       = topicDescriptions[settings.topic] || topicDescriptions.daily;
-      const topicName       = topicNames[settings.topic] || 'daily conversation';
+      let topicDesc         = topicDescriptions[settings.topic] || topicDescriptions.daily;
+      let topicName         = topicNames[settings.topic] || 'daily conversation';
+
+      // Custom topic handling
+      if (settings.topic === 'custom' && appState.customTopic) {
+        topicName = appState.customTopic;
+        topicDesc = appState.customTopic;
+      }
       const interventionDesc = interventionDescriptions[settings.interventionFrequency] || interventionDescriptions.occasionally;
       const focusList       = settings.focus.length > 0
         ? settings.focus.map(f => f.replace(/_/g, ' ')).join(', ')
@@ -3253,13 +3429,58 @@ Now begin. Greet the student and start Phase 1.`;
     // ============================================================
     // SAVE SESSION
     // ============================================================
-    function handleSave() {
+    async function handleSave() {
       const evalText      = document.getElementById('eval-input').value.trim();
       const nextPromptText = document.getElementById('next-prompt-input').value.trim();
       const saveBtn       = document.getElementById('save-btn');
       const saveIcon      = document.getElementById('save-icon');
       const saveText      = document.getElementById('save-text');
       const feedback      = document.getElementById('save-feedback');
+
+      // Build session record for history
+      const sessionRecord = {
+        id: crypto.randomUUID(),
+        settings: {
+          level: appState.settings.level,
+          topic: appState.settings.topic,
+          customTopic: appState.customTopic || null,
+          focus: [...(appState.settings.focus || [])],
+          interventionFrequency: appState.settings.interventionFrequency,
+          sentenceCount: appState.settings.sentenceCount
+        },
+        evaluation_raw: evalText,
+        next_session_prompt: nextPromptText,
+        duration_minutes: parseInt(document.getElementById('session-duration')?.value) || null,
+        user_rating: parseInt(document.getElementById('star-rating')?.dataset.rating) || null,
+        session_date: new Date().toISOString().split('T')[0],
+        created_at: new Date().toISOString(),
+        synced: false
+      };
+
+      // Save to localStorage
+      const historyArr = loadHistory();
+      historyArr.unshift(sessionRecord);
+      const maxLocal = currentPlan === 'pro' ? 50 : 5;
+      saveHistory(historyArr.slice(0, maxLocal));
+      appState.history = loadHistory();
+      renderHistory();
+
+      // Sync to Supabase if pro
+      if (currentUser && currentPlan === 'pro' && supabaseClient) {
+        const { error } = await supabaseClient.from('sessions').insert({
+          user_id: currentUser.id,
+          settings: sessionRecord.settings,
+          evaluation_raw: sessionRecord.evaluation_raw,
+          next_session_prompt: sessionRecord.next_session_prompt,
+          duration_minutes: sessionRecord.duration_minutes,
+          user_rating: sessionRecord.user_rating,
+          session_date: sessionRecord.session_date
+        });
+        if (!error) {
+          sessionRecord.synced = true;
+          saveHistory(loadHistory().map(s => s.id === sessionRecord.id ? {...s, synced: true} : s));
+        }
+      }
 
       const now = new Date().toISOString();
       const existingSession = loadSession() || {};
@@ -3294,6 +3515,281 @@ Now begin. Greet the student and start Phase 1.`;
         // Refresh state
         initApp();
       }, 3000);
+    }
+
+    // ============================================================
+    // STAR RATING
+    // ============================================================
+    function initStarRating() {
+      const container = document.getElementById('star-rating');
+      if (!container) return;
+      container.addEventListener('click', (e) => {
+        const star = e.target.closest('.star');
+        if (!star) return;
+        const val = parseInt(star.dataset.value);
+        container.dataset.rating = val;
+        container.querySelectorAll('.star').forEach((s, i) => {
+          s.classList.toggle('active', i < val);
+        });
+      });
+    }
+
+    // ============================================================
+    // HISTORY RENDER
+    // ============================================================
+    function renderHistory() {
+      const list = document.getElementById('history-list');
+      if (!list) return;
+      const history = loadHistory();
+      if (history.length === 0) {
+        list.innerHTML = '<p style="padding: 32px; text-align: center; color: var(--text-secondary);">まだセッションがありません</p>';
+        return;
+      }
+      list.innerHTML = history.map((s, i) => {
+        const date = new Date(s.session_date);
+        const dateStr = `${date.getMonth()+1}/${date.getDate()}`;
+        const stars = s.user_rating ? '★'.repeat(s.user_rating) + '☆'.repeat(5 - s.user_rating) : '';
+        const durationStr = s.duration_minutes ? `${s.duration_minutes}分` : '';
+        const levelMap = { beginner: '初級', intermediate: '中級', advanced: '上級' };
+        const topicMap = { daily: '日常', business: 'ビジネス', travel: '旅行', news: 'ニュース', academic: '学術', custom: s.settings.customTopic || 'カスタム' };
+        return `
+          <div class="history-row" onclick="toggleHistoryDetail(${i})">
+            <span class="history-date">${dateStr}</span>
+            <div class="history-badges">
+              <span class="history-badge level-${s.settings.level}">${levelMap[s.settings.level] || s.settings.level}</span>
+              <span class="history-badge">${topicMap[s.settings.topic] || s.settings.topic}</span>
+            </div>
+            <span class="history-stars">${stars}</span>
+            <span class="history-duration">${durationStr}</span>
+          </div>
+          <div class="history-detail" id="history-detail-${i}">
+            <pre>${(s.evaluation_raw || '').substring(0, 500)}${(s.evaluation_raw || '').length > 500 ? '...' : ''}</pre>
+            <button class="history-load-btn" onclick="loadSessionFromHistory(${i}); event.stopPropagation();">このセッションから続ける</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleHistoryDetail(i) {
+      const detail = document.getElementById(`history-detail-${i}`);
+      if (detail) detail.classList.toggle('open');
+    }
+
+    function loadSessionFromHistory(i) {
+      const history = loadHistory();
+      const s = history[i];
+      if (!s) return;
+      // Apply settings
+      if (s.settings.level) {
+        appState.settings.level = s.settings.level;
+        document.querySelectorAll('[data-level]').forEach(el => el.classList.remove('active'));
+        document.querySelector(`[data-level="${s.settings.level}"]`)?.classList.add('active');
+        const levelInput = document.querySelector(`[name="level"][value="${s.settings.level}"]`);
+        if (levelInput) levelInput.checked = true;
+      }
+      // Load previous evaluation into textarea
+      const prevPrompt = document.getElementById('prev-prompt-input');
+      if (prevPrompt && s.next_session_prompt) prevPrompt.value = s.next_session_prompt;
+      // Scroll to settings
+      document.getElementById('settings')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ============================================================
+    // PRESETS
+    // ============================================================
+    function renderPresets() {
+      const list = document.getElementById('presets-list');
+      if (!list) return;
+      const presets = loadPresets();
+      if (presets.length === 0) {
+        list.innerHTML = '<span style="font-size:13px; color:var(--text-tertiary);">現在のセッション設定を保存できます</span>';
+        return;
+      }
+      list.innerHTML = presets.map(p => `
+        <div class="preset-chip ${appState.activePresetId === p.id ? 'active' : ''}" onclick="applyPreset('${p.id}')">
+          ${p.name}
+          <span class="preset-chip-delete" onclick="deletePreset('${p.id}'); event.stopPropagation();">×</span>
+        </div>
+      `).join('');
+    }
+
+    function saveCurrentPreset() {
+      const presets = loadPresets();
+      if (currentPlan !== 'pro' && presets.length >= 1) {
+        openAuthModal();
+        return;
+      }
+      const name = prompt('プリセット名を入力してください:');
+      if (!name || !name.trim()) return;
+      const settings = collectSettings();
+      const preset = {
+        id: crypto.randomUUID(),
+        name: name.trim(),
+        settings: {
+          level: settings.level,
+          topic: settings.topic,
+          customTopic: appState.customTopic || null,
+          focus: [...settings.focus],
+          interventionFrequency: settings.interventionFrequency,
+          sentenceCount: settings.sentenceCount
+        },
+        created_at: new Date().toISOString()
+      };
+      presets.push(preset);
+      savePresets(presets);
+      // Supabase sync for pro
+      if (currentUser && currentPlan === 'pro') {
+        supabaseClient?.from('presets').insert({
+          user_id: currentUser.id,
+          name: preset.name,
+          settings: preset.settings
+        });
+      }
+      renderPresets();
+    }
+
+    function applyPreset(id) {
+      const preset = loadPresets().find(p => p.id === id);
+      if (!preset) return;
+      appState.activePresetId = id;
+      const s = preset.settings;
+      if (s.level) {
+        appState.settings.level = s.level;
+        document.querySelectorAll('[data-level]').forEach(el => el.classList.remove('active'));
+        document.querySelector(`[data-level="${s.level}"]`)?.classList.add('active');
+        const levelInput = document.querySelector(`[name="level"][value="${s.level}"]`);
+        if (levelInput) levelInput.checked = true;
+      }
+      if (s.topic) {
+        appState.settings.topic = s.topic;
+        document.querySelectorAll('[data-topic]').forEach(el => el.classList.remove('active'));
+        document.querySelector(`[data-topic="${s.topic}"]`)?.classList.add('active');
+        const topicInput = document.querySelector(`[name="topic"][value="${s.topic}"]`);
+        if (topicInput) topicInput.checked = true;
+        // Handle custom topic
+        const wrapper = document.getElementById('custom-topic-wrapper');
+        if (s.topic === 'custom') {
+          if (wrapper) wrapper.style.display = 'block';
+          if (s.customTopic) {
+            appState.customTopic = s.customTopic;
+            const customInput = document.getElementById('custom-topic-input');
+            if (customInput) customInput.value = s.customTopic;
+          }
+        } else {
+          if (wrapper) wrapper.style.display = 'none';
+        }
+      }
+      if (s.focus) {
+        appState.settings.focus = [...s.focus];
+        document.querySelectorAll('[data-focus]').forEach(el => {
+          const input = el.querySelector('input');
+          if (input) input.checked = s.focus.includes(el.dataset.focus);
+        });
+      }
+      if (s.sentenceCount) {
+        appState.settings.sentenceCount = s.sentenceCount;
+        applySentenceCountToDOM(s.sentenceCount);
+      }
+      if (s.interventionFrequency) {
+        appState.settings.interventionFrequency = s.interventionFrequency;
+        const intInput = document.querySelector(`[name="intervention"][value="${s.interventionFrequency}"]`);
+        if (intInput) { intInput.checked = true; updateSegmentSlider(); }
+      }
+      renderPresets();
+    }
+
+    function deletePreset(id) {
+      if (!confirm('このプリセットを削除しますか？')) return;
+      savePresets(loadPresets().filter(p => p.id !== id));
+      if (appState.activePresetId === id) appState.activePresetId = null;
+      // Supabase delete for pro
+      if (currentUser && currentPlan === 'pro') {
+        supabaseClient?.from('presets').delete().eq('user_id', currentUser.id).eq('id', id);
+      }
+      renderPresets();
+    }
+
+    // ============================================================
+    // PROGRESS VISUALIZATION
+    // ============================================================
+    function renderProgress() {
+      const history = loadHistory();
+      if (history.length === 0) return;
+
+      // Summary stats
+      const statsEl = document.getElementById('progress-stats');
+      if (statsEl) {
+        const totalMinutes = history.reduce((a, s) => a + (s.duration_minutes || 0), 0);
+        const ratedSessions = history.filter(s => s.user_rating);
+        const avgRating = ratedSessions.length > 0
+          ? ratedSessions.reduce((a, s) => a + s.user_rating, 0) / ratedSessions.length
+          : 0;
+        const topicCounts = {};
+        history.forEach(s => { topicCounts[s.settings.topic] = (topicCounts[s.settings.topic] || 0) + 1; });
+        const topTopic = Object.entries(topicCounts).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
+        const topicLabels = { daily:'日常', business:'ビジネス', travel:'旅行', news:'ニュース', academic:'学術', custom:'カスタム' };
+        statsEl.innerHTML = `
+          <div class="eval-card"><div class="eval-card-label">総セッション数</div><div class="eval-card-value" style="font-size:32px;font-weight:700;">${history.length}</div></div>
+          <div class="eval-card"><div class="eval-card-label">平均評価</div><div class="eval-card-value" style="font-size:32px;font-weight:700;">${avgRating ? avgRating.toFixed(1) + '★' : '-'}</div></div>
+          <div class="eval-card"><div class="eval-card-label">総練習時間</div><div class="eval-card-value" style="font-size:32px;font-weight:700;">${totalMinutes > 0 ? totalMinutes + '分' : '-'}</div></div>
+          <div class="eval-card"><div class="eval-card-label">よく使うトピック</div><div class="eval-card-value" style="font-size:24px;font-weight:700;">${topicLabels[topTopic] || topTopic}</div></div>
+        `;
+      }
+
+      // Streak calendar (12 weeks = 84 days)
+      const grid = document.getElementById('streak-grid');
+      if (grid) {
+        const dateCounts = {};
+        history.forEach(s => { dateCounts[s.session_date] = (dateCounts[s.session_date] || 0) + 1; });
+        const today = new Date();
+        const cells = [];
+        for (let i = 83; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(d.getDate() - i);
+          const key = d.toISOString().split('T')[0];
+          const count = Math.min(dateCounts[key] || 0, 3);
+          cells.push(`<div class="streak-cell" data-count="${count}" title="${key}: ${dateCounts[key] || 0}回"></div>`);
+        }
+        grid.innerHTML = cells.join('');
+      }
+
+      // Focus distribution donut (simple SVG)
+      const focusContainer = document.getElementById('focus-chart-container');
+      if (focusContainer) {
+        const focusCounts = {};
+        history.forEach(s => {
+          (s.settings.focus || []).forEach(f => { focusCounts[f] = (focusCounts[f] || 0) + 1; });
+        });
+        const total = Object.values(focusCounts).reduce((a,b)=>a+b,0) || 1;
+        const colors = { pronunciation: '#0071E3', grammar: '#5E5CE6', natural_expressions: '#30D158', listening: '#FF9F0A' };
+        const labels = { pronunciation: '発音', grammar: '文法', natural_expressions: '表現', listening: 'リスニング' };
+        const entries = Object.entries(focusCounts).sort((a,b)=>b[1]-a[1]);
+
+        let offset = 0;
+        const circumference = 2 * Math.PI * 35;
+        const slices = entries.map(([key, count]) => {
+          const pct = count / total;
+          const dash = pct * circumference;
+          const slice = `<circle r="35" cx="50" cy="50" fill="none" stroke="${colors[key]||'#888'}" stroke-width="18" stroke-dasharray="${dash} ${circumference - dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 50 50)"/>`;
+          offset += dash;
+          return slice;
+        }).join('');
+
+        const legend = entries.map(([key, count]) =>
+          `<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);">
+            <div style="width:10px;height:10px;border-radius:50%;background:${colors[key]||'#888'};"></div>
+            ${labels[key]||key} (${Math.round(count/total*100)}%)
+          </div>`
+        ).join('');
+
+        focusContainer.innerHTML = `
+          <svg viewBox="0 0 100 100" style="width:100px;height:100px;flex-shrink:0;">
+            <circle r="35" cx="50" cy="50" fill="none" stroke="var(--bg-tertiary,rgba(255,255,255,0.06))" stroke-width="18"/>
+            ${slices}
+          </svg>
+          <div style="display:flex;flex-direction:column;gap:8px;">${legend}</div>
+        `;
+      }
     }
 
     // ============================================================
@@ -3401,6 +3897,16 @@ Now begin. Greet the student and start Phase 1.`;
       // Init scroll reveal
       initScrollReveal();
 
+      // Init star rating
+      initStarRating();
+
+      // Init history/presets/progress
+      appState.history = loadHistory();
+      appState.presets = loadPresets();
+      renderHistory();
+      renderPresets();
+      renderProgress();
+
       // Init auth
       initAuth();
 
@@ -3422,6 +3928,27 @@ Now begin. Greet the student and start Phase 1.`;
         appState.settings.topic = input.value;
       });
     });
+
+    // Custom topic show/hide
+    document.querySelectorAll('[data-topic]').forEach(el => {
+      el.addEventListener('click', () => {
+        const topic = el.dataset.topic;
+        const wrapper = document.getElementById('custom-topic-wrapper');
+        if (topic === 'custom') {
+          if (currentPlan !== 'pro') { openAuthModal(); return; }
+          if (wrapper) wrapper.style.display = 'block';
+        } else {
+          if (wrapper) wrapper.style.display = 'none';
+        }
+      });
+    });
+
+    const customTopicInput = document.getElementById('custom-topic-input');
+    if (customTopicInput) {
+      customTopicInput.addEventListener('input', () => {
+        appState.customTopic = customTopicInput.value.trim();
+      });
+    }
 
     document.querySelectorAll('[name="focus"]').forEach(input => {
       input.addEventListener('change', () => {
