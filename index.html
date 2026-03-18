@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShadowCast — Geminiとシャドーイング練習</title>
+  <style>
+    /* ============================================================
+       CSS VARIABLES
+    ============================================================ */
+    :root[data-theme="dark"] {
+      --bg-primary: #000000;
+      --bg-secondary: #1c1c1e;
+      --bg-tertiary: #2c2c2e;
+      --bg-glass: rgba(255, 255, 255, 0.05);
+      --border-glass: rgba(255, 255, 255, 0.1);
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1a6;
+      --accent: #0071E3;
+      --accent-hover: #0077ED;
+      --accent-glow: rgba(0, 113, 227, 0.3);
+      --success: #30D158;
+      --code-bg: #111111;
+      --nav-bg: rgba(0, 0, 0, 0.7);
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.6);
+    }
+
+    :root[data-theme="light"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f7;
+      --bg-tertiary: #e8e8ed;
+      --bg-glass: rgba(0, 0, 0, 0.03);
+      --border-glass: rgba(0, 0, 0, 0.1);
+      --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --accent: #0071E3;
+      --accent-hover: #0077ED;
+      --accent-glow: rgba(0, 113, 227, 0.2);
+      --success: #34C759;
+      --code-bg: #f5f5f5;
+      --nav-bg: rgba(255, 255, 255, 0.7);
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.08);
+      --shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+      overflow-x: hidden;
+    }
+
+    /* ============================================================
+       NAVIGATION
+    ============================================================ */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border-glass);
+      transition: background-color 0.3s, border-color 0.3s;
+      transform: translateY(-20px);
+      opacity: 0;
+      animation: navSlideIn 0.6s ease-out forwards;
+    }
+
+    @keyframes navSlideIn {
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    nav.scrolled {
+      background: var(--nav-bg);
+    }
+
+    .nav-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+      transition: color 0.3s;
+    }
+
+    .nav-logo span {
+      color: var(--accent);
+    }
+
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: var(--bg-glass);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: background 0.3s, transform 0.5s;
+      border: 1px solid var(--border-glass);
+    }
+
+    .theme-toggle:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .theme-toggle .icon {
+      display: inline-block;
+      transition: transform 0.5s, opacity 0.3s;
+    }
+
+    /* ============================================================
+       MAIN WRAPPER
+    ============================================================ */
+    main {
+      padding-top: 52px;
+    }
+
+    /* ============================================================
+       SECTION BASE
+    ============================================================ */
+    section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+      position: relative;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+    }
+
+    /* ============================================================
+       HERO SECTION (#hero)
+    ============================================================ */
+    #hero {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+    }
+
+    .hero-orb-1 {
+      width: 500px;
+      height: 500px;
+      background: rgba(0, 113, 227, 0.15);
+      top: -100px;
+      left: -100px;
+      animation: floatOrb1 20s ease-in-out infinite alternate;
+    }
+
+    .hero-orb-2 {
+      width: 400px;
+      height: 400px;
+      background: rgba(0, 198, 255, 0.1);
+      bottom: -50px;
+      right: -50px;
+      animation: floatOrb2 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatOrb1 {
+      from { transform: translate(0, 0); }
+      to   { transform: translate(80px, 60px); }
+    }
+
+    @keyframes floatOrb2 {
+      from { transform: translate(0, 0); }
+      to   { transform: translate(-60px, -80px); }
+    }
+
+    .hero-content {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 100px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s ease-out 0.1s forwards;
+    }
+
+    .session-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(0, 113, 227, 0.15);
+      border: 1px solid rgba(0, 113, 227, 0.3);
+      border-radius: 100px;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .session-badge:hover {
+      background: rgba(0, 113, 227, 0.25);
+    }
+
+    .session-badge.hidden {
+      display: none;
+    }
+
+    h1.hero-title {
+      font-size: clamp(42px, 8vw, 80px);
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.8s ease-out 0.2s forwards;
+    }
+
+    .hero-gradient-text {
+      background: linear-gradient(135deg, #0071E3 0%, #00C6FF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(16px, 2.5vw, 20px);
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto 40px;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.8s ease-out 0.4s forwards;
+    }
+
+    .hero-cta {
+      opacity: 0;
+      transform: scale(0.9);
+      animation: fadeScale 0.6s ease-out 0.6s forwards;
+    }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeScale {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* ============================================================
+       BUTTONS
+    ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 980px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .btn:hover {
+      filter: brightness(1.1);
+      transform: scale(1.02);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+      transition-duration: 0.1s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 8px 32px var(--accent-glow);
+    }
+
+    .btn-secondary {
+      background: var(--bg-glass);
+      color: var(--text-primary);
+      border: 1px solid var(--border-glass);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .btn-lg {
+      padding: 18px 48px;
+      font-size: 18px;
+    }
+
+    .btn-sm {
+      padding: 8px 20px;
+      font-size: 14px;
+    }
+
+    /* ============================================================
+       GLASS CARD
+    ============================================================ */
+    .glass-card {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: var(--shadow-card);
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+
+    /* ============================================================
+       SECTION HEADERS
+    ============================================================ */
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+
+    .section-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+
+    /* ============================================================
+       PREVIOUS SESSION (#previous-session)
+    ============================================================ */
+    #previous-session {
+      min-height: auto;
+      padding: 80px 24px;
+      background: var(--bg-secondary);
+      transition: background 0.3s;
+    }
+
+    #previous-session.hidden {
+      display: none;
+    }
+
+    .eval-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .eval-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 24px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .eval-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .eval-card-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .eval-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .eval-card-content {
+      font-size: 14px;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .eval-card.strengths { border-top: 2px solid var(--success); }
+    .eval-card.weaknesses { border-top: 2px solid #FF453A; }
+    .eval-card.improvements { border-top: 2px solid #FF9F0A; }
+
+    .preset-notice {
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+      padding: 12px;
+      background: rgba(0, 113, 227, 0.08);
+      border-radius: 10px;
+      border: 1px solid rgba(0, 113, 227, 0.15);
+    }
+
+    /* ============================================================
+       SETTINGS (#settings)
+    ============================================================ */
+    #settings {
+      min-height: auto;
+      padding: 80px 24px;
+    }
+
+    .settings-group {
+      margin-bottom: 40px;
+    }
+
+    .settings-label {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .settings-label-num {
+      display: inline-flex;
+      width: 26px;
+      height: 26px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Radio Cards */
+    .radio-cards {
+      display: grid;
+      gap: 12px;
+    }
+
+    .radio-cards.cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .radio-cards.cols-5 {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .radio-card {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .radio-card input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .radio-card-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 20px 16px;
+      background: var(--bg-glass);
+      border: 2px solid var(--border-glass);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
+      user-select: none;
+    }
+
+    .radio-card-inner:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      background: var(--bg-secondary);
+    }
+
+    .radio-card input:checked + .radio-card-inner {
+      border-color: var(--accent);
+      background: rgba(0, 113, 227, 0.08);
+      animation: cardPulse 0.4s ease-out;
+    }
+
+    @keyframes cardPulse {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.04); }
+      70%  { transform: scale(0.99); }
+      100% { transform: scale(1); }
+    }
+
+    .radio-card-emoji {
+      font-size: 28px;
+      margin-bottom: 10px;
+      line-height: 1;
+    }
+
+    .radio-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .radio-card-desc {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* Toggle Chips */
+    .toggle-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .toggle-chip {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .toggle-chip input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-chip-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      background: var(--bg-glass);
+      border: 1.5px solid var(--border-glass);
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.25s;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .toggle-chip-inner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.25s ease;
+      border-radius: inherit;
+      z-index: 0;
+    }
+
+    .toggle-chip-inner span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .toggle-chip input:checked + .toggle-chip-inner {
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .toggle-chip input:checked + .toggle-chip-inner::before {
+      transform: scaleX(1);
+    }
+
+    /* Segment Control */
+    .segment-control {
+      display: inline-flex;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 4px;
+      position: relative;
+      gap: 0;
+      width: 100%;
+      border: 1px solid var(--border-glass);
+    }
+
+    .segment-control-slider {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      background: #fff;
+      border-radius: 9px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transition: left 0.3s ease-in-out, width 0.3s ease-in-out;
+      z-index: 0;
+    }
+
+    [data-theme="dark"] .segment-control-slider {
+      background: var(--bg-glass);
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .segment-option {
+      position: relative;
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .segment-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .segment-option-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 8px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.3s;
+      position: relative;
+      z-index: 1;
+      user-select: none;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .segment-option input:checked + .segment-option-inner {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Textarea */
+    .textarea-wrap {
+      position: relative;
+    }
+
+    textarea.app-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border: 1.5px solid var(--border-glass);
+      border-radius: 14px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      transition: min-height 0.3s, border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    textarea.app-textarea:focus {
+      min-height: 180px;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    textarea.app-textarea::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    .textarea-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .optional-tag {
+      font-size: 11px;
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      padding: 2px 7px;
+      border-radius: 6px;
+      margin-left: 6px;
+    }
+
+    /* Generate Button */
+    .generate-wrap {
+      text-align: center;
+      margin-top: 48px;
+    }
+
+    /* ============================================================
+       OUTPUT (#output)
+    ============================================================ */
+    #output {
+      min-height: auto;
+      padding: 80px 24px;
+      background: var(--bg-secondary);
+      transition: background 0.3s;
+    }
+
+    #output.hidden {
+      display: none;
+    }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .output-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .output-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      min-width: 120px;
+      justify-content: center;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent-hover);
+      transform: scale(1.02);
+    }
+
+    .copy-btn:active {
+      transform: scale(0.97);
+    }
+
+    .copy-btn.copied {
+      background: var(--success);
+      animation: none;
+    }
+
+    .gemini-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: var(--bg-glass);
+      color: var(--text-primary);
+      border: 1px solid var(--border-glass);
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .gemini-link:hover {
+      background: var(--bg-tertiary);
+      transform: scale(1.02);
+    }
+
+    .prompt-display {
+      background: var(--code-bg);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      overflow: hidden;
+      font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      transition: background 0.3s;
+    }
+
+    .prompt-inner {
+      display: flex;
+    }
+
+    .prompt-line-numbers {
+      padding: 20px 16px 20px 20px;
+      color: var(--text-secondary);
+      text-align: right;
+      user-select: none;
+      border-right: 1px solid var(--border-glass);
+      min-width: 50px;
+      opacity: 0.5;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .prompt-text {
+      padding: 20px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text-primary);
+      flex: 1;
+      overflow-x: auto;
+    }
+
+    /* ============================================================
+       SAVE SESSION (#save-session)
+    ============================================================ */
+    #save-session {
+      min-height: auto;
+      padding: 80px 24px;
+    }
+
+    .save-form {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .save-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .save-feedback {
+      font-size: 14px;
+      color: var(--success);
+      opacity: 0;
+      transition: opacity 0.4s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .save-feedback.visible {
+      opacity: 1;
+    }
+
+    .save-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .save-btn:hover {
+      background: var(--accent-hover);
+      transform: scale(1.02);
+    }
+
+    .save-btn:active {
+      transform: scale(0.97);
+    }
+
+    .save-btn.saving {
+      background: var(--success);
+    }
+
+    /* ============================================================
+       SCROLL ANIMATION
+    ============================================================ */
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+    }
+
+    .scroll-reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Stagger for radio cards */
+    .radio-cards .radio-card:nth-child(1) { transition-delay: 0.00s; }
+    .radio-cards .radio-card:nth-child(2) { transition-delay: 0.08s; }
+    .radio-cards .radio-card:nth-child(3) { transition-delay: 0.16s; }
+    .radio-cards .radio-card:nth-child(4) { transition-delay: 0.24s; }
+    .radio-cards .radio-card:nth-child(5) { transition-delay: 0.32s; }
+
+    /* ============================================================
+       DIVIDER
+    ============================================================ */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border-glass);
+      margin: 0;
+    }
+
+    /* ============================================================
+       UTILITY
+    ============================================================ */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-center { text-align: center; }
+    .mt-8  { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .mt-32 { margin-top: 32px; }
+    .mb-8  { margin-bottom: 8px; }
+    .mb-16 { margin-bottom: 16px; }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 640px) {
+      section {
+        padding: 60px 16px;
+      }
+
+      .radio-cards.cols-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .radio-cards.cols-5 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .eval-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .output-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .segment-option-inner {
+        font-size: 11px;
+        padding: 8px 4px;
+      }
+
+      h1.hero-title {
+        letter-spacing: -1px;
+      }
+
+      .btn-lg {
+        padding: 14px 32px;
+        font-size: 16px;
+      }
+
+      .prompt-line-numbers {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .radio-cards.cols-5 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* ============================================================
+       SETTINGS SECTION BACKGROUND
+    ============================================================ */
+    #settings {
+      background: var(--bg-primary);
+      transition: background 0.3s;
+    }
+
+    /* Session count info */
+    .session-info {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* ============================================================
+       LOADING STATE
+    ============================================================ */
+    .generate-btn {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .generate-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transform: translateX(-100%);
+    }
+
+    .generate-btn.loading::after {
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      to { transform: translateX(100%); }
+    }
+
+    /* Footer area */
+    .footer-space {
+      height: 60px;
+    }
+
+    /* ============================================================
+       PREVIOUS EVAL RAW TEXT
+    ============================================================ */
+    .eval-raw-preview {
+      background: var(--code-bg);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+      margin-top: 16px;
+    }
+
+    /* Navigation scroll to section */
+    .scroll-nav {
+      display: flex;
+      gap: 8px;
+      margin-top: 24px;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeUp 0.6s ease-out 0.8s forwards;
+    }
+
+    .scroll-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+      opacity: 0.4;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .scroll-dot:hover {
+      opacity: 0.8;
+      transform: scale(1.3);
+    }
+
+    /* Session count badge */
+    .count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 0 6px;
+    }
+  </style>
+</head>
+<body>
+  <!-- ============================================================
+       NAVIGATION
+  ============================================================ -->
+  <nav id="main-nav">
+    <div class="nav-logo">Shadow<span>Cast</span></div>
+    <button class="theme-toggle" id="theme-toggle" aria-label="テーマ切替">
+      <span class="icon" id="theme-icon">☀️</span>
+    </button>
+  </nav>
+
+  <main>
+    <!-- ============================================================
+         SECTION A: HERO
+    ============================================================ -->
+    <section id="hero">
+      <div class="hero-bg">
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
+      </div>
+
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span>✨</span>
+          <span>Gemini × シャドーイング</span>
+        </div>
+
+        <div id="session-resume-badge" class="session-badge hidden" onclick="scrollToSection('previous-session')">
+          <span class="count-badge" id="session-count-badge">0</span>
+          <span>前回のセッションを確認する</span>
+          <span>→</span>
+        </div>
+
+        <h1 class="hero-title">
+          練習を、<br>
+          <span class="hero-gradient-text">もっと賢く。</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          ShadowCastは、あなたの英語レベルと目標に合わせた<br>
+          シャドーイング練習プロンプトを自動生成します。
+        </p>
+
+        <div class="hero-cta">
+          <button class="btn btn-primary btn-lg" onclick="scrollToSection('settings')">
+            <span>練習を始める</span>
+            <span>→</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION B: PREVIOUS SESSION
+    ============================================================ -->
+    <section id="previous-session" class="hidden">
+      <div class="container">
+        <div class="section-header scroll-reveal">
+          <span class="section-tag">前回のセッション</span>
+          <h2 class="section-title">前回の評価結果</h2>
+          <p class="section-subtitle">前回の練習結果をもとに、設定を自動でプリセットしています。</p>
+        </div>
+
+        <div class="eval-cards scroll-reveal">
+          <div class="eval-card strengths glass-card">
+            <span class="eval-card-icon">💪</span>
+            <div class="eval-card-label">強み</div>
+            <div class="eval-card-content" id="eval-strengths">読み込み中...</div>
+          </div>
+          <div class="eval-card weaknesses glass-card">
+            <span class="eval-card-icon">🎯</span>
+            <div class="eval-card-label">改善点</div>
+            <div class="eval-card-content" id="eval-weaknesses">読み込み中...</div>
+          </div>
+          <div class="eval-card improvements glass-card">
+            <span class="eval-card-icon">📈</span>
+            <div class="eval-card-label">次回に向けて</div>
+            <div class="eval-card-content" id="eval-improvements">読み込み中...</div>
+          </div>
+        </div>
+
+        <div class="preset-notice scroll-reveal">
+          ⚡ 前回の弱点をもとに設定をプリセットしました。下の設定で変更できます。
+        </div>
+
+        <div class="text-center mt-24 scroll-reveal">
+          <button class="btn btn-primary" onclick="scrollToSection('settings')">
+            設定を確認・変更する →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION C: SETTINGS
+    ============================================================ -->
+    <section id="settings">
+      <div class="container">
+        <div class="section-header scroll-reveal">
+          <span class="section-tag">設定</span>
+          <h2 class="section-title">練習の設定</h2>
+          <p class="section-subtitle">あなたのレベルと目標を選んでください。</p>
+        </div>
+
+        <!-- 1. English Level -->
+        <div class="settings-group glass-card scroll-reveal">
+          <div class="settings-label">
+            <span class="settings-label-num">1</span>
+            英語レベル
+          </div>
+          <div class="radio-cards cols-3">
+            <label class="radio-card">
+              <input type="radio" name="level" value="beginner" />
+              <div class="radio-card-inner">
+                <span class="radio-card-emoji">🌱</span>
+                <div class="radio-card-title">Beginner</div>
+                <div class="radio-card-desc">基本的なフレーズから</div>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="level" value="intermediate" checked />
+              <div class="radio-card-inner">
+                <span class="radio-card-emoji">🌿</span>
+                <div class="radio-card-title">Intermediate</div>
+                <div class="radio-card-desc">日常会話レベル</div>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="level" value="advanced" />
+              <div class="radio-card-inner">
+                <span class="radio-card-emoji">🌳</span>
+                <div class="radio-card-title">Advanced</div>
+                <div class="radio-card-desc">ネイティブレベルの表現</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 2. Topic -->
+        <div class="settings-group glass-card scroll-reveal">
+          <div class="settings-label">
+            <span class="settings-label-num">2</span>
+            トピック
+          </div>
+          <div class="radio-cards cols-5">
+            <label class="radio-card">
+              <input type="radio" name="topic" value="daily" checked />
+              <div class="radio-card-inner">
+                <span class="radio-card-emoji">💬</span>
+                <div class="radio-card-title">Daily</div>
+                <div class="radio-card-desc">日常会話</div>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="topic" value="business" />
+              <div class="radio-card-inner">
+                <span class="radio-card-emoji">💼</span>
+                <div class="radio-card-title">Business</div>
+                <div class="radio-card-desc">ビジネス</div>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="topic" value="travel" />
+              <div class="radio-card-inner">
+                <span class="radio-card-emoji">✈️</span>
+                <div class="radio-card-title">Travel</div>
+                <div class="radio-card-desc">旅行</div>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="topic" value="news" />
+              <div class="radio-card-inner">
+                <span class="radio-card-emoji">📰</span>
+                <div class="radio-card-title">News</div>
+                <div class="radio-card-desc">ニュース</div>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="topic" value="academic" />
+              <div class="radio-card-inner">
+                <span class="radio-card-emoji">🎓</span>
+                <div class="radio-card-title">Academic</div>
+                <div class="radio-card-desc">アカデミック</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 3. Focus -->
+        <div class="settings-group glass-card scroll-reveal">
+          <div class="settings-label">
+            <span class="settings-label-num">3</span>
+            フォーカス <span style="font-size:13px;font-weight:400;color:var(--text-secondary);">（複数選択可）</span>
+          </div>
+          <div class="toggle-chips">
+            <label class="toggle-chip">
+              <input type="checkbox" name="focus" value="pronunciation" checked />
+              <div class="toggle-chip-inner">
+                <span>🔊</span><span>Pronunciation</span>
+              </div>
+            </label>
+            <label class="toggle-chip">
+              <input type="checkbox" name="focus" value="grammar" />
+              <div class="toggle-chip-inner">
+                <span>📝</span><span>Grammar</span>
+              </div>
+            </label>
+            <label class="toggle-chip">
+              <input type="checkbox" name="focus" value="natural_expressions" checked />
+              <div class="toggle-chip-inner">
+                <span>💡</span><span>Natural Expressions</span>
+              </div>
+            </label>
+            <label class="toggle-chip">
+              <input type="checkbox" name="focus" value="vocabulary" />
+              <div class="toggle-chip-inner">
+                <span>📖</span><span>Vocabulary</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 4. Intervention Frequency -->
+        <div class="settings-group glass-card scroll-reveal">
+          <div class="settings-label">
+            <span class="settings-label-num">4</span>
+            フリートーク介入頻度
+          </div>
+          <div class="segment-control" id="segment-control">
+            <div class="segment-control-slider" id="segment-slider"></div>
+            <label class="segment-option">
+              <input type="radio" name="intervention" value="every_turn" />
+              <div class="segment-option-inner">Every Turn</div>
+            </label>
+            <label class="segment-option">
+              <input type="radio" name="intervention" value="occasionally" checked />
+              <div class="segment-option-inner">Occasionally</div>
+            </label>
+            <label class="segment-option">
+              <input type="radio" name="intervention" value="key_moments" />
+              <div class="segment-option-inner">Key Moments Only</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 5. Previous Prompt Paste -->
+        <div class="settings-group glass-card scroll-reveal">
+          <div class="settings-label">
+            <span class="settings-label-num">5</span>
+            前回Geminiからのプロンプト
+            <span class="optional-tag">任意</span>
+          </div>
+          <label class="textarea-label">前回のセッション終了時にGeminiが出力した「次回用プロンプト」を貼り付けてください。</label>
+          <div class="textarea-wrap">
+            <textarea
+              id="prev-prompt-input"
+              class="app-textarea"
+              placeholder="=== NEXT SESSION PROMPT ===&#10;（ここに貼り付け）"
+              rows="4"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="session-info scroll-reveal" id="session-info">
+          セッション回数: <strong id="session-count-display">0</strong> 回目
+        </div>
+
+        <div class="generate-wrap scroll-reveal">
+          <button class="btn btn-primary btn-lg generate-btn" id="generate-btn" onclick="handleGenerate()">
+            <span>✨</span>
+            <span>プロンプトを生成する</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION D: OUTPUT
+    ============================================================ -->
+    <section id="output" class="hidden">
+      <div class="container">
+        <div class="section-header scroll-reveal">
+          <span class="section-tag">生成完了</span>
+          <h2 class="section-title">プロンプト</h2>
+          <p class="section-subtitle">以下のプロンプトをコピーして、Geminiに貼り付けてください。</p>
+        </div>
+
+        <div class="glass-card scroll-reveal">
+          <div class="output-header">
+            <div class="output-title">Generated Prompt</div>
+            <div class="output-actions">
+              <button class="copy-btn" id="copy-btn" onclick="handleCopy()">
+                <span id="copy-icon">📋</span>
+                <span id="copy-text">Copy</span>
+              </button>
+              <a class="gemini-link" href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">
+                <span>✨</span>
+                Geminiを開く
+              </a>
+            </div>
+          </div>
+
+          <div class="prompt-display">
+            <div class="prompt-inner">
+              <div class="prompt-line-numbers" id="prompt-line-numbers"></div>
+              <pre class="prompt-text" id="prompt-output"></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-32 scroll-reveal">
+          <button class="btn btn-secondary" onclick="scrollToSection('save-session')">
+            セッション後に評価を保存する →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION E: SAVE SESSION
+    ============================================================ -->
+    <section id="save-session">
+      <div class="container">
+        <div class="section-header scroll-reveal">
+          <span class="section-tag">セッション保存</span>
+          <h2 class="section-title">評価を保存する</h2>
+          <p class="section-subtitle">
+            Geminiとのセッション終了後、出力された評価と次回プロンプトを保存しましょう。
+            次回の練習に活用されます。
+          </p>
+        </div>
+
+        <div class="glass-card scroll-reveal">
+          <div class="save-form">
+            <div>
+              <label class="textarea-label">
+                評価テキスト（=== SESSION EVALUATION === の部分）
+                <span class="optional-tag">推奨</span>
+              </label>
+              <div class="textarea-wrap">
+                <textarea
+                  id="eval-input"
+                  class="app-textarea"
+                  placeholder="=== SESSION EVALUATION ===&#10;**Strengths:**&#10;- ...&#10;&#10;**Areas for Improvement:**&#10;- ..."
+                  rows="6"
+                ></textarea>
+              </div>
+            </div>
+
+            <div>
+              <label class="textarea-label">
+                次回用プロンプト（=== NEXT SESSION PROMPT === の部分）
+                <span class="optional-tag">推奨</span>
+              </label>
+              <div class="textarea-wrap">
+                <textarea
+                  id="next-prompt-input"
+                  class="app-textarea"
+                  placeholder="=== NEXT SESSION PROMPT ===&#10;..."
+                  rows="5"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="save-actions">
+              <button class="save-btn" id="save-btn" onclick="handleSave()">
+                <span id="save-icon">💾</span>
+                <span id="save-text">セッションを保存する</span>
+              </button>
+              <div class="save-feedback" id="save-feedback">
+                <span>✅</span>
+                <span>保存しました！次回の練習に反映されます。</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-space"></div>
+  </main>
+
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+  <script>
+    // ============================================================
+    // STATE MANAGEMENT
+    // ============================================================
+    const appState = {
+      settings: {
+        level: 'intermediate',
+        topic: 'daily',
+        focus: ['pronunciation', 'natural_expressions'],
+        interventionFrequency: 'occasionally'
+      },
+      previousEvaluation: null,
+      nextSessionPrompt: null,
+      sessionCount: 0,
+      theme: 'dark'
+    };
+
+    // ============================================================
+    // LOCAL STORAGE
+    // ============================================================
+    const STORAGE_KEY = 'shadowcast_session';
+    const PREF_KEY    = 'shadowcast_preferences';
+
+    function loadSession() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function saveSession(data) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error('Failed to save session:', e);
+      }
+    }
+
+    function loadPreferences() {
+      try {
+        const raw = localStorage.getItem(PREF_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function savePreferences(prefs) {
+      try {
+        localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
+      } catch (e) {}
+    }
+
+    // ============================================================
+    // THEME
+    // ============================================================
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const icon = document.getElementById('theme-icon');
+      if (theme === 'dark') {
+        icon.textContent = '☀️';
+      } else {
+        icon.textContent = '🌙';
+      }
+      appState.theme = theme;
+      savePreferences({ theme });
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const newTheme = appState.theme === 'dark' ? 'light' : 'dark';
+      const icon = document.getElementById('theme-icon');
+      icon.style.transform = 'rotate(180deg)';
+      setTimeout(() => {
+        icon.style.transform = '';
+        applyTheme(newTheme);
+        updateSegmentSlider();
+      }, 250);
+    });
+
+    // ============================================================
+    // SEGMENT CONTROL (Apple-style slider)
+    // ============================================================
+    function updateSegmentSlider() {
+      const control = document.getElementById('segment-control');
+      const slider  = document.getElementById('segment-slider');
+      const options = control.querySelectorAll('.segment-option');
+      let activeIndex = 1; // default: occasionally
+
+      options.forEach((opt, i) => {
+        const input = opt.querySelector('input');
+        if (input.checked) activeIndex = i;
+      });
+
+      const optionWidth = 100 / options.length;
+      slider.style.left  = `calc(${optionWidth * activeIndex}% + 4px)`;
+      slider.style.width = `calc(${optionWidth}% - 8px)`;
+    }
+
+    document.querySelectorAll('[name="intervention"]').forEach(input => {
+      input.addEventListener('change', () => {
+        updateSegmentSlider();
+        appState.settings.interventionFrequency = input.value;
+      });
+    });
+
+    // ============================================================
+    // COLLECT SETTINGS FROM DOM
+    // ============================================================
+    function collectSettings() {
+      const level = document.querySelector('[name="level"]:checked')?.value || 'intermediate';
+      const topic = document.querySelector('[name="topic"]:checked')?.value || 'daily';
+      const focus = Array.from(document.querySelectorAll('[name="focus"]:checked')).map(el => el.value);
+      const interventionFrequency = document.querySelector('[name="intervention"]:checked')?.value || 'occasionally';
+      return { level, topic, focus, interventionFrequency };
+    }
+
+    // ============================================================
+    // APPLY SETTINGS TO DOM
+    // ============================================================
+    function applySettingsToDOM(settings) {
+      if (!settings) return;
+
+      // Level
+      const levelInput = document.querySelector(`[name="level"][value="${settings.level}"]`);
+      if (levelInput) levelInput.checked = true;
+
+      // Topic
+      const topicInput = document.querySelector(`[name="topic"][value="${settings.topic}"]`);
+      if (topicInput) topicInput.checked = true;
+
+      // Focus
+      document.querySelectorAll('[name="focus"]').forEach(input => {
+        input.checked = settings.focus && settings.focus.includes(input.value);
+      });
+
+      // Intervention
+      if (settings.interventionFrequency) {
+        const intInput = document.querySelector(`[name="intervention"][value="${settings.interventionFrequency}"]`);
+        if (intInput) intInput.checked = true;
+      }
+
+      updateSegmentSlider();
+    }
+
+    // ============================================================
+    // EXTRACT EVALUATION SECTIONS
+    // ============================================================
+    function extractEvalSections(evalText) {
+      const result = {
+        strengths:    'データを取得できませんでした。',
+        weaknesses:   'データを取得できませんでした。',
+        improvements: 'データを取得できませんでした。'
+      };
+
+      if (!evalText) return result;
+
+      // Extract Strengths
+      const strengthsMatch = evalText.match(/\*\*Strengths:\*\*([\s\S]*?)(?=\*\*Areas for Improvement|\*\*Key Expressions|\*\*Overall|\z|$)/i);
+      if (strengthsMatch) result.strengths = strengthsMatch[1].trim().replace(/^[-•]\s*/gm, '').trim() || result.strengths;
+
+      // Extract Weaknesses
+      const weaknessMatch = evalText.match(/\*\*Areas for Improvement:\*\*([\s\S]*?)(?=\*\*Key Expressions|\*\*Overall|\z|$)/i);
+      if (weaknessMatch) result.weaknesses = weaknessMatch[1].trim().replace(/^[-•]\s*/gm, '').trim() || result.weaknesses;
+
+      // Extract Overall / improvements
+      const overallMatch = evalText.match(/\*\*Overall Progress:\*\*([\s\S]*?)(?=={3}|$)/i);
+      if (overallMatch) result.improvements = overallMatch[1].trim() || result.improvements;
+
+      return result;
+    }
+
+    // ============================================================
+    // RENDER PREVIOUS SESSION
+    // ============================================================
+    function renderPreviousSession(session) {
+      if (!session || !session.previousEvaluation || !session.previousEvaluation.raw) {
+        document.getElementById('previous-session').classList.add('hidden');
+        document.getElementById('session-resume-badge').classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('previous-session').classList.remove('hidden');
+      document.getElementById('session-resume-badge').classList.remove('hidden');
+      document.getElementById('session-count-badge').textContent = session.sessionCount || 0;
+
+      const sections = extractEvalSections(session.previousEvaluation.raw);
+      document.getElementById('eval-strengths').textContent    = sections.strengths;
+      document.getElementById('eval-weaknesses').textContent   = sections.weaknesses;
+      document.getElementById('eval-improvements').textContent = sections.improvements;
+    }
+
+    // ============================================================
+    // PROMPT GENERATION
+    // ============================================================
+    const levelDescriptions = {
+      beginner:     'Beginner — Use simple, short sentences (5-8 words). Speak slowly.',
+      intermediate: 'Intermediate — Use natural daily conversation sentences (8-15 words). Normal pace.',
+      advanced:     'Advanced — Use complex, idiomatic sentences with nuance (12-20 words). Natural native speed.'
+    };
+
+    const topicDescriptions = {
+      daily:    'Daily Conversation — greetings, small talk, daily routines, opinions on everyday topics',
+      business: 'Business — meetings, emails, presentations, workplace communication',
+      travel:   'Travel — airports, hotels, restaurants, directions, sightseeing',
+      news:     'News — current events, social issues, technology, culture',
+      academic: 'Academic — research, lectures, debates, scientific concepts'
+    };
+
+    const interventionDescriptions = {
+      every_turn:  'Every turn — provide feedback after every student response',
+      occasionally:'Occasionally — provide feedback every 2-3 turns',
+      key_moments: 'Key moments only — only intervene for significant errors or high-value expressions'
+    };
+
+    const topicNames = {
+      daily:    'daily conversation',
+      business: 'business',
+      travel:   'travel',
+      news:     'news',
+      academic: 'academic topics'
+    };
+
+    function generatePrompt(settings, previousEvaluation, nextSessionPrompt, sessionCount) {
+      const levelDesc       = levelDescriptions[settings.level] || levelDescriptions.intermediate;
+      const topicDesc       = topicDescriptions[settings.topic] || topicDescriptions.daily;
+      const topicName       = topicNames[settings.topic] || 'daily conversation';
+      const interventionDesc = interventionDescriptions[settings.interventionFrequency] || interventionDescriptions.occasionally;
+      const focusList       = settings.focus.length > 0
+        ? settings.focus.map(f => f.replace(/_/g, ' ')).join(', ')
+        : 'general practice';
+
+      const hasPrevEval         = previousEvaluation && previousEvaluation.raw && previousEvaluation.raw.trim().length > 0;
+      const hasNextSessionPrompt = nextSessionPrompt && nextSessionPrompt.raw && nextSessionPrompt.raw.trim().length > 0;
+
+      let prompt = `You are an English shadowing practice partner. Follow the instructions below strictly.
+
+## Session Settings
+- Student Level: ${levelDesc}
+- Topic: ${topicDesc}
+- Focus Areas: ${focusList}
+- Session Number: ${sessionCount}`;
+
+      if (hasPrevEval) {
+        prompt += `
+- Previous Session Evaluation Summary:
+${previousEvaluation.raw.trim()}`;
+      }
+
+      if (hasNextSessionPrompt) {
+        prompt += `
+- Continuation from previous session:
+${nextSessionPrompt.raw.trim()}`;
+      }
+
+      prompt += `
+
+## Phase 1: Shadowing Practice
+
+Begin by greeting the student briefly in English, then start the shadowing practice.
+
+1. Say ONE English sentence aloud (appropriate for ${settings.level} level, on the topic of ${topicName}).`;
+
+      if (settings.focus.includes('pronunciation')) {
+        prompt += `
+   - Choose sentences that include challenging pronunciation patterns (linked sounds, reduced vowels, consonant clusters).`;
+      }
+
+      if (settings.focus.includes('natural_expressions')) {
+        prompt += `
+   - Prioritize natural, idiomatic expressions that native speakers actually use.`;
+      }
+
+      if (settings.focus.includes('vocabulary')) {
+        prompt += `
+   - Include useful vocabulary words appropriate for the ${settings.level} level.`;
+      }
+
+      prompt += `
+
+2. Wait for the student to repeat the sentence.
+
+3. If the student struggles or makes errors:
+   a. Break the sentence into smaller parts. Pay special attention to:
+      - Prepositions and articles (where sounds get absorbed)
+      - Linked sounds between words
+      - Stress and rhythm patterns
+   b. Practice each part individually. Say the part, wait for the student to repeat.
+   c. Once all parts are mastered, have the student try the full sentence again.
+
+4. If the student says the full sentence successfully, praise briefly and move to the next sentence.
+
+5. After 5-8 sentences (adjust based on student's pace), ask if the student wants to:
+   - Continue shadowing (more sentences)
+   - Move to Free Talk (Phase 2)
+   - End the session (Phase 3)
+
+## Phase 2: Free Talk
+
+Switch to conversational mode. Rules:
+
+1. Have a natural conversation on the topic of ${topicName} or related subjects.
+2. The student may speak in broken English — that is perfectly fine. Respond to the CONTENT of what they say.
+3. Correction and feedback behavior — Intervention frequency: ${interventionDesc}`;
+
+      if (settings.interventionFrequency === 'every_turn') {
+        prompt += `
+
+   - After EVERY student response: first respond to their content naturally, then provide feedback:
+     * A more native-like way to express what they said
+     * Any grammar corrections
+     * Pronunciation tips if applicable
+   - Then do a mini-shadowing drill: say the improved version, have them repeat it, then continue the conversation.`;
+      } else if (settings.interventionFrequency === 'occasionally') {
+        prompt += `
+
+   - Every 2-3 turns: respond to content naturally, then pick ONE notable expression to improve.
+   - Provide the native-like alternative and do a quick shadowing drill (say it, have them repeat).
+   - On other turns, just converse naturally without correction.`;
+      } else if (settings.interventionFrequency === 'key_moments') {
+        prompt += `
+
+   - Only intervene when you notice:
+     * A significant grammar error that changes meaning
+     * An expression that sounds very unnatural and has a much better alternative
+     * An opportunity to teach a highly useful idiom or phrase
+   - Most turns: just converse naturally. Corrections should feel organic, not forced.`;
+      }
+
+      prompt += `
+
+4. IMPORTANT: When doing correction drills during free talk:
+   - Clearly signal the switch: "Let me help you with that expression..."
+   - Do the shadowing drill (say it → student repeats → confirm)
+   - Then clearly resume conversation: "Great! So, as you were saying..."
+
+5. Prioritize practicing expressions similar to or building upon what was practiced in Phase 1.
+
+## Phase 3: Session End
+
+When the student wants to end (or after ~20 minutes of conversation), output the following:
+
+=== SESSION EVALUATION ===
+
+**Strengths:**
+- [List 2-3 specific strengths observed]
+
+**Areas for Improvement:**
+- [List 2-3 specific areas with concrete examples from the session]
+
+**Key Expressions Practiced:**
+- [List the main expressions/sentences practiced with notes]
+
+**Overall Progress:** [Brief assessment]
+
+=== NEXT SESSION PROMPT ===
+[Output a self-contained instruction block for the next session, referencing:
+ - Which areas to focus on based on today's weaknesses
+ - Specific grammar patterns or expressions to revisit
+ - Suggested difficulty adjustment (easier/same/harder)
+ - Any particular sentence patterns to include]
+
+## General Rules
+- Always speak clearly and at a pace appropriate for ${settings.level} level.
+- Be encouraging and positive.
+- Use Japanese for explanations ONLY if the student seems completely lost. Otherwise, stay in English.
+- Keep your responses concise during shadowing drills.`;
+
+      if (settings.focus.includes('grammar')) {
+        prompt += `
+- Pay extra attention to grammar patterns and explicitly point out grammar rules when correcting.`;
+      }
+
+      prompt += `
+
+Now begin. Greet the student and start Phase 1.`;
+
+      return prompt;
+    }
+
+    // ============================================================
+    // RENDER PROMPT
+    // ============================================================
+    function renderPrompt(promptText) {
+      const outputEl      = document.getElementById('prompt-output');
+      const lineNumbersEl = document.getElementById('prompt-line-numbers');
+
+      outputEl.textContent = promptText;
+
+      const lines = promptText.split('\n');
+      lineNumbersEl.innerHTML = lines
+        .map((_, i) => `<div>${i + 1}</div>`)
+        .join('');
+    }
+
+    // ============================================================
+    // HANDLE GENERATE
+    // ============================================================
+    function handleGenerate() {
+      const btn = document.getElementById('generate-btn');
+      btn.classList.add('loading');
+
+      const settings = collectSettings();
+      appState.settings = settings;
+
+      // Previous session data
+      const session = loadSession();
+      const prevEval = session?.previousEvaluation || null;
+
+      // Next session prompt from textarea (or from saved session)
+      const prevPromptText = document.getElementById('prev-prompt-input').value.trim();
+      let nextSessionPrompt = null;
+
+      if (prevPromptText) {
+        nextSessionPrompt = { raw: prevPromptText };
+      } else if (session?.nextSessionPrompt) {
+        nextSessionPrompt = session.nextSessionPrompt;
+      }
+
+      const sessionCount = (session?.sessionCount || 0) + 1;
+
+      // Update state
+      appState.previousEvaluation = prevEval;
+      appState.nextSessionPrompt  = nextSessionPrompt;
+      appState.sessionCount       = sessionCount;
+
+      // Generate
+      setTimeout(() => {
+        const prompt = generatePrompt(settings, prevEval, nextSessionPrompt, sessionCount);
+
+        // Show output
+        const outputSection = document.getElementById('output');
+        outputSection.classList.remove('hidden');
+        renderPrompt(prompt);
+
+        // Scroll to output
+        setTimeout(() => {
+          scrollToSection('output');
+          btn.classList.remove('loading');
+        }, 300);
+
+        // Re-init scroll reveal for output
+        initScrollReveal();
+      }, 400);
+    }
+
+    // ============================================================
+    // COPY BUTTON
+    // ============================================================
+    async function handleCopy() {
+      const promptText = document.getElementById('prompt-output').textContent;
+      const copyBtn    = document.getElementById('copy-btn');
+      const copyIcon   = document.getElementById('copy-icon');
+      const copyText   = document.getElementById('copy-text');
+
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(promptText);
+        } else {
+          // Fallback
+          const ta = document.createElement('textarea');
+          ta.value = promptText;
+          ta.style.position = 'fixed';
+          ta.style.opacity  = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+
+        copyBtn.classList.add('copied');
+        copyIcon.textContent = '✓';
+        copyText.textContent = 'Copied!';
+
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyIcon.textContent = '📋';
+          copyText.textContent = 'Copy';
+        }, 2000);
+
+      } catch (err) {
+        console.error('Copy failed:', err);
+      }
+    }
+
+    // ============================================================
+    // SAVE SESSION
+    // ============================================================
+    function handleSave() {
+      const evalText      = document.getElementById('eval-input').value.trim();
+      const nextPromptText = document.getElementById('next-prompt-input').value.trim();
+      const saveBtn       = document.getElementById('save-btn');
+      const saveIcon      = document.getElementById('save-icon');
+      const saveText      = document.getElementById('save-text');
+      const feedback      = document.getElementById('save-feedback');
+
+      const now = new Date().toISOString();
+      const existingSession = loadSession() || {};
+
+      const newSession = {
+        version: 1,
+        lastUpdated: now,
+        settings: appState.settings,
+        previousEvaluation: evalText
+          ? { raw: evalText, savedAt: now }
+          : (existingSession.previousEvaluation || null),
+        nextSessionPrompt: nextPromptText
+          ? { raw: nextPromptText, savedAt: now }
+          : (existingSession.nextSessionPrompt || null),
+        sessionCount: appState.sessionCount || (existingSession.sessionCount || 0) + 1
+      };
+
+      saveSession(newSession);
+
+      // Visual feedback
+      saveBtn.classList.add('saving');
+      saveIcon.textContent = '✅';
+      saveText.textContent = '保存完了！';
+      feedback.classList.add('visible');
+
+      setTimeout(() => {
+        saveBtn.classList.remove('saving');
+        saveIcon.textContent = '💾';
+        saveText.textContent = 'セッションを保存する';
+        feedback.classList.remove('visible');
+
+        // Refresh state
+        initApp();
+      }, 3000);
+    }
+
+    // ============================================================
+    // SCROLL UTILITIES
+    // ============================================================
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // Nav scroll effect
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('main-nav');
+      if (window.scrollY > 20) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    }, { passive: true });
+
+    // ============================================================
+    // INTERSECTION OBSERVER (scroll reveal)
+    // ============================================================
+    let observer;
+
+    function initScrollReveal() {
+      if (observer) observer.disconnect();
+
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      });
+
+      document.querySelectorAll('.scroll-reveal').forEach(el => {
+        observer.observe(el);
+      });
+
+      // Stagger radio cards
+      document.querySelectorAll('.radio-card').forEach(card => {
+        observer.observe(card);
+      });
+    }
+
+    // ============================================================
+    // SESSION COUNT DISPLAY
+    // ============================================================
+    function updateSessionCountDisplay(count) {
+      const display = document.getElementById('session-count-display');
+      if (display) display.textContent = count + 1;
+    }
+
+    // ============================================================
+    // INIT APP
+    // ============================================================
+    function initApp() {
+      // Load preferences
+      const prefs = loadPreferences();
+      const theme = prefs?.theme || 'dark';
+      applyTheme(theme);
+
+      // Load session
+      const session = loadSession();
+
+      if (session) {
+        // Apply saved settings
+        if (session.settings) {
+          applySettingsToDOM(session.settings);
+          appState.settings = session.settings;
+        }
+
+        // Show previous session
+        renderPreviousSession(session);
+
+        // Update session count
+        appState.sessionCount = session.sessionCount || 0;
+        updateSessionCountDisplay(appState.sessionCount);
+
+        // Pre-fill next session prompt if available
+        if (session.nextSessionPrompt && session.nextSessionPrompt.raw) {
+          const prevPromptInput = document.getElementById('prev-prompt-input');
+          if (prevPromptInput && !prevPromptInput.value) {
+            prevPromptInput.value = session.nextSessionPrompt.raw;
+          }
+        }
+      } else {
+        document.getElementById('previous-session').classList.add('hidden');
+        document.getElementById('session-resume-badge').classList.add('hidden');
+        updateSessionCountDisplay(0);
+      }
+
+      // Init segment slider
+      updateSegmentSlider();
+
+      // Init scroll reveal
+      initScrollReveal();
+    }
+
+    // ============================================================
+    // RADIO CARD EVENT LISTENERS (for settings state)
+    // ============================================================
+    document.querySelectorAll('[name="level"]').forEach(input => {
+      input.addEventListener('change', () => {
+        appState.settings.level = input.value;
+      });
+    });
+
+    document.querySelectorAll('[name="topic"]').forEach(input => {
+      input.addEventListener('change', () => {
+        appState.settings.topic = input.value;
+      });
+    });
+
+    document.querySelectorAll('[name="focus"]').forEach(input => {
+      input.addEventListener('change', () => {
+        appState.settings.focus = Array.from(
+          document.querySelectorAll('[name="focus"]:checked')
+        ).map(el => el.value);
+      });
+    });
+
+    // ============================================================
+    // BOOT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
+    });
+
+    // Fallback (if DOMContentLoaded already fired)
+    if (document.readyState !== 'loading') {
+      initApp();
+    }
+  </script>
+</body>
+</html>
