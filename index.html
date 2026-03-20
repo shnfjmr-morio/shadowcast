@@ -802,6 +802,46 @@
       margin-top: 48px;
     }
 
+    /* Quick Generate Bar */
+    .quick-generate-bar {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .quick-generate-summary {
+      flex: 1;
+      min-width: 0;
+    }
+    .quick-generate-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .quick-generate-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .quick-generate-value span.changed {
+      animation: quickFlash 0.4s ease-out;
+    }
+    @keyframes quickFlash {
+      0% { background: var(--accent-glow); border-radius: 4px; }
+      100% { background: transparent; }
+    }
+
     /* ============================================================
        OUTPUT (#output)
     ============================================================ */
@@ -1598,6 +1638,52 @@
       gap: 8px;
     }
 
+    /* ===== SETTINGS ACCORDION ===== */
+    .settings-group.accordion-group > .settings-label {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+    .accordion-chevron {
+      font-size: 12px;
+      color: var(--text-secondary);
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+    .settings-group.accordion-group.accordion-collapsed .accordion-chevron {
+      transform: rotate(-90deg);
+    }
+    .accordion-current-value {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      flex: 1;
+      text-align: right;
+      margin-right: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 140px;
+    }
+    .settings-group.accordion-group .accordion-body {
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.25s ease;
+      max-height: 600px;
+      opacity: 1;
+    }
+    .settings-group.accordion-group.accordion-collapsed .accordion-body {
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+    /* Guest mode: hide certain settings groups */
+    .settings-group.guest-hidden {
+      display: none !important;
+    }
+
     /* ===== FEATURE GATES (locked segment options) ===== */
     .segment-btn.locked {
       opacity: 0.45;
@@ -1618,6 +1704,62 @@
     .segment-option.locked .segment-option-inner::after {
       content: ' 🔒';
       font-size: 10px;
+    }
+
+    /* ===== PRO BOTTOM SHEET ===== */
+    .pro-bottom-sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .pro-bottom-sheet-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .pro-bottom-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-glass);
+      border-radius: 20px 20px 0 0;
+      padding: 24px 24px 40px;
+      z-index: 201;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .pro-bottom-sheet.active {
+      transform: translateY(0);
+    }
+    .pro-sheet-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--border-glass);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+    .pro-sheet-icon { font-size: 32px; margin-bottom: 12px; }
+    .pro-sheet-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .pro-sheet-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6; }
+    .pro-sheet-benefits {
+      display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;
+    }
+    .pro-sheet-benefit {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; color: var(--text-primary);
+    }
+    .pro-sheet-benefit::before { content: '✓'; color: var(--accent); font-weight: 700; }
+    .pro-sheet-later {
+      display: block; text-align: center; background: none; border: none;
+      color: var(--text-secondary); font-size: 13px; cursor: pointer;
+      padding: 8px; margin-top: 8px; width: 100%;
     }
 
     .settings-section-label {
@@ -2158,6 +2300,17 @@
           <div class="presets-list" id="presets-list" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; min-height:32px;"></div>
         </div>
 
+        <!-- Quick Generate Bar -->
+        <div class="quick-generate-bar scroll-reveal" id="quick-generate-bar">
+          <div class="quick-generate-summary">
+            <div class="quick-generate-label">現在の設定</div>
+            <div class="quick-generate-value" id="quick-summary-text">読み込み中...</div>
+          </div>
+          <button class="btn btn-primary" style="white-space:nowrap; padding:12px 20px; font-size:14px;" onclick="handleGenerate()">
+            ✨ この設定で生成
+          </button>
+        </div>
+
         <!-- 基本設定セクション -->
         <div class="settings-section-label">
           <span class="settings-section-num">基本設定</span>
@@ -2166,7 +2319,7 @@
         <div class="settings-basic">
 
         <!-- 1. English Level -->
-        <div class="settings-group glass-card scroll-reveal">
+        <div class="settings-group glass-card scroll-reveal accordion-group">
           <div class="settings-label">
             <span class="settings-label-num">1</span>
             英語レベル
@@ -2200,7 +2353,7 @@
         </div>
 
         <!-- 2. Topic -->
-        <div class="settings-group glass-card scroll-reveal">
+        <div class="settings-group glass-card scroll-reveal accordion-group">
           <div class="settings-label">
             <span class="settings-label-num">2</span>
             トピック
@@ -2259,8 +2412,12 @@
           </div>
         </div>
 
+        <p id="guest-settings-hint" class="hidden" style="font-size:12px; color:var(--text-secondary); text-align:center; margin-top:-8px; margin-bottom:16px;">
+          レベルやフォーカスなどの詳細設定はログイン後に変更できます
+        </p>
+
         <!-- 3. Focus -->
-        <div class="settings-group glass-card scroll-reveal">
+        <div class="settings-group glass-card scroll-reveal accordion-group">
           <div class="settings-label">
             <span class="settings-label-num">3</span>
             フォーカス <span style="font-size:13px;font-weight:400;color:var(--text-secondary);">（複数選択可）</span>
@@ -2320,7 +2477,7 @@
           <div class="settings-practice-col">
 
         <!-- 4. Sentence Count -->
-        <div class="settings-group glass-card scroll-reveal">
+        <div class="settings-group glass-card scroll-reveal accordion-group">
           <div class="settings-label">
             <span class="settings-label-num">4</span>
             シャドーイング回数
@@ -2350,7 +2507,7 @@
           <div class="settings-practice-col">
 
         <!-- 5. Intervention Frequency -->
-        <div class="settings-group glass-card scroll-reveal">
+        <div class="settings-group glass-card scroll-reveal accordion-group">
           <div class="settings-label">
             <span class="settings-label-num">5</span>
             フリートーク介入頻度
@@ -2377,7 +2534,7 @@
         </div><!-- /.settings-practice -->
 
         <!-- 6. Previous Prompt Paste -->
-        <div class="settings-group glass-card scroll-reveal">
+        <div class="settings-group glass-card scroll-reveal accordion-group">
           <div class="settings-label">
             <span class="settings-label-num">6</span>
             前回AIからのプロンプト
@@ -2464,6 +2621,15 @@
           <button class="btn btn-secondary" onclick="scrollToSection('save-session')">
             セッション後に評価を保存する →
           </button>
+        </div>
+
+        <!-- Login prompt (shown for guests after generation) -->
+        <div id="login-prompt-banner" class="glass-card scroll-reveal hidden" style="margin-top:16px; padding:24px; text-align:center;">
+          <p style="font-weight:600; font-size:15px; margin-bottom:6px;">💡 ログインするともっと広く使えます</p>
+          <p style="color:var(--text-secondary); font-size:13px; margin-bottom:20px;">中級レベル・ビジネス英語・語彙フォーカスが解放されます</p>
+          <button class="btn btn-primary" style="margin-bottom:12px; width:100%; max-width:280px;" onclick="openAuthModal()">Googleでログイン</button>
+          <br>
+          <button onclick="document.getElementById('login-prompt-banner').classList.add('hidden')" style="background:none;border:none;color:var(--text-secondary);font-size:13px;cursor:pointer;padding:4px 8px;">あとで</button>
         </div>
       </div>
     </section>
@@ -2595,6 +2761,22 @@
 
     <div class="footer-space"></div>
 
+    <!-- PRO Upgrade Bottom Sheet -->
+    <div class="pro-bottom-sheet-overlay" id="pro-sheet-overlay" onclick="closeProSheet()"></div>
+    <div class="pro-bottom-sheet" id="pro-bottom-sheet">
+      <div class="pro-sheet-handle"></div>
+      <div style="text-align:center;">
+        <div class="pro-sheet-icon" id="pro-sheet-icon">🔓</div>
+        <div class="pro-sheet-title" id="pro-sheet-title">PROプランで解放されます</div>
+        <div class="pro-sheet-desc" id="pro-sheet-desc">この機能はPROプランでご利用いただけます</div>
+      </div>
+      <div class="pro-sheet-benefits" id="pro-sheet-benefits"></div>
+      <button class="btn btn-primary" style="width:100%; padding:14px;" onclick="closeProSheet()">
+        PROプランを見る（近日公開）
+      </button>
+      <button class="pro-sheet-later" onclick="closeProSheet()">あとで</button>
+    </div>
+
     <!-- AUTH MODAL -->
     <div class="modal-overlay hidden" id="auth-modal">
       <div class="modal-card glass-card">
@@ -2721,16 +2903,31 @@
         renderProgress();
         renderPresets();
       }
+
+      // Hide "how it works" for logged-in users
+      const howSection = document.querySelector('.how-section');
+      if (howSection) howSection.classList.toggle('hidden', !!currentUser);
+
+      // Refresh previous session panel for logged-in state
+      renderPreviousSessionState(isLoggedIn);
     }
 
     function applyFeatureGates(isLoggedIn) {
       const isPro = currentPlan === 'pro'
 
-      function lockEl(el, lock) {
+      function lockEl(el, lock, type) {
         if (lock) {
           el.classList.add('locked')
           if (!el._lockHandler) {
-            el._lockHandler = (e) => { e.stopImmediatePropagation(); e.preventDefault(); openAuthModal() }
+            el._lockHandler = (e) => {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+              if (currentUser) {
+                openProSheet(type || 'topic');
+              } else {
+                openAuthModal();
+              }
+            }
             el.addEventListener('click', el._lockHandler, true)
           }
         } else {
@@ -2747,7 +2944,7 @@
         if (isPro) locked = false
         else if (isLoggedIn) locked = val === 'advanced'
         else locked = val === 'intermediate' || val === 'advanced'
-        lockEl(el, locked)
+        lockEl(el, locked, 'level')
       })
 
       // --- トピック ---
@@ -2758,7 +2955,7 @@
         if (isPro) locked = false
         else if (isLoggedIn) locked = ['travel', 'news', 'academic', 'custom'].includes(val)
         else locked = ['business', 'travel', 'news', 'academic', 'custom'].includes(val)
-        lockEl(el, locked)
+        lockEl(el, locked, 'topic')
       })
 
       // --- フォーカス ---
@@ -2769,13 +2966,13 @@
         if (isPro) locked = false
         else if (isLoggedIn) locked = ['pronunciation', 'grammar'].includes(val)
         else locked = ['pronunciation', 'grammar', 'vocabulary'].includes(val)
-        lockEl(el, locked)
+        lockEl(el, locked, 'focus')
       })
 
       // --- シャドーイング回数: 5文のみ（PRO以外）---
       document.querySelectorAll('#count-segment .segment-btn').forEach(btn => {
         const locked = !isPro && btn.dataset.value !== '5'
-        lockEl(btn, locked)
+        lockEl(btn, locked, 'count')
       })
 
       // --- 介入頻度: Key Moments のみ（PRO以外）---
@@ -2783,7 +2980,7 @@
         const input = label.querySelector('input[name="intervention"]')
         if (!input) return
         const locked = !isPro && input.value !== 'key_moments'
-        lockEl(label, locked)
+        lockEl(label, locked, 'intervention')
       })
 
       // --- 前回AIからのプロンプト: ログアウト時は無効化 ---
@@ -2818,6 +3015,93 @@
         saveOverlay.classList.toggle('hidden', isLoggedIn)
         saveFormInner.style.display = isLoggedIn ? '' : 'none'
       }
+
+      // Activate accordion for logged-in users; collapse all except topic (#2) by default
+      if (isLoggedIn) {
+        initSettingsAccordion();
+        document.querySelectorAll('.settings-group.accordion-group').forEach(group => {
+          const num = group.querySelector('.settings-label-num')?.textContent?.trim();
+          if (num !== '2') {
+            group.classList.add('accordion-collapsed');
+          } else {
+            group.classList.remove('accordion-collapsed');
+          }
+        });
+      } else {
+        // Remove accordion for guests
+        document.querySelectorAll('.settings-group.accordion-group').forEach(group => {
+          group.classList.remove('accordion-collapsed');
+        });
+      }
+
+      // Guest mode: hide non-topic settings groups
+      const guestHiddenNums = ['1', '3', '4', '5', '6'];
+      document.querySelectorAll('.settings-group.accordion-group').forEach(group => {
+        const num = group.querySelector('.settings-label-num')?.textContent?.trim();
+        if (!isLoggedIn && guestHiddenNums.includes(num)) {
+          group.classList.add('guest-hidden');
+        } else {
+          group.classList.remove('guest-hidden');
+        }
+      });
+
+      // Show/hide guest hint text
+      const guestHint = document.getElementById('guest-settings-hint');
+      if (guestHint) guestHint.classList.toggle('hidden', !!isLoggedIn);
+    }
+
+    // ============================================================
+    // PRO BOTTOM SHEET
+    // ============================================================
+    const PRO_SHEET_CONTENT = {
+      level: {
+        icon: '📈',
+        title: '上位レベルで練習しましょう',
+        desc: '中級・上級レベルのセンテンスで、より実践的な英語表現を練習できます。',
+        benefits: ['中級・上級レベルのシャドーイング', 'より複雑な文構造と語彙', '上位レベルへのステップアップ']
+      },
+      topic: {
+        icon: '🌍',
+        title: '全トピックが使えます',
+        desc: 'ビジネス・旅行・ニュース・学術・カスタムなど、あなたの目的に合ったトピックで練習できます。',
+        benefits: ['ビジネス英語・旅行・ニュース', '学術英語トピック', '自由にカスタムトピックを設定']
+      },
+      focus: {
+        icon: '🎯',
+        title: '発音・文法フォーカスが使えます',
+        desc: '発音の細かいポイントや文法パターンに特化した練習ができます。',
+        benefits: ['発音（リンキング・弱形・子音）', '文法パターンの意識的な練習', 'より精密なフィードバック']
+      },
+      count: {
+        icon: '🔢',
+        title: '文数をカスタマイズできます',
+        desc: '短い練習（3文）から集中した練習（8文）まで、その日の状況に合わせて選べます。',
+        benefits: ['3文：隙間時間の短い練習', '8文：集中したトレーニング', 'セッションの長さを自由に調整']
+      },
+      intervention: {
+        icon: '💬',
+        title: 'フィードバック頻度を選べます',
+        desc: '毎ターン丁寧に直してもらうか、テンポよく進むかをコントロールできます。',
+        benefits: ['毎ターン：細かく丁寧に修正', 'ときどき：バランスの取れた練習', '自分のペースに合わせた学習']
+      }
+    };
+
+    function openProSheet(type) {
+      const content = PRO_SHEET_CONTENT[type] || PRO_SHEET_CONTENT.topic;
+      document.getElementById('pro-sheet-icon').textContent = content.icon;
+      document.getElementById('pro-sheet-title').textContent = content.title;
+      document.getElementById('pro-sheet-desc').textContent = content.desc;
+      document.getElementById('pro-sheet-benefits').innerHTML = content.benefits
+        .map(b => `<div class="pro-sheet-benefit">${b}</div>`).join('');
+      document.getElementById('pro-sheet-overlay').classList.add('active');
+      document.getElementById('pro-bottom-sheet').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeProSheet() {
+      document.getElementById('pro-sheet-overlay').classList.remove('active');
+      document.getElementById('pro-bottom-sheet').classList.remove('active');
+      document.body.style.overflow = '';
     }
 
     function openAuthModal() {
@@ -3016,6 +3300,7 @@
         updateSegmentSlider();
         appState.settings.interventionFrequency = input.value;
         updateSessionPreview();
+        updateAccordionValues();
       });
     });
 
@@ -3028,6 +3313,7 @@
         btn.classList.add('active');
         appState.settings.sentenceCount = parseInt(btn.dataset.value, 10);
         updateSessionPreview();
+        updateAccordionValues();
       });
     });
 
@@ -3053,6 +3339,20 @@
           'key_moments': '重要な場面のみフィードバック'
         };
         interventionEl.textContent = map[appState.settings.interventionFrequency] || '2〜3ターンに1回フィードバック';
+      }
+
+      // Update quick generate bar summary
+      const summaryEl = document.getElementById('quick-summary-text');
+      if (summaryEl) {
+        const s = appState.settings;
+        const levelMap = { beginner: '初級', intermediate: '中級', advanced: '上級' };
+        const topicMap = { daily: '日常', business: 'ビジネス', travel: '旅行', news: 'ニュース', academic: '学術', custom: appState.customTopic || 'カスタム' };
+        const focusMap = { natural_expressions: '自然な表現', vocabulary: '語彙', pronunciation: '発音', grammar: '文法' };
+        const level = levelMap[s.level] || s.level;
+        const topic = topicMap[s.topic] || s.topic;
+        const focus = (s.focus || []).map(f => focusMap[f] || f).join(' + ');
+        const count = s.sentenceCount ? `${s.sentenceCount}文` : '5文';
+        summaryEl.textContent = `${level} ・ ${topic} ・ ${focus} ・ ${count}`;
       }
     }
 
@@ -3103,6 +3403,7 @@
 
       updateSegmentSlider();
       updateSessionPreview();
+      updateAccordionValues();
     }
 
     // ============================================================
@@ -3150,6 +3451,96 @@
       document.getElementById('eval-strengths').textContent    = sections.strengths;
       document.getElementById('eval-weaknesses').textContent   = sections.weaknesses;
       document.getElementById('eval-improvements').textContent = sections.improvements;
+    }
+
+    // ============================================================
+    // RENDER PREVIOUS SESSION STATE (3-state)
+    // ============================================================
+    function renderPreviousSessionState(isLoggedIn) {
+      const section = document.getElementById('previous-session');
+      const badge   = document.getElementById('session-resume-badge');
+      if (!section) return;
+
+      if (!isLoggedIn) {
+        section.classList.add('hidden');
+        badge?.classList.add('hidden');
+        return;
+      }
+
+      // Logged in — always show section
+      section.classList.remove('hidden');
+
+      const session = loadSession();
+
+      // Find or create the state display container
+      const container = section.querySelector('.container');
+      let stateDiv = container?.querySelector('#prev-session-state-display');
+      if (!stateDiv) {
+        stateDiv = document.createElement('div');
+        stateDiv.id = 'prev-session-state-display';
+        const sectionHeader = container?.querySelector('.section-header');
+        if (sectionHeader) {
+          sectionHeader.insertAdjacentElement('afterend', stateDiv);
+        } else if (container) {
+          container.appendChild(stateDiv);
+        }
+      }
+
+      // State A: no session or no raw evaluation
+      if (!session || !session.previousEvaluation || !session.previousEvaluation.raw) {
+        badge?.classList.add('hidden');
+        // Hide default eval-cards and preset-notice
+        container?.querySelector('.eval-cards')?.style && (container.querySelector('.eval-cards').style.display = 'none');
+        container?.querySelector('.preset-notice')?.style && (container.querySelector('.preset-notice').style.display = 'none');
+        container?.querySelectorAll('.text-center.mt-24').forEach(el => el.style.display = 'none');
+        stateDiv.innerHTML = `<div class="glass-card scroll-reveal" style="text-align:center; padding:40px 24px;">
+  <div style="font-size:40px; margin-bottom:16px;">📝</div>
+  <p style="font-weight:600; font-size:16px; margin-bottom:8px;">まだセッション記録がありません</p>
+  <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px;">
+    練習が終わったらAIの評価をここに保存できます。<br>回を重ねるごとに成長が見えるようになります。
+  </p>
+  <button class="btn btn-primary" onclick="scrollToSection('settings')">最初のセッションを始める →</button>
+</div>`;
+        return;
+      }
+
+      // Check if sections are all "データを取得できませんでした"
+      const sections = extractEvalSections(session.previousEvaluation.raw);
+      const fallback = 'データを取得できませんでした。';
+      const allFailed = sections.strengths === fallback && sections.weaknesses === fallback && sections.improvements === fallback;
+
+      if (allFailed) {
+        // State B: raw exists but unparseable
+        const savedAt = session.previousEvaluation.savedAt || session.lastUpdated;
+        let dateStr = '';
+        if (savedAt) {
+          const d = new Date(savedAt);
+          dateStr = `${d.getMonth() + 1}/${d.getDate()}`;
+        }
+        badge?.classList.add('hidden');
+        container?.querySelector('.eval-cards')?.style && (container.querySelector('.eval-cards').style.display = 'none');
+        container?.querySelector('.preset-notice')?.style && (container.querySelector('.preset-notice').style.display = 'none');
+        container?.querySelectorAll('.text-center.mt-24').forEach(el => el.style.display = 'none');
+        stateDiv.innerHTML = `<div class="glass-card scroll-reveal" style="padding:32px 24px;">
+  <p style="font-weight:600; font-size:15px; margin-bottom:8px;">📋 前回のセッション（${dateStr}）</p>
+  <p style="color:var(--text-secondary); font-size:14px; margin-bottom:16px;">
+    評価データを読み取れませんでした。<br>
+    AIの返答全文をそのままコピーして貼り付けると自動で解析されます。
+  </p>
+  <p style="font-size:12px; color:var(--text-secondary); margin-bottom:16px;">
+    💡 ヒント：「=== SESSION EVALUATION ===」から始まる部分を含めて貼り付けてください
+  </p>
+  <button class="btn btn-secondary" onclick="scrollToSection('save-session')">もう一度保存する →</button>
+</div>`;
+        return;
+      }
+
+      // State C: valid data — use existing renderPreviousSession logic
+      stateDiv.innerHTML = ''; // clear state display, let normal cards show
+      container?.querySelector('.eval-cards')?.style && (container.querySelector('.eval-cards').style.display = '');
+      container?.querySelector('.preset-notice')?.style && (container.querySelector('.preset-notice').style.display = '');
+      container?.querySelectorAll('.text-center.mt-24').forEach(el => el.style.display = '');
+      renderPreviousSession(session);
     }
 
     // ============================================================
@@ -3365,16 +3756,18 @@ When the student says they want to end, or when ~20 minutes have passed, output 
 
 === SESSION EVALUATION ===
 
+IMPORTANT: Write all content below in Japanese.
+
 **Strengths:**
-- [List 2-3 specific strengths observed]
+- [2〜3個の具体的な強みを日本語で記述]
 
 **Areas for Improvement:**
-- [List 2-3 specific areas with concrete examples from the session]
+- [具体的なセッション中の例を挙げながら、2〜3個の改善点を日本語で記述]
 
 **Key Expressions Practiced:**
-- [List the main expressions/sentences practiced with notes]
+- [練習した主な表現・センテンスをメモ付きで日本語で記述]
 
-**Overall Progress:** [Brief assessment]
+**Overall Progress:** [全体的な進捗を日本語で簡潔に記述]
 
 === NEXT SESSION PROMPT ===
 [Output a self-contained instruction block for the next session, referencing:
@@ -3461,6 +3854,12 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
           scrollToSection('output');
           btn.classList.remove('loading');
         }, 300);
+
+        // Show login prompt for guests
+        if (!currentUser) {
+          const banner = document.getElementById('login-prompt-banner');
+          if (banner) banner.classList.remove('hidden');
+        }
 
         // Re-init scroll reveal for output
         initScrollReveal();
@@ -4034,6 +4433,7 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
 
       // Init session preview
       updateSessionPreview();
+      updateAccordionValues();
 
       // Init scroll reveal
       initScrollReveal();
@@ -4098,6 +4498,77 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
         ).map(el => el.value);
       });
     });
+
+    // ============================================================
+    // SETTINGS ACCORDION
+    // ============================================================
+    function initSettingsAccordion() {
+      const groups = document.querySelectorAll('.settings-group.accordion-group');
+      groups.forEach(group => {
+        const label = group.querySelector('.settings-label');
+        if (!label) return;
+
+        // Add chevron and current-value span to label if not already there
+        if (!label.querySelector('.accordion-chevron')) {
+          const chevron = document.createElement('span');
+          chevron.className = 'accordion-chevron';
+          chevron.textContent = '▾';
+          label.appendChild(chevron);
+        }
+        if (!label.querySelector('.accordion-current-value')) {
+          const val = document.createElement('span');
+          val.className = 'accordion-current-value';
+          label.insertBefore(val, label.querySelector('.accordion-chevron'));
+        }
+
+        // Wrap body content in accordion-body div if not already wrapped
+        let body = group.querySelector('.accordion-body');
+        if (!body) {
+          body = document.createElement('div');
+          body.className = 'accordion-body';
+          // Move all children after .settings-label into the body
+          const children = Array.from(group.children).filter(c => !c.classList.contains('settings-label'));
+          children.forEach(c => body.appendChild(c));
+          group.appendChild(body);
+        }
+
+        label.addEventListener('click', () => {
+          group.classList.toggle('accordion-collapsed');
+          updateAccordionValues();
+        });
+      });
+      updateAccordionValues();
+    }
+
+    function updateAccordionValues() {
+      const levelMap = { beginner: '初級', intermediate: '中級', advanced: '上級' };
+      const topicMap = { daily: '日常', business: 'ビジネス', travel: '旅行', news: 'ニュース', academic: '学術', custom: appState.customTopic || 'カスタム' };
+      const focusMap = { natural_expressions: '自然な表現', vocabulary: '語彙', pronunciation: '発音', grammar: '文法' };
+      const intMap = { key_moments: '重要な場面のみ', occasionally: 'ときどき', every_turn: '毎ターン' };
+
+      document.querySelectorAll('.settings-group.accordion-group').forEach(group => {
+        const valEl = group.querySelector('.accordion-current-value');
+        if (!valEl) return;
+        const num = group.querySelector('.settings-label-num')?.textContent?.trim();
+        let val = '';
+        if (num === '1') {
+          val = levelMap[document.querySelector('[name="level"]:checked')?.value] || '—';
+        } else if (num === '2') {
+          val = topicMap[document.querySelector('[name="topic"]:checked')?.value] || '—';
+        } else if (num === '3') {
+          const checked = Array.from(document.querySelectorAll('[name="focus"]:checked')).map(i => focusMap[i.value] || i.value);
+          val = checked.join(' + ') || '—';
+        } else if (num === '4') {
+          const cnt = document.querySelector('#count-segment .segment-btn.active')?.dataset.value || '5';
+          val = `${cnt}文`;
+        } else if (num === '5') {
+          val = intMap[document.querySelector('[name="intervention"]:checked')?.value] || '—';
+        } else if (num === '6') {
+          val = document.getElementById('prev-prompt-input')?.value ? '入力済み' : '—';
+        }
+        valEl.textContent = val;
+      });
+    }
 
     // ============================================================
     // BOOT
