@@ -882,12 +882,45 @@
       font-weight: 600;
       text-decoration: none;
       transition: all 0.2s;
+      cursor: pointer;
+      position: relative;
     }
 
     .gemini-link:hover {
       background: var(--bg-tertiary);
       transform: scale(1.02);
     }
+
+    .ai-open-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 6px;
+      min-width: 180px;
+      z-index: 100;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .ai-open-dropdown.hidden { display: none; }
+
+    .ai-open-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .ai-open-item:hover { background: var(--bg-tertiary); }
 
     .prompt-display {
       background: var(--code-bg);
@@ -898,6 +931,8 @@
       font-size: 13px;
       line-height: 1.7;
       transition: background 0.3s;
+      max-height: 280px;
+      overflow-y: auto;
     }
 
     .prompt-inner {
@@ -1760,8 +1795,7 @@
         </h1>
 
         <p class="hero-subtitle">
-          ShadowCastは、あなたの英語レベルと目標に合わせた<br>
-          シャドーイング練習プロンプトを自動生成します。
+          ShadowCastは、あなたの英語レベルと目標に合わせたシャドーイング練習プロンプトを自動生成します。
         </p>
 
         <div class="hero-cta">
@@ -2139,7 +2173,7 @@
           </div>
           <div class="radio-cards cols-3">
             <label class="radio-card" data-level="beginner">
-              <input type="radio" name="level" value="beginner" />
+              <input type="radio" name="level" value="beginner" checked />
               <div class="radio-card-inner">
                 <span class="radio-card-emoji">🌱</span>
                 <div class="radio-card-title">Beginner</div>
@@ -2147,7 +2181,7 @@
               </div>
             </label>
             <label class="radio-card" data-level="intermediate">
-              <input type="radio" name="level" value="intermediate" checked />
+              <input type="radio" name="level" value="intermediate" />
               <div class="radio-card-inner">
                 <span class="radio-card-emoji">🌿</span>
                 <div class="radio-card-title">Intermediate</div>
@@ -2233,7 +2267,7 @@
           </div>
           <div class="toggle-chips">
             <label class="toggle-chip" data-focus="pronunciation">
-              <input type="checkbox" name="focus" value="pronunciation" checked />
+              <input type="checkbox" name="focus" value="pronunciation" />
               <div class="toggle-chip-inner">
                 <span>🔊</span><span>Pronunciation</span>
               </div>
@@ -2251,7 +2285,7 @@
               </div>
             </label>
             <label class="toggle-chip" data-focus="vocabulary">
-              <input type="checkbox" name="focus" value="vocabulary" />
+              <input type="checkbox" name="focus" value="vocabulary" checked />
               <div class="toggle-chip-inner">
                 <span>📖</span><span>Vocabulary</span>
               </div>
@@ -2313,15 +2347,15 @@
             <div class="segment-control-slider" id="segment-slider"></div>
             <label class="segment-option">
               <input type="radio" name="intervention" value="every_turn" />
-              <div class="segment-option-inner">Every Turn</div>
+              <div class="segment-option-inner">毎ターン</div>
             </label>
             <label class="segment-option">
-              <input type="radio" name="intervention" value="occasionally" checked />
-              <div class="segment-option-inner">Occasionally</div>
+              <input type="radio" name="intervention" value="occasionally" />
+              <div class="segment-option-inner">ときどき</div>
             </label>
             <label class="segment-option">
-              <input type="radio" name="intervention" value="key_moments" />
-              <div class="segment-option-inner">Key Moments Only</div>
+              <input type="radio" name="intervention" value="key_moments" checked />
+              <div class="segment-option-inner">重要な場面のみ</div>
             </label>
           </div>
         </div>
@@ -2337,7 +2371,7 @@
             <span class="optional-tag">任意</span>
           </div>
           <div id="prev-prompt-wrapper">
-            <label class="textarea-label">前回のセッション終了時にAIが出力した「次回用プロンプト」を貼り付けてください。</label>
+            <label class="textarea-label">前回のセッション終了時にAIが出力した「次回用プロンプト」を貼り付けてください。ログインしていれば自動で読み込まれます。</label>
             <div class="textarea-wrap">
               <textarea
                 id="prev-prompt-input"
@@ -2345,6 +2379,12 @@
                 placeholder="=== NEXT SESSION PROMPT ===&#10;（ここに貼り付け）"
                 rows="4"
               ></textarea>
+            </div>
+            <div id="prev-phrase-toggle-wrap" style="margin-top:12px; display:none;">
+              <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px; color:var(--text-secondary);">
+                <input type="checkbox" id="practice-prev-phrases" style="width:16px;height:16px;accent-color:var(--accent);">
+                <span>前回のセッションで使ったフレーズを優先的に練習する</span>
+              </label>
             </div>
           </div>
         </div>
@@ -2381,10 +2421,21 @@
                 <span id="copy-icon">📋</span>
                 <span id="copy-text">Copy</span>
               </button>
-              <a class="gemini-link" href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">
+              <div class="gemini-link" id="ai-open-btn" onclick="toggleAIDropdown(event)">
                 <span>✨</span>
                 AIを開く
-              </a>
+                <div class="ai-open-dropdown hidden" id="ai-open-dropdown">
+                  <a class="ai-open-item" onclick="openAI('chatgpt')">
+                    <span>🤖</span><span>ChatGPT</span>
+                  </a>
+                  <a class="ai-open-item" onclick="openAI('gemini')">
+                    <span>✨</span><span>Gemini</span>
+                  </a>
+                  <a class="ai-open-item" onclick="openAI('claude')">
+                    <span>🧠</span><span>Claude</span>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -2418,34 +2469,25 @@
           </p>
         </div>
 
-        <div class="glass-card scroll-reveal">
-          <div class="save-form">
+        <div class="glass-card scroll-reveal" id="save-session-card">
+          <div id="save-login-overlay" class="hidden" style="text-align:center; padding:32px 16px;">
+            <div style="font-size:32px; margin-bottom:12px;">🔒</div>
+            <p style="color:var(--text-secondary); margin-bottom:16px;">セッション保存にはログインが必要です</p>
+            <button class="btn btn-primary" onclick="openAuthModal()">ログイン / 新規登録</button>
+          </div>
+          <div class="save-form" id="save-form-inner">
             <div>
               <label class="textarea-label">
-                評価テキスト（=== SESSION EVALUATION === の部分）
+                AIの出力を丸ごと貼り付けてください（評価 + 次回プロンプトを自動で分けます）
                 <span class="optional-tag">推奨</span>
               </label>
               <div class="textarea-wrap">
                 <textarea
-                  id="eval-input"
+                  id="combined-eval-input"
                   class="app-textarea"
-                  placeholder="=== SESSION EVALUATION ===&#10;**Strengths:**&#10;- ...&#10;&#10;**Areas for Improvement:**&#10;- ..."
-                  rows="6"
-                ></textarea>
-              </div>
-            </div>
-
-            <div>
-              <label class="textarea-label">
-                次回用プロンプト（=== NEXT SESSION PROMPT === の部分）
-                <span class="optional-tag">推奨</span>
-              </label>
-              <div class="textarea-wrap">
-                <textarea
-                  id="next-prompt-input"
-                  class="app-textarea"
-                  placeholder="=== NEXT SESSION PROMPT ===&#10;..."
-                  rows="5"
+                  placeholder="=== SESSION EVALUATION ===&#10;...&#10;&#10;=== NEXT SESSION PROMPT ===&#10;..."
+                  rows="8"
+                  style="max-height:200px; overflow-y:auto;"
                 ></textarea>
               </div>
             </div>
@@ -2669,79 +2711,66 @@
     }
 
     function applyFeatureGates(isLoggedIn) {
-      // --- 英語レベル: Advanced をロック ---
+      const isPro = currentPlan === 'pro'
+
+      function lockEl(el, lock) {
+        if (lock) {
+          el.classList.add('locked')
+          if (!el._lockHandler) {
+            el._lockHandler = (e) => { e.stopImmediatePropagation(); e.preventDefault(); openAuthModal() }
+            el.addEventListener('click', el._lockHandler, true)
+          }
+        } else {
+          el.classList.remove('locked')
+          if (el._lockHandler) { el.removeEventListener('click', el._lockHandler, true); el._lockHandler = null }
+        }
+      }
+
+      // --- 英語レベル ---
+      // Not logged in: Beginner only; Free: Beginner+Intermediate; PRO: all
       document.querySelectorAll('.level-card, [data-level]').forEach(el => {
         const val = el.dataset.level || el.dataset.value
-        if (!isLoggedIn && val === 'advanced') {
-          el.classList.add('locked')
-          if (!el._lockHandler) {
-            el._lockHandler = (e) => { if (!currentUser) { e.stopImmediatePropagation(); e.preventDefault(); openAuthModal() } }
-            el.addEventListener('click', el._lockHandler, true)
-          }
-        } else {
-          el.classList.remove('locked')
-          if (el._lockHandler) { el.removeEventListener('click', el._lockHandler, true); el._lockHandler = null }
-        }
+        let locked = false
+        if (isPro) locked = false
+        else if (isLoggedIn) locked = val === 'advanced'
+        else locked = val === 'intermediate' || val === 'advanced'
+        lockEl(el, locked)
       })
 
-      // --- トピック: Travel / News / Academic をロック ---
-      const lockedTopics = ['travel', 'news', 'academic']
+      // --- トピック ---
+      // Not logged in: Daily only; Free: Daily+Business; PRO: all
       document.querySelectorAll('[data-topic]').forEach(el => {
-        if (!isLoggedIn && lockedTopics.includes(el.dataset.topic)) {
-          el.classList.add('locked')
-          if (!el._lockHandler) {
-            el._lockHandler = (e) => { if (!currentUser) { e.stopImmediatePropagation(); e.preventDefault(); openAuthModal() } }
-            el.addEventListener('click', el._lockHandler, true)
-          }
-        } else {
-          el.classList.remove('locked')
-          if (el._lockHandler) { el.removeEventListener('click', el._lockHandler, true); el._lockHandler = null }
-        }
+        const val = el.dataset.topic
+        let locked = false
+        if (isPro) locked = false
+        else if (isLoggedIn) locked = ['travel', 'news', 'academic', 'custom'].includes(val)
+        else locked = ['business', 'travel', 'news', 'academic', 'custom'].includes(val)
+        lockEl(el, locked)
       })
 
-      // --- フォーカス: Pronunciation / Grammar をロック ---
-      const lockedFocus = ['pronunciation', 'grammar']
+      // --- フォーカス ---
+      // Not logged in: Natural Expressions only; Free: Nat Exp+Vocab; PRO: all
       document.querySelectorAll('[data-focus]').forEach(el => {
-        if (!isLoggedIn && lockedFocus.includes(el.dataset.focus)) {
-          el.classList.add('locked')
-          if (!el._lockHandler) {
-            el._lockHandler = (e) => { if (!currentUser) { e.stopImmediatePropagation(); e.preventDefault(); openAuthModal() } }
-            el.addEventListener('click', el._lockHandler, true)
-          }
-        } else {
-          el.classList.remove('locked')
-          if (el._lockHandler) { el.removeEventListener('click', el._lockHandler, true); el._lockHandler = null }
-        }
+        const val = el.dataset.focus
+        let locked = false
+        if (isPro) locked = false
+        else if (isLoggedIn) locked = ['pronunciation', 'grammar'].includes(val)
+        else locked = ['pronunciation', 'grammar', 'vocabulary'].includes(val)
+        lockEl(el, locked)
       })
 
-      // --- シャドーイング回数: 3文・8文をロック ---
+      // --- シャドーイング回数: 5文のみ（PRO以外）---
       document.querySelectorAll('#count-segment .segment-btn').forEach(btn => {
-        if (!isLoggedIn && btn.dataset.value !== '5') {
-          btn.classList.add('locked')
-          if (!btn._lockHandler) {
-            btn._lockHandler = (e) => { if (!currentUser) { e.stopImmediatePropagation(); e.preventDefault(); openAuthModal() } }
-            btn.addEventListener('click', btn._lockHandler, true)
-          }
-        } else {
-          btn.classList.remove('locked')
-          if (btn._lockHandler) { btn.removeEventListener('click', btn._lockHandler, true); btn._lockHandler = null }
-        }
+        const locked = !isPro && btn.dataset.value !== '5'
+        lockEl(btn, locked)
       })
 
-      // --- 介入頻度: every_turn / occasionally をロック ---
+      // --- 介入頻度: Key Moments のみ（PRO以外）---
       document.querySelectorAll('#segment-control .segment-option').forEach(label => {
         const input = label.querySelector('input[name="intervention"]')
         if (!input) return
-        if (!isLoggedIn && input.value !== 'key_moments') {
-          label.classList.add('locked')
-          if (!label._lockHandler) {
-            label._lockHandler = (e) => { if (!currentUser) { e.stopImmediatePropagation(); e.preventDefault(); openAuthModal() } }
-            label.addEventListener('click', label._lockHandler, true)
-          }
-        } else {
-          label.classList.remove('locked')
-          if (label._lockHandler) { label.removeEventListener('click', label._lockHandler, true); label._lockHandler = null }
-        }
+        const locked = !isPro && input.value !== 'key_moments'
+        lockEl(label, locked)
       })
 
       // --- 前回AIからのプロンプト: ログアウト時は無効化 ---
@@ -2750,25 +2779,31 @@
       if (prevPromptArea) {
         prevPromptArea.disabled = !isLoggedIn
         prevPromptArea.placeholder = isLoggedIn
-          ? 'AIが出力した「次回用プロンプト」を貼り付けてください（任意）'
+          ? 'AIが出力した「次回用プロンプト」を貼り付けてください（自動で読み込まれます）'
           : '🔒 ログインすると利用できます'
       }
       if (prevPromptWrapper) {
         prevPromptWrapper.style.opacity = isLoggedIn ? '1' : '0.45'
-        prevPromptWrapper.style.pointerEvents = isLoggedIn ? '' : 'none'
+        prevPromptWrapper.style.cursor = isLoggedIn ? '' : 'pointer'
         if (!isLoggedIn) {
-          prevPromptWrapper.style.cursor = 'pointer'
           if (!prevPromptWrapper._lockHandler) {
             prevPromptWrapper._lockHandler = () => { if (!currentUser) openAuthModal() }
             prevPromptWrapper.addEventListener('click', prevPromptWrapper._lockHandler)
           }
         } else {
-          prevPromptWrapper.style.cursor = ''
           if (prevPromptWrapper._lockHandler) {
             prevPromptWrapper.removeEventListener('click', prevPromptWrapper._lockHandler)
             prevPromptWrapper._lockHandler = null
           }
         }
+      }
+
+      // --- セッション保存: ログアウト時はオーバーレイ表示 ---
+      const saveOverlay = document.getElementById('save-login-overlay')
+      const saveFormInner = document.getElementById('save-form-inner')
+      if (saveOverlay && saveFormInner) {
+        saveOverlay.classList.toggle('hidden', isLoggedIn)
+        saveFormInner.style.display = isLoggedIn ? '' : 'none'
       }
     }
 
@@ -2843,10 +2878,10 @@
     // ============================================================
     const appState = {
       settings: {
-        level: 'intermediate',
+        level: 'beginner',
         topic: 'daily',
-        focus: ['pronunciation', 'natural_expressions'],
-        interventionFrequency: 'occasionally',
+        focus: ['natural_expressions', 'vocabulary'],
+        interventionFrequency: 'key_moments',
         sentenceCount: 5
       },
       previousEvaluation: null,
@@ -2950,7 +2985,7 @@
       const control = document.getElementById('segment-control');
       const slider  = document.getElementById('segment-slider');
       const options = control.querySelectorAll('.segment-option');
-      let activeIndex = 1; // default: occasionally
+      let activeIndex = 2; // default: key_moments
 
       options.forEach((opt, i) => {
         const input = opt.querySelector('input');
@@ -3011,13 +3046,14 @@
     // COLLECT SETTINGS FROM DOM
     // ============================================================
     function collectSettings() {
-      const level = document.querySelector('[name="level"]:checked')?.value || 'intermediate';
+      const level = document.querySelector('[name="level"]:checked')?.value || 'beginner';
       const topic = document.querySelector('[name="topic"]:checked')?.value || 'daily';
       const focus = Array.from(document.querySelectorAll('[name="focus"]:checked')).map(el => el.value);
-      const interventionFrequency = document.querySelector('[name="intervention"]:checked')?.value || 'occasionally';
+      const interventionFrequency = document.querySelector('[name="intervention"]:checked')?.value || 'key_moments';
       const activeCountBtn = document.querySelector('#count-segment .segment-btn.active');
       const sentenceCount = activeCountBtn ? parseInt(activeCountBtn.dataset.value, 10) : 5;
-      return { level, topic, focus, interventionFrequency, sentenceCount };
+      const practicePrevPhrases = document.getElementById('practice-prev-phrases')?.checked || false;
+      return { level, topic, focus, interventionFrequency, sentenceCount, practicePrevPhrases };
     }
 
     // ============================================================
@@ -3170,6 +3206,11 @@ ${previousEvaluation.raw.trim()}`;
 ${nextSessionPrompt.raw.trim()}`;
       }
 
+      if (settings.practicePrevPhrases && hasPrevEval) {
+        prompt += `
+- IMPORTANT: The student wants to revisit phrases from the previous session. Incorporate the Key Expressions from the previous evaluation into Phase 1 shadowing practice.`;
+      }
+
       prompt += `
 
 ## Phase 1: Shadowing Practice
@@ -3224,7 +3265,7 @@ d. If successful, praise briefly and move on. If not, repeat the full sentence d
 
 **Sentence count target:** Practice exactly ${settings.sentenceCount} sentences in Phase 1.
 - Count only sentences the student successfully completes (full sentence, not just parts).
-- After each successfully completed sentence, say: "Nice work! Any questions about that expression or anything you'd like to try again? [Wait briefly] Okay, let's move on."
+- After each successfully completed sentence, say: "Nice work! Any questions about that expression or anything you'd like to try again?" — then STOP and wait for the student to respond. Do NOT automatically continue. Only after the student replies (even just "No" or "Next"), proceed to the next sentence.
 - After completing ${settings.sentenceCount} sentences, automatically proceed: "Great, we've done ${settings.sentenceCount} sentences! Ready to move on to Free Talk?"
 - Do NOT ask the student to choose — just announce the transition naturally.
 
@@ -3316,7 +3357,7 @@ When the student says they want to end, or when ~20 minutes have passed, output 
 
       prompt += `
 
-Now begin. Greet the student and start Phase 1.`;
+Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by greeting them warmly, then go straight into Phase 1 with your first shadowing sentence. The student will respond after you speak.`;
 
       return prompt;
     }
@@ -3388,6 +3429,42 @@ Now begin. Greet the student and start Phase 1.`;
     }
 
     // ============================================================
+    // AI OPEN DROPDOWN
+    // ============================================================
+    function toggleAIDropdown(e) {
+      e.stopPropagation()
+      const dd = document.getElementById('ai-open-dropdown')
+      if (dd) dd.classList.toggle('hidden')
+    }
+
+    function openAI(service) {
+      const dropdown = document.getElementById('ai-open-dropdown')
+      if (dropdown) dropdown.classList.add('hidden')
+      if (service === 'chatgpt') {
+        // Try app first, fallback to web
+        const appOpened = window.open('chatgpt://', '_blank')
+        setTimeout(() => {
+          if (!appOpened || appOpened.closed) {
+            window.open('https://chat.openai.com/', '_blank')
+          }
+        }, 500)
+        window.open('https://chat.openai.com/', '_blank')
+      } else if (service === 'gemini') {
+        window.open('https://gemini.google.com/', '_blank')
+      } else if (service === 'claude') {
+        window.open('https://claude.ai/', '_blank')
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      const btn = document.getElementById('ai-open-btn')
+      const dd = document.getElementById('ai-open-dropdown')
+      if (dd && btn && !btn.contains(e.target)) {
+        dd.classList.add('hidden')
+      }
+    })
+
+    // ============================================================
     // COPY BUTTON
     // ============================================================
     async function handleCopy() {
@@ -3429,9 +3506,28 @@ Now begin. Greet the student and start Phase 1.`;
     // ============================================================
     // SAVE SESSION
     // ============================================================
+    function parseSessionOutput(text) {
+      const evalMarker = '=== SESSION EVALUATION ==='
+      const nextMarker = '=== NEXT SESSION PROMPT ==='
+      const evalIdx = text.indexOf(evalMarker)
+      const nextIdx = text.indexOf(nextMarker)
+      let evalText = '', nextPromptText = ''
+      if (evalIdx !== -1 && nextIdx !== -1) {
+        evalText = text.substring(evalIdx, nextIdx).trim()
+        nextPromptText = text.substring(nextIdx).trim()
+      } else if (evalIdx !== -1) {
+        evalText = text.substring(evalIdx).trim()
+      } else if (nextIdx !== -1) {
+        nextPromptText = text.substring(nextIdx).trim()
+      } else {
+        evalText = text
+      }
+      return { evalText, nextPromptText }
+    }
+
     async function handleSave() {
-      const evalText      = document.getElementById('eval-input').value.trim();
-      const nextPromptText = document.getElementById('next-prompt-input').value.trim();
+      const combinedText = document.getElementById('combined-eval-input').value.trim();
+      const { evalText, nextPromptText } = parseSessionOutput(combinedText);
       const saveBtn       = document.getElementById('save-btn');
       const saveIcon      = document.getElementById('save-icon');
       const saveText      = document.getElementById('save-text');
@@ -3881,6 +3977,12 @@ Now begin. Greet the student and start Phase 1.`;
           if (prevPromptInput && !prevPromptInput.value) {
             prevPromptInput.value = session.nextSessionPrompt.raw;
           }
+        }
+
+        // Show "practice previous phrases" toggle if there's a previous eval
+        if (session.previousEvaluation && session.previousEvaluation.raw) {
+          const toggleWrap = document.getElementById('prev-phrase-toggle-wrap');
+          if (toggleWrap) toggleWrap.style.display = 'block';
         }
       } else {
         document.getElementById('previous-session').classList.add('hidden');
