@@ -1804,6 +1804,72 @@
     }
 
     /* ===== SETTINGS ACCORDION ===== */
+    /* Settings overview grid (shows all 6 tiles when panel opens) */
+    .settings-overview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .settings-overview-tile {
+      background: var(--bg-glass);
+      border: 1.5px solid var(--border-glass);
+      border-radius: 14px;
+      padding: 14px 14px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .settings-overview-tile:hover,
+    .settings-overview-tile.active {
+      border-color: var(--accent);
+      background: rgba(0, 113, 227, 0.07);
+    }
+    .settings-overview-tile-label {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 5px;
+    }
+    .settings-overview-tile-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .settings-overview-tile .tile-chevron {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+      transition: transform 0.2s ease;
+      display: block;
+    }
+    .settings-overview-tile.active .tile-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Settings group detail panels (collapsible, shown below overview) */
+    .settings-group-detail {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.35s ease;
+    }
+    .settings-group-detail.open {
+      max-height: 600px;
+    }
+    .settings-group-detail-inner {
+      padding: 16px;
+      background: var(--bg-glass);
+      border: 1px solid var(--accent);
+      border-radius: 14px;
+      margin-bottom: 10px;
+    }
+    .settings-group-detail-inner .settings-label { display: none; } /* hide old label inside detail */
+
     .settings-group.accordion-group > .settings-label {
       cursor: pointer;
       display: flex;
@@ -3100,8 +3166,8 @@
       const history = loadHistory();
       const hasSession = history.length > 0;
       const tabBar = document.getElementById('bottom-tab-bar');
-      if (tabBar) tabBar.classList.toggle('hidden', !isLoggedIn || !hasSession);
-      document.body.classList.toggle('has-tab-bar', isLoggedIn && hasSession);
+      if (tabBar) tabBar.classList.toggle('hidden', !isLoggedIn);
+      document.body.classList.toggle('has-tab-bar', isLoggedIn);
       const presetsBar = document.getElementById('presets-bar');
       if (presetsBar) presetsBar.style.display = isLoggedIn ? 'block' : 'none';
       if (isLoggedIn) {
@@ -3223,22 +3289,22 @@
         saveFormInner.style.display = isLoggedIn ? '' : 'none'
       }
 
-      // Activate accordion for logged-in users; collapse all except topic (#2) by default
+      // Accordion / overview grid: init for logged-in, remove collapse for guests
       if (isLoggedIn) {
-        initSettingsAccordion();
-        document.querySelectorAll('.settings-group.accordion-group').forEach(group => {
-          const num = group.querySelector('.settings-label-num')?.textContent?.trim();
-          if (num !== '2') {
-            group.classList.add('accordion-collapsed');
-          } else {
-            group.classList.remove('accordion-collapsed');
-          }
-        });
+        _accordionInited = false; // allow rebuild on next open
+        // If settings panel is already open, build the grid immediately
+        const settingsBody = document.getElementById('practice-settings-body');
+        if (settingsBody?.classList.contains('open')) {
+          initSettingsAccordion();
+        }
       } else {
-        // Remove accordion for guests
+        // Remove accordion for guests — all groups visible
         document.querySelectorAll('.settings-group.accordion-group').forEach(group => {
           group.classList.remove('accordion-collapsed');
         });
+        const existingGrid = document.getElementById('settings-overview-grid');
+        if (existingGrid) existingGrid.remove();
+        _accordionInited = false;
       }
 
       // Guest mode: hide non-topic settings groups
@@ -3660,7 +3726,7 @@
     }
 
     // ============================================================
-    // RENDER PREVIOUS SESSION STATE (3-state)
+    // RENDER PREVIOUS SESSION STATE (3-state, self-contained)
     // ============================================================
     function renderPreviousSessionState(isLoggedIn) {
       const section = document.getElementById('previous-session');
@@ -3673,80 +3739,100 @@
         return;
       }
 
-      // Logged in — always show section
       section.classList.remove('hidden');
 
-      const session = loadSession();
-
-      // Find or create the state display container
       const container = section.querySelector('.container');
-      let stateDiv = container?.querySelector('#prev-session-state-display');
+      if (!container) return;
+
+      // Hide original static child elements — we always render fresh into stateDiv
+      const origCards   = container.querySelector('.eval-cards');
+      const origNotice  = container.querySelector('.preset-notice');
+      if (origCards)  origCards.style.display  = 'none';
+      if (origNotice) origNotice.style.display = 'none';
+      container.querySelectorAll('.text-center.mt-24').forEach(el => el.style.display = 'none');
+
+      // Find or create state display div
+      let stateDiv = container.querySelector('#prev-session-state-display');
       if (!stateDiv) {
         stateDiv = document.createElement('div');
         stateDiv.id = 'prev-session-state-display';
-        const sectionHeader = container?.querySelector('.section-header');
-        if (sectionHeader) {
-          sectionHeader.insertAdjacentElement('afterend', stateDiv);
-        } else if (container) {
-          container.appendChild(stateDiv);
-        }
+        const header = container.querySelector('.section-header');
+        if (header) header.insertAdjacentElement('afterend', stateDiv);
+        else container.appendChild(stateDiv);
       }
 
-      // State A: no session or no raw evaluation
+      const session = loadSession();
+
+      // State A: no session data
       if (!session || !session.previousEvaluation || !session.previousEvaluation.raw) {
         badge?.classList.add('hidden');
-        // Hide default eval-cards and preset-notice
-        container?.querySelector('.eval-cards')?.style && (container.querySelector('.eval-cards').style.display = 'none');
-        container?.querySelector('.preset-notice')?.style && (container.querySelector('.preset-notice').style.display = 'none');
-        container?.querySelectorAll('.text-center.mt-24').forEach(el => el.style.display = 'none');
-        stateDiv.innerHTML = `<div class="glass-card scroll-reveal" style="text-align:center; padding:40px 24px;">
-  <div style="font-size:40px; margin-bottom:16px;">📝</div>
-  <p style="font-weight:600; font-size:16px; margin-bottom:8px;">まだセッション記録がありません</p>
-  <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px;">
-    練習が終わったらAIの評価をここに保存できます。<br>回を重ねるごとに成長が見えるようになります。
-  </p>
-  <button class="btn btn-primary" onclick="scrollToSection('settings')">最初のセッションを始める →</button>
-</div>`;
+        stateDiv.innerHTML = `
+          <div class="glass-card" style="text-align:center; padding:40px 24px;">
+            <div style="font-size:40px; margin-bottom:16px;">📝</div>
+            <p style="font-weight:600; font-size:16px; margin-bottom:8px;">まだセッション記録がありません</p>
+            <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px;">
+              練習が終わったらAIの評価をここに保存できます。<br>回を重ねるごとに成長が見えるようになります。
+            </p>
+            <button class="btn btn-primary" onclick="scrollToSection('settings')">最初のセッションを始める →</button>
+          </div>`;
         return;
       }
 
-      // Check if sections are all "データを取得できませんでした"
+      // State B / C: parse the eval text
       const sections = extractEvalSections(session.previousEvaluation.raw);
-      const fallback = 'データを取得できませんでした。';
+      const fallback  = 'データを取得できませんでした。';
       const allFailed = sections.strengths === fallback && sections.weaknesses === fallback && sections.improvements === fallback;
 
+      const savedAt  = session.previousEvaluation.savedAt || session.lastUpdated;
+      const dateStr  = savedAt ? (() => { const d = new Date(savedAt); return `${d.getMonth()+1}/${d.getDate()}`; })() : '';
+      const countStr = session.sessionCount ? `${session.sessionCount}回目` : '';
+
       if (allFailed) {
-        // State B: raw exists but unparseable
-        const savedAt = session.previousEvaluation.savedAt || session.lastUpdated;
-        let dateStr = '';
-        if (savedAt) {
-          const d = new Date(savedAt);
-          dateStr = `${d.getMonth() + 1}/${d.getDate()}`;
-        }
+        // State B: unparseable raw
         badge?.classList.add('hidden');
-        container?.querySelector('.eval-cards')?.style && (container.querySelector('.eval-cards').style.display = 'none');
-        container?.querySelector('.preset-notice')?.style && (container.querySelector('.preset-notice').style.display = 'none');
-        container?.querySelectorAll('.text-center.mt-24').forEach(el => el.style.display = 'none');
-        stateDiv.innerHTML = `<div class="glass-card scroll-reveal" style="padding:32px 24px;">
-  <p style="font-weight:600; font-size:15px; margin-bottom:8px;">📋 前回のセッション（${dateStr}）</p>
-  <p style="color:var(--text-secondary); font-size:14px; margin-bottom:16px;">
-    評価データを読み取れませんでした。<br>
-    AIの返答全文をそのままコピーして貼り付けると自動で解析されます。
-  </p>
-  <p style="font-size:12px; color:var(--text-secondary); margin-bottom:16px;">
-    💡 ヒント：「=== SESSION EVALUATION ===」から始まる部分を含めて貼り付けてください
-  </p>
-  <button class="btn btn-secondary" onclick="scrollToSection('save-session')">もう一度保存する →</button>
-</div>`;
+        stateDiv.innerHTML = `
+          <div class="glass-card" style="padding:32px 24px;">
+            <p style="font-weight:600; font-size:15px; margin-bottom:8px;">📋 前回のセッション${dateStr ? `（${dateStr}）` : ''}</p>
+            <p style="color:var(--text-secondary); font-size:14px; margin-bottom:16px;">
+              評価データを読み取れませんでした。<br>
+              AIの返答全文をそのままコピーして貼り付けると自動で解析されます。
+            </p>
+            <p style="font-size:12px; color:var(--text-tertiary); margin-bottom:16px;">
+              💡 ヒント：「=== SESSION EVALUATION ===」から始まる部分を含めて貼り付けてください
+            </p>
+            <button class="btn btn-secondary" onclick="scrollToSection('save-session')">もう一度保存する →</button>
+          </div>`;
         return;
       }
 
-      // State C: valid data — use existing renderPreviousSession logic
-      stateDiv.innerHTML = ''; // clear state display, let normal cards show
-      container?.querySelector('.eval-cards')?.style && (container.querySelector('.eval-cards').style.display = '');
-      container?.querySelector('.preset-notice')?.style && (container.querySelector('.preset-notice').style.display = '');
-      container?.querySelectorAll('.text-center.mt-24').forEach(el => el.style.display = '');
-      renderPreviousSession(session);
+      // State C: valid data — render eval cards inline
+      badge?.classList.remove('hidden');
+      if (document.getElementById('session-count-badge')) {
+        document.getElementById('session-count-badge').textContent = session.sessionCount || 0;
+      }
+      stateDiv.innerHTML = `
+        <div class="eval-cards">
+          <div class="eval-card strengths glass-card">
+            <span class="eval-card-icon">💪</span>
+            <div class="eval-card-label">強み</div>
+            <div class="eval-card-content">${escapeHtml(sections.strengths)}</div>
+          </div>
+          <div class="eval-card weaknesses glass-card">
+            <span class="eval-card-icon">🎯</span>
+            <div class="eval-card-label">改善点</div>
+            <div class="eval-card-content">${escapeHtml(sections.weaknesses)}</div>
+          </div>
+          <div class="eval-card improvements glass-card">
+            <span class="eval-card-icon">📈</span>
+            <div class="eval-card-label">次回に向けて</div>
+            <div class="eval-card-content">${escapeHtml(sections.improvements)}</div>
+          </div>
+        </div>
+        ${dateStr ? `<p style="text-align:center; font-size:12px; color:var(--text-tertiary); margin-top:12px;">前回のセッション: ${dateStr}${countStr ? ' (' + countStr + ')' : ''}</p>` : ''}`;
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
     // ============================================================
@@ -3956,9 +4042,9 @@ Choose one that fits naturally. Then let the conversation flow from there.
 
 ## Phase 3: Session End
 
-**IMPORTANT: You MUST output the full evaluation below. Do not summarize or skip any section. The student needs this to save for next time.**
+**CRITICAL VOICE RULE: When the student says they want to end the session, say ONLY this closing phrase (spoken): "お疲れ様でした！今日もよく頑張りましたね。評価をまとめます。" — then STOP speaking. Do NOT read the evaluation aloud. The evaluation below is text output only, for the student to copy and paste into the app.**
 
-When the student says they want to end, or when ~20 minutes have passed, output the COMPLETE evaluation in this exact format — no exceptions:
+When the student says they want to end, or when ~20 minutes have passed, say the short closing phrase above, then immediately output the COMPLETE evaluation in this exact format — no exceptions:
 
 === SESSION EVALUATION ===
 
@@ -4912,73 +4998,106 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
     });
 
     // ============================================================
-    // SETTINGS ACCORDION
+    // SETTINGS ACCORDION / OVERVIEW
     // ============================================================
+    const SETTING_TILES = [
+      { num: '1', emoji: '🌱', label: '英語レベル' },
+      { num: '2', emoji: '💬', label: 'トピック' },
+      { num: '3', emoji: '💡', label: 'フォーカス' },
+      { num: '4', emoji: '🔢', label: 'シャドーイング' },
+      { num: '5', emoji: '🎯', label: '介入頻度' },
+      { num: '6', emoji: '📋', label: '前回プロンプト' }
+    ];
+
+    function getSettingValue(num) {
+      const levelMap = { beginner: '🌱 初級', intermediate: '🌿 中級', advanced: '🌳 上級' };
+      const topicMap = { daily: '💬 日常', business: '💼 ビジネス', travel: '✈️ 旅行', news: '📰 ニュース', academic: '🎓 学術', custom: `✏️ ${appState.customTopic || 'カスタム'}` };
+      const focusMap = { natural_expressions: '自然表現', vocabulary: '語彙', pronunciation: '発音', grammar: '文法' };
+      const intMap = { key_moments: '重要場面のみ', occasionally: 'ときどき', every_turn: '毎ターン' };
+      if (num === '1') return levelMap[document.querySelector('[name="level"]:checked')?.value] || '—';
+      if (num === '2') return topicMap[document.querySelector('[name="topic"]:checked')?.value] || '—';
+      if (num === '3') {
+        const checked = Array.from(document.querySelectorAll('[name="focus"]:checked')).map(i => focusMap[i.value] || i.value);
+        return checked.join(' + ') || '—';
+      }
+      if (num === '4') return (document.querySelector('#count-segment .segment-btn.active')?.dataset.value || '5') + '文';
+      if (num === '5') return intMap[document.querySelector('[name="intervention"]:checked')?.value] || '—';
+      if (num === '6') return document.getElementById('prev-prompt-input')?.value ? '✅ 入力済み' : '—';
+      return '—';
+    }
+
+    let _accordionInited = false;
+
     function initSettingsAccordion() {
-      const groups = document.querySelectorAll('.settings-group.accordion-group');
-      groups.forEach(group => {
-        const label = group.querySelector('.settings-label');
-        if (!label) return;
+      if (_accordionInited) { updateAccordionValues(); return; }
+      _accordionInited = true;
 
-        // Add chevron and current-value span to label if not already there
-        if (!label.querySelector('.accordion-chevron')) {
-          const chevron = document.createElement('span');
-          chevron.className = 'accordion-chevron';
-          chevron.textContent = '▾';
-          label.appendChild(chevron);
-        }
-        if (!label.querySelector('.accordion-current-value')) {
-          const val = document.createElement('span');
-          val.className = 'accordion-current-value';
-          label.insertBefore(val, label.querySelector('.accordion-chevron'));
-        }
+      const inner = document.querySelector('.practice-card-settings-inner');
+      if (!inner) return;
 
-        // Wrap body content in accordion-body div if not already wrapped
+      // Build overview grid
+      const grid = document.createElement('div');
+      grid.className = 'settings-overview-grid';
+      grid.id = 'settings-overview-grid';
+      SETTING_TILES.forEach(({ num, emoji, label }) => {
+        const tile = document.createElement('button');
+        tile.className = 'settings-overview-tile';
+        tile.dataset.settingNum = num;
+        tile.setAttribute('type', 'button');
+        tile.innerHTML = `
+          <div class="settings-overview-tile-label">${emoji} ${label}</div>
+          <div class="settings-overview-tile-value" id="tile-val-${num}">—</div>
+          <span class="tile-chevron">▾</span>`;
+        tile.addEventListener('click', () => toggleSettingByNum(num));
+        grid.appendChild(tile);
+      });
+      inner.insertBefore(grid, inner.firstChild);
+
+      // Wrap each group's body in collapsible div; collapse all
+      document.querySelectorAll('.settings-group.accordion-group').forEach(group => {
+        const num = group.querySelector('.settings-label-num')?.textContent?.trim();
+        if (!num) return;
         let body = group.querySelector('.accordion-body');
         if (!body) {
           body = document.createElement('div');
           body.className = 'accordion-body';
-          // Move all children after .settings-label into the body
           const children = Array.from(group.children).filter(c => !c.classList.contains('settings-label'));
           children.forEach(c => body.appendChild(c));
           group.appendChild(body);
         }
+        // Collapse all by default
+        group.classList.add('accordion-collapsed');
+      });
 
-        label.addEventListener('click', () => {
-          group.classList.toggle('accordion-collapsed');
-          updateAccordionValues();
-        });
+      updateAccordionValues();
+    }
+
+    function toggleSettingByNum(num) {
+      const groups = document.querySelectorAll('.settings-group.accordion-group');
+      const tiles = document.querySelectorAll('.settings-overview-tile');
+      groups.forEach(group => {
+        const gNum = group.querySelector('.settings-label-num')?.textContent?.trim();
+        const isTarget = gNum === num;
+        const wasOpen = !group.classList.contains('accordion-collapsed');
+        group.classList.toggle('accordion-collapsed', isTarget ? wasOpen : true);
+      });
+      tiles.forEach(tile => {
+        tile.classList.toggle('active', tile.dataset.settingNum === num && document.querySelector(`.settings-group.accordion-group:not(.accordion-collapsed) .settings-label-num`)?.textContent?.trim() === num);
+      });
+      // Re-check after toggle
+      document.querySelectorAll('.settings-overview-tile').forEach(tile => {
+        const tNum = tile.dataset.settingNum;
+        const group = [...document.querySelectorAll('.settings-group.accordion-group')]
+          .find(g => g.querySelector('.settings-label-num')?.textContent?.trim() === tNum);
+        tile.classList.toggle('active', group && !group.classList.contains('accordion-collapsed'));
       });
       updateAccordionValues();
     }
 
     function updateAccordionValues() {
-      const levelMap = { beginner: '初級', intermediate: '中級', advanced: '上級' };
-      const topicMap = { daily: '日常', business: 'ビジネス', travel: '旅行', news: 'ニュース', academic: '学術', custom: appState.customTopic || 'カスタム' };
-      const focusMap = { natural_expressions: '自然な表現', vocabulary: '語彙', pronunciation: '発音', grammar: '文法' };
-      const intMap = { key_moments: '重要な場面のみ', occasionally: 'ときどき', every_turn: '毎ターン' };
-
-      document.querySelectorAll('.settings-group.accordion-group').forEach(group => {
-        const valEl = group.querySelector('.accordion-current-value');
-        if (!valEl) return;
-        const num = group.querySelector('.settings-label-num')?.textContent?.trim();
-        let val = '';
-        if (num === '1') {
-          val = levelMap[document.querySelector('[name="level"]:checked')?.value] || '—';
-        } else if (num === '2') {
-          val = topicMap[document.querySelector('[name="topic"]:checked')?.value] || '—';
-        } else if (num === '3') {
-          const checked = Array.from(document.querySelectorAll('[name="focus"]:checked')).map(i => focusMap[i.value] || i.value);
-          val = checked.join(' + ') || '—';
-        } else if (num === '4') {
-          const cnt = document.querySelector('#count-segment .segment-btn.active')?.dataset.value || '5';
-          val = `${cnt}文`;
-        } else if (num === '5') {
-          val = intMap[document.querySelector('[name="intervention"]:checked')?.value] || '—';
-        } else if (num === '6') {
-          val = document.getElementById('prev-prompt-input')?.value ? '入力済み' : '—';
-        }
-        valEl.textContent = val;
+      SETTING_TILES.forEach(({ num }) => {
+        const el = document.getElementById(`tile-val-${num}`);
+        if (el) el.textContent = getSettingValue(num);
       });
     }
 
@@ -5019,6 +5138,10 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       const isOpen = body.classList.toggle('open');
       toggleBtn?.classList.toggle('open', isOpen);
       if (toggleLabel) toggleLabel.textContent = isOpen ? '⚙️ 設定を閉じる' : '⚙️ 設定を変更する';
+      if (isOpen && currentUser) {
+        // Build overview grid on first open for logged-in users
+        initSettingsAccordion();
+      }
     }
 
     // ============================================================
