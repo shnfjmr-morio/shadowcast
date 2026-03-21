@@ -802,44 +802,71 @@
       margin-top: 48px;
     }
 
-    /* Quick Generate Bar */
-    .quick-generate-bar {
-      background: var(--bg-glass);
-      border: 1px solid var(--border-glass);
-      border-radius: 16px;
-      padding: 16px 20px;
-      margin-bottom: 24px;
+    /* Practice Card (Card B) */
+    .practice-card {
+      padding: 0;
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+    .practice-card-top {
+      padding: 20px 20px 0;
+    }
+    #generate-btn-main {
+      width: 100%;
+      padding: 16px;
+      font-size: 17px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+    }
+    .practice-summary-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .quick-generate-summary {
-      flex: 1;
-      min-width: 0;
-    }
-    .quick-generate-label {
-      font-size: 11px;
+      gap: 8px;
+      padding: 10px 0 14px;
+      font-size: 13px;
       color: var(--text-secondary);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
+      border-bottom: 1px solid var(--border-glass);
     }
-    .quick-generate-value {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-primary);
+    .practice-summary-text {
+      flex: 1;
+      font-weight: 500;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .quick-generate-value span.changed {
-      animation: quickFlash 0.4s ease-out;
+    .practice-settings-toggle {
+      width: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: color 0.15s;
     }
-    @keyframes quickFlash {
-      0% { background: var(--accent-glow); border-radius: 4px; }
-      100% { background: transparent; }
+    .practice-settings-toggle:hover { color: var(--text-primary); }
+    .practice-settings-toggle .toggle-arrow {
+      transition: transform 0.25s ease;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+    .practice-settings-toggle.open .toggle-arrow {
+      transform: rotate(180deg);
+    }
+    .practice-card-settings-body {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.4s ease;
+    }
+    .practice-card-settings-body.open {
+      max-height: 3000px;
+    }
+    .practice-card-settings-inner {
+      padding: 0 20px 20px;
     }
 
     /* ============================================================
@@ -1203,6 +1230,144 @@
     /* Footer area */
     .footer-space {
       height: 60px;
+    }
+    .hidden-by-tab { display: none !important; }
+
+    /* ===== BOTTOM TAB BAR ===== */
+    #bottom-tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(56px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      background: rgba(18, 18, 20, 0.92);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-top: 1px solid var(--border-glass);
+      display: flex;
+      align-items: stretch;
+      z-index: 900;
+    }
+    #bottom-tab-bar.hidden { display: none; }
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      color: var(--text-tertiary);
+      transition: color 0.15s;
+      padding: 0;
+      padding-bottom: 2px;
+    }
+    .tab-btn.active { color: var(--accent); }
+    .tab-icon { font-size: 22px; line-height: 1; }
+    .tab-label { font-size: 10px; font-weight: 600; letter-spacing: 0.02em; }
+
+    /* Push content above tab bar when visible */
+    body.has-tab-bar main { padding-bottom: calc(56px + env(safe-area-inset-bottom) + 20px); }
+
+    /* ===== GROWTH DASHBOARD ===== */
+    #growth-dashboard { padding: 40px 0 80px; }
+    .dash-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .dash-tabs::-webkit-scrollbar { display: none; }
+    .dash-tab {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--border-glass);
+      background: var(--bg-glass);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .dash-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .dash-panel { }
+    .dash-log-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .dash-log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .dash-log-meta {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+    .dash-log-cefr {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--accent-glow);
+      padding: 2px 8px;
+      border-radius: 8px;
+    }
+    .dash-log-body {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      display: none;
+    }
+    .dash-log-body.open { display: block; }
+    .cefr-skill-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-glass);
+    }
+    .cefr-skill-row:last-child { border-bottom: none; }
+    .cefr-skill-name {
+      width: 90px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+    .cefr-skill-level {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      width: 44px;
+      flex-shrink: 0;
+    }
+    .cefr-skill-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: var(--border-glass);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .cefr-skill-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 0.5s ease;
     }
 
     /* ============================================================
@@ -2286,29 +2451,36 @@
     ============================================================ -->
     <section id="settings">
       <div class="container">
-        <div class="section-header scroll-reveal">
-          <span class="section-tag">設定</span>
-          <h2 class="section-title">練習の設定</h2>
-          <p class="section-subtitle">あなたのレベルと目標を選んでください。</p>
-        </div>
 
-        <div class="presets-bar glass-card scroll-reveal" id="presets-bar" style="display:none; margin-bottom: 24px;">
+        <!-- Practice Card (Card B) -->
+        <div class="practice-card glass-card scroll-reveal" id="practice-card">
+
+          <!-- Top area: main CTA + summary (hidden for first-timers) -->
+          <div class="practice-card-top" id="practice-card-top">
+            <button class="btn btn-primary" id="generate-btn-main" onclick="handleGenerate()">
+              ✨ 今日の練習を始める
+            </button>
+            <div class="practice-summary-row" id="practice-summary-row">
+              <span class="practice-summary-text" id="practice-summary-text">読み込み中...</span>
+            </div>
+          </div>
+
+          <!-- Settings toggle button -->
+          <button class="practice-settings-toggle" id="practice-settings-toggle" onclick="togglePracticeSettings()">
+            <span id="practice-toggle-label">⚙️ 設定を変更する</span>
+            <span class="toggle-arrow" id="practice-toggle-arrow">▼</span>
+          </button>
+
+          <!-- Collapsible settings body -->
+          <div class="practice-card-settings-body" id="practice-settings-body">
+            <div class="practice-card-settings-inner">
+
+        <div class="presets-bar" id="presets-bar" style="display:none; margin-bottom: 20px; padding: 12px 16px; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 12px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span style="font-size:13px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.08em;">プリセット</span>
             <button class="btn btn-secondary" style="padding:6px 14px; font-size:13px;" id="save-preset-btn" onclick="saveCurrentPreset()">+ 保存</button>
           </div>
           <div class="presets-list" id="presets-list" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; min-height:32px;"></div>
-        </div>
-
-        <!-- Quick Generate Bar -->
-        <div class="quick-generate-bar scroll-reveal" id="quick-generate-bar">
-          <div class="quick-generate-summary">
-            <div class="quick-generate-label">現在の設定</div>
-            <div class="quick-generate-value" id="quick-summary-text">読み込み中...</div>
-          </div>
-          <button class="btn btn-primary" style="white-space:nowrap; padding:12px 20px; font-size:14px;" onclick="handleGenerate()">
-            ✨ この設定で生成
-          </button>
         </div>
 
         <!-- 基本設定セクション -->
@@ -2559,16 +2731,20 @@
           </div>
         </div>
 
-        <div class="session-info scroll-reveal" id="session-info">
+        <div class="session-info" id="session-info" style="text-align:center; font-size:12px; color:var(--text-tertiary); margin: 8px 0 4px;">
           セッション回数: <strong id="session-count-display">0</strong> 回目
         </div>
 
-        <div class="generate-wrap scroll-reveal">
+        <div class="generate-wrap" style="margin-top:16px;">
           <button class="btn btn-primary btn-lg generate-btn" id="generate-btn" onclick="handleGenerate()">
             <span>✨</span>
             <span>プロンプトを生成する</span>
           </button>
         </div>
+
+            </div><!-- /.practice-card-settings-inner -->
+          </div><!-- /.practice-card-settings-body -->
+        </div><!-- /.practice-card -->
       </div>
     </section>
 
@@ -2706,59 +2882,6 @@
       </div>
     </section>
 
-    <!-- ============================================================
-         SECTION F: SESSION HISTORY
-    ============================================================ -->
-    <section id="session-history" class="hidden">
-      <div class="container">
-        <div class="section-header scroll-reveal">
-          <span class="section-tag">履歴</span>
-          <h2 class="section-title">練習ログ</h2>
-          <p class="section-subtitle">これまでのセッション記録</p>
-        </div>
-        <div class="glass-card scroll-reveal" style="padding: 0; overflow: hidden;">
-          <div id="history-list">
-            <p style="padding: 32px; text-align: center; color: var(--text-secondary);">まだセッションがありません</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================
-         SECTION G: PROGRESS
-    ============================================================ -->
-    <section id="progress-section" class="hidden">
-      <div class="container">
-        <div class="section-header scroll-reveal">
-          <span class="section-tag">進捗</span>
-          <h2 class="section-title">あなたの成長</h2>
-          <p class="section-subtitle">練習の積み重ねを可視化します</p>
-        </div>
-
-        <!-- Summary stats -->
-        <div class="eval-cards scroll-reveal" id="progress-stats" style="margin-bottom:24px;"></div>
-
-        <!-- Charts grid -->
-        <div class="progress-charts scroll-reveal">
-          <div class="glass-card" id="chart-streak" style="padding:24px;">
-            <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">練習カレンダー</h3>
-            <div class="streak-grid" id="streak-grid"></div>
-            <div style="display:flex; gap:8px; align-items:center; margin-top:12px; font-size:12px; color:var(--text-tertiary);">
-              <span>少ない</span>
-              <div style="width:12px;height:12px;border-radius:2px;background:rgba(0,113,227,0.2);"></div>
-              <div style="width:12px;height:12px;border-radius:2px;background:rgba(0,113,227,0.5);"></div>
-              <div style="width:12px;height:12px;border-radius:2px;background:var(--accent);"></div>
-              <span>多い</span>
-            </div>
-          </div>
-          <div class="glass-card" id="chart-focus" style="padding:24px;">
-            <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">フォーカス分布</h3>
-            <div id="focus-chart-container" style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <div class="footer-space"></div>
 
     <!-- PRO Upgrade Bottom Sheet -->
@@ -2805,7 +2928,87 @@
         </div>
       </div>
     </div>
+
+    <!-- ============================================================
+         GROWTH DASHBOARD (Tab 2)
+    ============================================================ -->
+    <section id="growth-dashboard" class="hidden">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">成長</span>
+          <h2 class="section-title">あなたの成長</h2>
+          <p class="section-subtitle">練習の積み重ねを可視化します</p>
+        </div>
+
+        <!-- Dashboard sub-tabs -->
+        <div class="dash-tabs">
+          <button class="dash-tab active" data-tab="cefr" onclick="switchDashTab('cefr')">📈 レベル推移</button>
+          <button class="dash-tab" data-tab="skills" onclick="switchDashTab('skills')">🎯 スキル別</button>
+          <button class="dash-tab" data-tab="log" onclick="switchDashTab('log')">📋 ログ</button>
+        </div>
+
+        <!-- Sub-tab: CEFR chart -->
+        <div class="dash-panel" id="dash-panel-cefr">
+          <div class="glass-card" style="padding:20px;">
+            <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">総合CEFRレベル推移</h3>
+            <div id="cefr-chart-container" style="width:100%; overflow-x:auto;"></div>
+            <div style="font-size:12px; color:var(--text-tertiary); margin-top:12px; text-align:center;" id="cefr-no-data">
+              CEFRデータはまだありません。セッションを完了して評価を保存すると表示されます。
+            </div>
+          </div>
+          <div class="glass-card" style="padding:20px; margin-top:16px;">
+            <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">スキル別レーダー（最新）</h3>
+            <div id="cefr-radar-container" style="display:flex; justify-content:center;"></div>
+            <div style="font-size:12px; color:var(--text-tertiary); margin-top:8px; text-align:center;" id="cefr-radar-no-data">
+              データがありません
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-tab: Skills -->
+        <div class="dash-panel hidden" id="dash-panel-skills">
+          <div class="eval-cards" id="progress-stats" style="margin-bottom:16px;"></div>
+          <div class="progress-charts">
+            <div class="glass-card" id="chart-streak" style="padding:20px;">
+              <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">練習カレンダー</h3>
+              <div class="streak-grid" id="streak-grid"></div>
+              <div style="display:flex; gap:8px; align-items:center; margin-top:12px; font-size:12px; color:var(--text-tertiary);">
+                <span>少ない</span>
+                <div style="width:12px;height:12px;border-radius:2px;background:rgba(0,113,227,0.2);"></div>
+                <div style="width:12px;height:12px;border-radius:2px;background:rgba(0,113,227,0.5);"></div>
+                <div style="width:12px;height:12px;border-radius:2px;background:var(--accent);"></div>
+                <span>多い</span>
+              </div>
+            </div>
+            <div class="glass-card" id="chart-focus" style="padding:20px;">
+              <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">フォーカス分布</h3>
+              <div id="focus-chart-container" style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-tab: Session log -->
+        <div class="dash-panel hidden" id="dash-panel-log">
+          <div id="dash-log-list">
+            <p style="text-align:center; color:var(--text-secondary); padding:32px 0;">セッションログがありません</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
+
+  <!-- Bottom Tab Bar (shown for logged-in users with ≥1 session) -->
+  <nav id="bottom-tab-bar" class="hidden" role="navigation" aria-label="メインナビゲーション">
+    <button class="tab-btn active" id="tab-btn-practice" onclick="switchMainTab('practice')">
+      <span class="tab-icon">🎙️</span>
+      <span class="tab-label">練習</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-growth" onclick="switchMainTab('growth')">
+      <span class="tab-icon">📊</span>
+      <span class="tab-label">成長</span>
+    </button>
+  </nav>
 
   <!-- ============================================================
        JAVASCRIPT
@@ -2892,17 +3095,21 @@
       }
       applyFeatureGates(!!currentUser)
 
-      // Show/hide history, progress, presets sections based on login state
+      // Show/hide tab bar and presets based on login state
       const isLoggedIn = !!currentUser;
-      document.getElementById('session-history')?.classList.toggle('hidden', !isLoggedIn);
-      document.getElementById('progress-section')?.classList.toggle('hidden', !isLoggedIn);
+      const history = loadHistory();
+      const hasSession = history.length > 0;
+      const tabBar = document.getElementById('bottom-tab-bar');
+      if (tabBar) tabBar.classList.toggle('hidden', !isLoggedIn || !hasSession);
+      document.body.classList.toggle('has-tab-bar', isLoggedIn && hasSession);
       const presetsBar = document.getElementById('presets-bar');
       if (presetsBar) presetsBar.style.display = isLoggedIn ? 'block' : 'none';
       if (isLoggedIn) {
         renderHistory();
-        renderProgress();
         renderPresets();
       }
+      // Re-init practice card state (session count may have changed)
+      initPracticeCard();
 
       // Hide "how it works" for logged-in users
       const howSection = document.querySelector('.how-section');
@@ -3341,19 +3548,18 @@
         interventionEl.textContent = map[appState.settings.interventionFrequency] || '2〜3ターンに1回フィードバック';
       }
 
-      // Update quick generate bar summary
-      const summaryEl = document.getElementById('quick-summary-text');
-      if (summaryEl) {
-        const s = appState.settings;
-        const levelMap = { beginner: '初級', intermediate: '中級', advanced: '上級' };
-        const topicMap = { daily: '日常', business: 'ビジネス', travel: '旅行', news: 'ニュース', academic: '学術', custom: appState.customTopic || 'カスタム' };
-        const focusMap = { natural_expressions: '自然な表現', vocabulary: '語彙', pronunciation: '発音', grammar: '文法' };
-        const level = levelMap[s.level] || s.level;
-        const topic = topicMap[s.topic] || s.topic;
-        const focus = (s.focus || []).map(f => focusMap[f] || f).join(' + ');
-        const count = s.sentenceCount ? `${s.sentenceCount}文` : '5文';
-        summaryEl.textContent = `${level} ・ ${topic} ・ ${focus} ・ ${count}`;
-      }
+      // Update practice card summary
+      const s = appState.settings;
+      const levelMap = { beginner: '初級', intermediate: '中級', advanced: '上級' };
+      const topicMap = { daily: '日常', business: 'ビジネス', travel: '旅行', news: 'ニュース', academic: '学術', custom: appState.customTopic || 'カスタム' };
+      const focusMap = { natural_expressions: '自然な表現', vocabulary: '語彙', pronunciation: '発音', grammar: '文法' };
+      const level = levelMap[s.level] || s.level;
+      const topic = topicMap[s.topic] || s.topic;
+      const focus = (s.focus || []).map(f => focusMap[f] || f).join(' + ');
+      const count = s.sentenceCount ? `${s.sentenceCount}文` : '5文';
+      const summaryStr = `${level} ・ ${topic} ・ ${focus} ・ ${count}`;
+      const practiceSummaryEl = document.getElementById('practice-summary-text');
+      if (practiceSummaryEl) practiceSummaryEl.textContent = summaryStr;
     }
 
     // ============================================================
@@ -3776,6 +3982,20 @@ IMPORTANT: Write all content below in Japanese.
  - Suggested difficulty adjustment (easier/same/harder)
  - Any particular sentence patterns to include]
 
+=== CEFR ASSESSMENT ===
+[Output ONLY a raw JSON object with no markdown, no code fences, no extra text — exactly this structure:
+{
+  "overall": "[CEFR level, e.g. B1]",
+  "pronunciation": "[CEFR level]",
+  "fluency": "[CEFR level]",
+  "vocabulary": "[CEFR level]",
+  "listening": "[CEFR level]",
+  "grammar": "[CEFR level]",
+  "reasoning": "[One sentence in Japanese explaining the overall level assessment]"
+}
+Valid levels: Pre-A1, A1, A1+, A2, A2+, B1, B1+, B2, B2+, C1, C1+, C2
+Base your assessment on what you actually observed in this session.]
+
 ## General Rules
 - Always speak clearly and at a pace appropriate for ${settings.level} level.
 - Be encouraging and positive.
@@ -3947,25 +4167,48 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
     function parseSessionOutput(text) {
       const evalMarker = '=== SESSION EVALUATION ==='
       const nextMarker = '=== NEXT SESSION PROMPT ==='
+      const cefrMarker = '=== CEFR ASSESSMENT ==='
       const evalIdx = text.indexOf(evalMarker)
       const nextIdx = text.indexOf(nextMarker)
-      let evalText = '', nextPromptText = ''
-      if (evalIdx !== -1 && nextIdx !== -1) {
-        evalText = text.substring(evalIdx, nextIdx).trim()
-        nextPromptText = text.substring(nextIdx).trim()
-      } else if (evalIdx !== -1) {
-        evalText = text.substring(evalIdx).trim()
-      } else if (nextIdx !== -1) {
-        nextPromptText = text.substring(nextIdx).trim()
-      } else {
+      const cefrIdx = text.indexOf(cefrMarker)
+      let evalText = '', nextPromptText = '', cefrText = ''
+
+      if (evalIdx !== -1) {
+        const evalEnd = nextIdx !== -1 ? nextIdx : (cefrIdx !== -1 ? cefrIdx : text.length)
+        evalText = text.substring(evalIdx, evalEnd).trim()
+      }
+      if (nextIdx !== -1) {
+        const nextEnd = cefrIdx !== -1 ? cefrIdx : text.length
+        nextPromptText = text.substring(nextIdx, nextEnd).trim()
+      }
+      if (cefrIdx !== -1) {
+        cefrText = text.substring(cefrIdx + cefrMarker.length).trim()
+      }
+      if (evalIdx === -1 && nextIdx === -1 && cefrIdx === -1) {
         evalText = text
       }
-      return { evalText, nextPromptText }
+      return { evalText, nextPromptText, cefrText }
+    }
+
+    function parseCefrAssessment(cefrText) {
+      if (!cefrText) return null
+      try {
+        // Strip code fences if AI wrapped in them
+        const cleaned = cefrText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+        const firstBrace = cleaned.indexOf('{')
+        const lastBrace = cleaned.lastIndexOf('}')
+        if (firstBrace === -1 || lastBrace === -1) return null
+        return JSON.parse(cleaned.substring(firstBrace, lastBrace + 1))
+      } catch (e) {
+        console.warn('CEFR parse failed:', e)
+        return null
+      }
     }
 
     async function handleSave() {
       const combinedText = document.getElementById('combined-eval-input').value.trim();
-      const { evalText, nextPromptText } = parseSessionOutput(combinedText);
+      const { evalText, nextPromptText, cefrText } = parseSessionOutput(combinedText);
+      const cefrAssessment = parseCefrAssessment(cefrText);
       const saveBtn       = document.getElementById('save-btn');
       const saveIcon      = document.getElementById('save-icon');
       const saveText      = document.getElementById('save-text');
@@ -3984,6 +4227,7 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
         },
         evaluation_raw: evalText,
         next_session_prompt: nextPromptText,
+        cefr_assessment: cefrAssessment,
         duration_minutes: parseInt(document.getElementById('session-duration')?.value) || null,
         user_rating: parseInt(document.getElementById('star-rating')?.dataset.rating) || null,
         session_date: new Date().toISOString().split('T')[0],
@@ -4066,6 +4310,173 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
           s.classList.toggle('active', i < val);
         });
       });
+    }
+
+    // ============================================================
+    // ============================================================
+    // MAIN TAB SWITCHING
+    // ============================================================
+    const CEFR_ORDER = ['Pre-A1','A1','A1+','A2','A2+','B1','B1+','B2','B2+','C1','C1+','C2'];
+
+    function cefrToNum(level) {
+      const idx = CEFR_ORDER.indexOf(level);
+      return idx === -1 ? -1 : idx;
+    }
+
+    function switchMainTab(tab) {
+      const practiceEls = ['#hero','#previous-session','#settings','#output','#save-session'];
+      const growthEl = document.getElementById('growth-dashboard');
+      const tabPractice = document.getElementById('tab-btn-practice');
+      const tabGrowth = document.getElementById('tab-btn-growth');
+
+      if (tab === 'practice') {
+        practiceEls.forEach(sel => {
+          const el = document.querySelector(sel);
+          if (el && !el.dataset.hiddenByAuth) el.classList.remove('hidden-by-tab');
+        });
+        growthEl?.classList.add('hidden');
+        tabPractice?.classList.add('active');
+        tabGrowth?.classList.remove('active');
+      } else {
+        practiceEls.forEach(sel => {
+          const el = document.querySelector(sel);
+          if (el) el.classList.add('hidden-by-tab');
+        });
+        growthEl?.classList.remove('hidden');
+        tabPractice?.classList.remove('active');
+        tabGrowth?.classList.add('active');
+        renderGrowthDashboard();
+      }
+    }
+
+    function switchDashTab(tab) {
+      document.querySelectorAll('.dash-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+      });
+      document.querySelectorAll('.dash-panel').forEach(panel => {
+        panel.classList.add('hidden');
+      });
+      document.getElementById(`dash-panel-${tab}`)?.classList.remove('hidden');
+    }
+
+    function renderGrowthDashboard() {
+      const history = loadHistory();
+      renderCefrChart(history);
+      renderDashLog(history);
+      // Reuse existing progress render for skills tab
+      renderProgress();
+    }
+
+    function renderCefrChart(history) {
+      const container = document.getElementById('cefr-chart-container');
+      const noData = document.getElementById('cefr-no-data');
+      const radarContainer = document.getElementById('cefr-radar-container');
+      const radarNoData = document.getElementById('cefr-radar-no-data');
+      if (!container) return;
+
+      const withCefr = history.filter(s => s.cefr_assessment && s.cefr_assessment.overall);
+      if (withCefr.length === 0) {
+        container.innerHTML = '';
+        if (noData) noData.style.display = 'block';
+        if (radarContainer) radarContainer.innerHTML = '';
+        if (radarNoData) radarNoData.style.display = 'block';
+        return;
+      }
+      if (noData) noData.style.display = 'none';
+      if (radarNoData) radarNoData.style.display = 'none';
+
+      // Line chart
+      const W = 320, H = 160, PAD = { t: 12, r: 12, b: 36, l: 40 };
+      const chartW = W - PAD.l - PAD.r;
+      const chartH = H - PAD.t - PAD.b;
+      const maxIdx = CEFR_ORDER.length - 1;
+
+      const points = withCefr.map((s, i) => ({
+        x: PAD.l + (withCefr.length === 1 ? chartW / 2 : (i / (withCefr.length - 1)) * chartW),
+        y: PAD.t + chartH - (cefrToNum(s.cefr_assessment.overall) / maxIdx) * chartH,
+        label: s.cefr_assessment.overall,
+        date: s.session_date
+      }));
+
+      const polyline = points.map(p => `${p.x},${p.y}`).join(' ');
+      const yLabels = ['Pre-A1','A2','B1','B2','C1','C2'].map(l => {
+        const y = PAD.t + chartH - (cefrToNum(l) / maxIdx) * chartH;
+        return `<text x="${PAD.l - 4}" y="${y + 4}" fill="var(--text-tertiary)" font-size="9" text-anchor="end">${l}</text>
+                <line x1="${PAD.l}" y1="${y}" x2="${W - PAD.r}" y2="${y}" stroke="var(--border-glass)" stroke-width="1"/>`;
+      }).join('');
+
+      const dots = points.map(p =>
+        `<circle cx="${p.x}" cy="${p.y}" r="5" fill="var(--accent)" stroke="var(--bg-primary)" stroke-width="2"/>
+         <text x="${p.x}" y="${p.y - 10}" fill="var(--accent)" font-size="10" text-anchor="middle" font-weight="bold">${p.label}</text>`
+      ).join('');
+
+      const xLabels = points.map(p => {
+        const d = new Date(p.date);
+        return `<text x="${p.x}" y="${H - 4}" fill="var(--text-tertiary)" font-size="9" text-anchor="middle">${d.getMonth()+1}/${d.getDate()}</text>`;
+      }).join('');
+
+      container.innerHTML = `
+        <svg viewBox="0 0 ${W} ${H}" width="100%" style="overflow:visible; min-width:${Math.max(W, withCefr.length * 60)}px">
+          ${yLabels}
+          <polyline points="${polyline}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+          ${dots}
+          ${xLabels}
+        </svg>`;
+
+      // Radar chart for latest session skills
+      const latest = withCefr[0];
+      const skills = [
+        { key: 'pronunciation', label: '発音' },
+        { key: 'fluency', label: '流暢さ' },
+        { key: 'vocabulary', label: '語彙' },
+        { key: 'listening', label: 'リスニング' },
+        { key: 'grammar', label: '文法' }
+      ];
+      const skillRows = skills.map(skill => {
+        const level = latest.cefr_assessment[skill.key] || '—';
+        const pct = level !== '—' ? (cefrToNum(level) / maxIdx * 100).toFixed(0) : 0;
+        return `<div class="cefr-skill-row">
+          <span class="cefr-skill-name">${skill.label}</span>
+          <span class="cefr-skill-level">${level}</span>
+          <div class="cefr-skill-bar-bg"><div class="cefr-skill-bar" style="width:${pct}%"></div></div>
+        </div>`;
+      }).join('');
+      if (radarContainer) radarContainer.innerHTML = `<div style="width:100%">${skillRows}</div>`;
+    }
+
+    function renderDashLog(history) {
+      const list = document.getElementById('dash-log-list');
+      if (!list) return;
+      if (history.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding:32px 0;">セッションログがありません</p>';
+        return;
+      }
+      const levelMap = { beginner: '初級', intermediate: '中級', advanced: '上級' };
+      const topicMap = { daily: '日常', business: 'ビジネス', travel: '旅行', news: 'ニュース', academic: '学術', custom: 'カスタム' };
+      list.innerHTML = history.map((s, i) => {
+        const date = new Date(s.session_date);
+        const dateStr = `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}`;
+        const stars = s.user_rating ? '★'.repeat(s.user_rating) + '☆'.repeat(5 - s.user_rating) : '';
+        const cefrBadge = s.cefr_assessment?.overall
+          ? `<span class="dash-log-cefr">${s.cefr_assessment.overall}</span>` : '';
+        const evalPreview = (s.evaluation_raw || '').replace(/=== SESSION EVALUATION ===/g, '').trim().substring(0, 200);
+        return `<div class="dash-log-card">
+          <div class="dash-log-header" onclick="toggleDashLog(${i})">
+            <div>
+              <div style="font-size:14px; font-weight:600; color:var(--text-primary);">${dateStr}</div>
+              <div class="dash-log-meta">${levelMap[s.settings?.level] || '—'} ・ ${topicMap[s.settings?.topic] || '—'} ${stars ? '・ ' + stars : ''}</div>
+            </div>
+            ${cefrBadge}
+          </div>
+          <div class="dash-log-body" id="dash-log-body-${i}">
+            ${evalPreview || '評価データなし'}${evalPreview.length >= 200 ? '...' : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleDashLog(i) {
+      document.getElementById(`dash-log-body-${i}`)?.classList.toggle('open');
     }
 
     // ============================================================
@@ -4434,6 +4845,7 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       // Init session preview
       updateSessionPreview();
       updateAccordionValues();
+      initPracticeCard();
 
       // Init scroll reveal
       initScrollReveal();
@@ -4568,6 +4980,45 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
         }
         valEl.textContent = val;
       });
+    }
+
+    // ============================================================
+    // PRACTICE CARD (CARD B)
+    // ============================================================
+    function initPracticeCard() {
+      const sessionCount = appState.sessionCount || 0;
+      const mainBtn = document.getElementById('generate-btn-main');
+      const cardTop = document.getElementById('practice-card-top');
+      const summaryRow = document.getElementById('practice-summary-row');
+      const toggleBtn = document.getElementById('practice-settings-toggle');
+      const body = document.getElementById('practice-settings-body');
+      const toggleLabel = document.getElementById('practice-toggle-label');
+
+      if (sessionCount === 0) {
+        // First-time: show settings open, no main button
+        if (cardTop) cardTop.style.display = 'none';
+        if (body) body.classList.add('open');
+        if (toggleBtn) toggleBtn.classList.add('open');
+        if (toggleLabel) toggleLabel.textContent = '⚙️ 設定を閉じる';
+      } else {
+        // Returning user: show main button + summary, settings collapsed
+        if (cardTop) cardTop.style.display = 'block';
+        if (mainBtn) mainBtn.style.display = 'block';
+        if (summaryRow) summaryRow.style.display = 'flex';
+        if (body) body.classList.remove('open');
+        if (toggleBtn) toggleBtn.classList.remove('open');
+        if (toggleLabel) toggleLabel.textContent = '⚙️ 設定を変更する';
+      }
+    }
+
+    function togglePracticeSettings() {
+      const body = document.getElementById('practice-settings-body');
+      const toggleBtn = document.getElementById('practice-settings-toggle');
+      const toggleLabel = document.getElementById('practice-toggle-label');
+      if (!body) return;
+      const isOpen = body.classList.toggle('open');
+      toggleBtn?.classList.toggle('open', isOpen);
+      if (toggleLabel) toggleLabel.textContent = isOpen ? '⚙️ 設定を閉じる' : '⚙️ 設定を変更する';
     }
 
     // ============================================================
