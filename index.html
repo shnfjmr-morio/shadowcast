@@ -3690,17 +3690,44 @@
 
       if (!evalText) return result;
 
+      // Flexible header pattern: matches **Header:** or Header: (with or without **)
+      const h = (label) => new RegExp(`\\*{0,2}${label}\\*{0,2}:?\\*{0,2}`, 'i');
+
       // Extract Strengths
-      const strengthsMatch = evalText.match(/\*\*Strengths:\*\*([\s\S]*?)(?=\*\*Areas for Improvement|\*\*Key Expressions|\*\*Overall|\z|$)/i);
-      if (strengthsMatch) result.strengths = strengthsMatch[1].trim().replace(/^[-•]\s*/gm, '').trim() || result.strengths;
+      const strengthsMatch = evalText.match(
+        new RegExp(`${h('Strengths').source}([\\s\\S]*?)(?=${h('Areas for Improvement').source}|${h('Key Expressions').source}|${h('Overall').source}|={3}|$)`, 'i')
+      );
+      if (strengthsMatch) {
+        const txt = strengthsMatch[1].trim().replace(/^[-•*]\s*/gm, '').trim();
+        if (txt) result.strengths = txt;
+      }
 
-      // Extract Weaknesses
-      const weaknessMatch = evalText.match(/\*\*Areas for Improvement:\*\*([\s\S]*?)(?=\*\*Key Expressions|\*\*Overall|\z|$)/i);
-      if (weaknessMatch) result.weaknesses = weaknessMatch[1].trim().replace(/^[-•]\s*/gm, '').trim() || result.weaknesses;
+      // Extract Areas for Improvement
+      const weaknessMatch = evalText.match(
+        new RegExp(`${h('Areas for Improvement').source}([\\s\\S]*?)(?=${h('Key Expressions').source}|${h('Overall').source}|={3}|$)`, 'i')
+      );
+      if (weaknessMatch) {
+        const txt = weaknessMatch[1].trim().replace(/^[-•*]\s*/gm, '').trim();
+        if (txt) result.weaknesses = txt;
+      }
 
-      // Extract Overall / improvements
-      const overallMatch = evalText.match(/\*\*Overall Progress:\*\*([\s\S]*?)(?=={3}|$)/i);
-      if (overallMatch) result.improvements = overallMatch[1].trim() || result.improvements;
+      // Extract Overall Progress
+      const overallMatch = evalText.match(
+        new RegExp(`${h('Overall Progress').source}([\\s\\S]*?)(?=${h('Key Expressions').source}|={3}|$)`, 'i')
+      );
+      if (overallMatch) {
+        const txt = overallMatch[1].trim();
+        if (txt) result.improvements = txt;
+      }
+
+      // Last-resort: if all still failed but raw has content, show truncated raw
+      const fallback = 'データを取得できませんでした。';
+      if (result.strengths === fallback && result.weaknesses === fallback && result.improvements === fallback) {
+        const clean = evalText.replace(/=== SESSION EVALUATION ===/g, '').replace(/=== NEXT SESSION PROMPT ===/g, '').trim();
+        if (clean.length > 20) {
+          result.strengths = clean.substring(0, 300) + (clean.length > 300 ? '…' : '');
+        }
+      }
 
       return result;
     }
