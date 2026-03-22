@@ -3173,6 +3173,10 @@
       if (isLoggedIn) {
         renderHistory();
         renderPresets();
+        // PRO: sync session history from Supabase, then refresh UI
+        if (currentPlan === 'pro' && supabaseClient) {
+          syncFromSupabase();
+        }
       }
       // Re-init practice card state (session count may have changed)
       initPracticeCard();
@@ -3183,6 +3187,74 @@
 
       // Refresh previous session panel for logged-in state
       renderPreviousSessionState(isLoggedIn);
+    }
+
+    async function syncFromSupabase() {
+      if (!currentUser || !supabaseClient) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from('sessions')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('created_at', { ascending: false })
+          .limit(50);
+        if (error || !data || data.length === 0) return;
+
+        // Merge with localStorage: Supabase is authoritative for PRO
+        const localHistory = loadHistory();
+        const localIds = new Set(localHistory.map(s => s.id).filter(Boolean));
+
+        // Convert Supabase rows to local format
+        const remoteRecords = data.map(row => ({
+          id: row.id,
+          settings: row.settings || {},
+          evaluation_raw: row.evaluation_raw || '',
+          next_session_prompt: row.next_session_prompt || '',
+          cefr_assessment: row.cefr_assessment || null,
+          duration_minutes: row.duration_minutes || null,
+          user_rating: row.user_rating || null,
+          session_date: row.session_date,
+          created_at: row.created_at,
+          synced: true
+        }));
+
+        // Merge: remote records not in local get added
+        const merged = [...localHistory];
+        remoteRecords.forEach(remote => {
+          if (!localIds.has(remote.id)) merged.push(remote);
+        });
+        merged.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        saveHistory(merged.slice(0, 50));
+        appState.history = loadHistory();
+
+        // Update previousEvaluation in session from latest Supabase record
+        const latest = remoteRecords[0];
+        if (latest && latest.evaluation_raw) {
+          const existingSession = loadSession() || {};
+          // Only update if local has no evaluation or Supabase has newer data
+          if (!existingSession.previousEvaluation?.raw) {
+            const updatedSession = {
+              ...existingSession,
+              previousEvaluation: { raw: latest.evaluation_raw, savedAt: latest.created_at },
+              nextSessionPrompt: latest.next_session_prompt
+                ? { raw: latest.next_session_prompt, savedAt: latest.created_at }
+                : existingSession.nextSessionPrompt || null,
+              sessionCount: merged.length,
+              lastUpdated: new Date().toISOString()
+            };
+            saveSession(updatedSession);
+            appState.sessionCount = merged.length;
+          }
+        }
+
+        // Refresh UI with synced data
+        renderHistory();
+        renderPreviousSessionState(true);
+        initPracticeCard();
+        updateSessionCountDisplay(appState.sessionCount || 0);
+      } catch (e) {
+        console.warn('Supabase sync failed:', e);
+      }
     }
 
     function applyFeatureGates(isLoggedIn) {
