@@ -1803,6 +1803,29 @@
       gap: 8px;
     }
 
+    /* ===== SETTINGS DETAIL PANEL ===== */
+    #settings-detail-panel {
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    #settings-detail-panel:empty { display: none; }
+    .settings-detail-card {
+      background: var(--bg-glass);
+      border: 1.5px solid var(--accent);
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 8px;
+    }
+    .settings-detail-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+    }
+
     /* ===== SETTINGS ACCORDION ===== */
     /* Settings overview grid (shows all 6 tiles when panel opens) */
     .settings-overview-grid {
@@ -2541,6 +2564,10 @@
           <div class="practice-card-settings-body" id="practice-settings-body">
             <div class="practice-card-settings-inner">
 
+        <div id="settings-detail-panel"></div>
+
+        <div id="settings-groups-container" style="display:none;">
+
         <div class="presets-bar" id="presets-bar" style="display:none; margin-bottom: 20px; padding: 12px 16px; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 12px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span style="font-size:13px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.08em;">プリセット</span>
@@ -2796,6 +2823,8 @@
             </div>
           </div>
         </div>
+
+        </div><!-- /#settings-groups-container -->
 
         <div class="session-info" id="session-info" style="text-align:center; font-size:12px; color:var(--text-tertiary); margin: 8px 0 4px;">
           セッション回数: <strong id="session-count-display">0</strong> 回目
@@ -5172,25 +5201,68 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
     }
 
     function toggleSettingByNum(num) {
-      const groups = document.querySelectorAll('.settings-group.accordion-group');
+      const detailPanel = document.getElementById('settings-detail-panel');
       const tiles = document.querySelectorAll('.settings-overview-tile');
-      groups.forEach(group => {
-        const gNum = group.querySelector('.settings-label-num')?.textContent?.trim();
-        const isTarget = gNum === num;
-        const wasOpen = !group.classList.contains('accordion-collapsed');
-        group.classList.toggle('accordion-collapsed', isTarget ? wasOpen : true);
-      });
-      tiles.forEach(tile => {
-        tile.classList.toggle('active', tile.dataset.settingNum === num && document.querySelector(`.settings-group.accordion-group:not(.accordion-collapsed) .settings-label-num`)?.textContent?.trim() === num);
-      });
-      // Re-check after toggle
-      document.querySelectorAll('.settings-overview-tile').forEach(tile => {
-        const tNum = tile.dataset.settingNum;
-        const group = [...document.querySelectorAll('.settings-group.accordion-group')]
-          .find(g => g.querySelector('.settings-label-num')?.textContent?.trim() === tNum);
-        tile.classList.toggle('active', group && !group.classList.contains('accordion-collapsed'));
-      });
+      const currentActive = document.querySelector('.settings-overview-tile.active');
+      const isAlreadyOpen = currentActive?.dataset.settingNum === num;
+
+      // Deactivate all tiles
+      tiles.forEach(t => t.classList.remove('active'));
+
+      if (isAlreadyOpen || !detailPanel) {
+        if (detailPanel) detailPanel.innerHTML = '';
+        return;
+      }
+
+      // Find the group for this num
+      const group = [...document.querySelectorAll('.settings-group.accordion-group')]
+        .find(g => g.querySelector('.settings-label-num')?.textContent?.trim() === num);
+      if (!group) return;
+
+      // Mark tile active
+      document.querySelector(`.settings-overview-tile[data-setting-num="${num}"]`)?.classList.add('active');
+
+      // Get the setting title for the detail panel header
+      const tileData = { '1': '英語レベル', '2': 'トピック', '3': 'フォーカス', '4': 'シャドーイング回数', '5': 'フリートーク介入頻度', '6': '前回プロンプト' };
+
+      detailPanel.innerHTML = `<div class="settings-detail-card">
+    <div class="settings-detail-title">${tileData[num] || ''}</div>
+  </div>`;
+
+      // Move actual DOM children (not clone) into detail panel to keep event listeners
+      const detailCard = detailPanel.querySelector('.settings-detail-card');
+      const body = group.querySelector('.accordion-body');
+      if (body) {
+        detailCard.appendChild(body);
+      } else {
+        // No accordion-body yet: move all non-label children
+        Array.from(group.children).filter(c => !c.classList.contains('settings-label')).forEach(c => {
+          detailCard.appendChild(c);
+        });
+      }
+
       updateAccordionValues();
+    }
+
+    function closeSettingsDetailPanel() {
+      const detailPanel = document.getElementById('settings-detail-panel');
+      if (!detailPanel) return;
+      const detailCard = detailPanel.querySelector('.settings-detail-card');
+      if (!detailCard) return;
+      // Find what num is active
+      const activeNum = document.querySelector('.settings-overview-tile.active')?.dataset.settingNum;
+      if (activeNum) {
+        const group = [...document.querySelectorAll('.settings-group.accordion-group')]
+          .find(g => g.querySelector('.settings-label-num')?.textContent?.trim() === activeNum);
+        if (group) {
+          // Move children back (everything except the title div)
+          Array.from(detailCard.children)
+            .filter(c => !c.classList.contains('settings-detail-title'))
+            .forEach(c => group.appendChild(c));
+        }
+      }
+      detailPanel.innerHTML = '';
+      document.querySelectorAll('.settings-overview-tile').forEach(t => t.classList.remove('active'));
     }
 
     function updateAccordionValues() {
@@ -5240,6 +5312,10 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       if (isOpen && currentUser) {
         // Build overview grid on first open for logged-in users
         initSettingsAccordion();
+      }
+      // When closing the panel, restore detail panel content back to its group
+      if (!isOpen) {
+        closeSettingsDetailPanel();
       }
     }
 
