@@ -3284,8 +3284,10 @@
       }
     }
 
+    const BETA_MODE = true; // ベータ期間中: ログイン済みユーザーは全機能開放
+
     function applyFeatureGates(isLoggedIn) {
-      const isPro = currentPlan === 'pro'
+      const isPro = BETA_MODE ? isLoggedIn : currentPlan === 'pro'
 
       function lockEl(el, lock, type) {
         if (lock) {
