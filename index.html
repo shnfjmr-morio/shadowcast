@@ -3188,15 +3188,13 @@
         btnLogin?.classList.remove('hidden')
         userMenu?.classList.add('hidden')
       }
-      applyFeatureGates(!!currentUser)
-
-      // Show/hide tab bar and presets based on login state
+      // Show/hide tab bar FIRST (before feature gates which may error)
       const isLoggedIn = !!currentUser;
-      const history = loadHistory();
-      const hasSession = history.length > 0;
       const tabBar = document.getElementById('bottom-tab-bar');
       if (tabBar) tabBar.classList.toggle('hidden', !isLoggedIn);
       document.body.classList.toggle('has-tab-bar', isLoggedIn);
+
+      try { applyFeatureGates(isLoggedIn); } catch(e) { console.warn('applyFeatureGates error:', e); }
       const presetsBar = document.getElementById('presets-bar');
       if (presetsBar) presetsBar.style.display = isLoggedIn ? 'block' : 'none';
       if (isLoggedIn) {
@@ -3784,9 +3782,10 @@
     // ============================================================
     function extractEvalSections(evalText) {
       const result = {
-        strengths:    'データを取得できませんでした。',
-        weaknesses:   'データを取得できませんでした。',
-        improvements: 'データを取得できませんでした。'
+        strengths:          'データを取得できませんでした。',
+        weaknesses:         'データを取得できませんでした。',
+        improvements:       'データを取得できませんでした。',
+        shadowingSentences: ''
       };
 
       if (!evalText) return result;
@@ -3819,6 +3818,15 @@
       if (overallMatch) {
         const txt = overallMatch[1].trim();
         if (txt) result.improvements = txt;
+      }
+
+      // Extract Shadowing Sentences
+      const shadowingMatch = evalText.match(
+        new RegExp(`${h('Shadowing Sentences').source}([\\s\\S]*?)(?=={3}|$)`, 'i')
+      );
+      if (shadowingMatch) {
+        const txt = shadowingMatch[1].trim();
+        if (txt) result.shadowingSentences = txt;
       }
 
       // Last-resort: if all still failed but raw has content, show truncated raw
@@ -3938,6 +3946,12 @@
       if (document.getElementById('session-count-badge')) {
         document.getElementById('session-count-badge').textContent = session.sessionCount || 0;
       }
+      const sentencesHtml = sections.shadowingSentences
+        ? `<div class="glass-card" style="margin-top:16px; padding:16px 20px;">
+            <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px;">📝 練習したセンテンス</div>
+            <div style="font-size:14px; color:var(--text-primary); line-height:1.8; white-space:pre-wrap;">${escapeHtml(sections.shadowingSentences)}</div>
+          </div>`
+        : '';
       stateDiv.innerHTML = `
         <div class="eval-cards">
           <div class="eval-card strengths glass-card">
@@ -3956,6 +3970,7 @@
             <div class="eval-card-content">${escapeHtml(sections.improvements)}</div>
           </div>
         </div>
+        ${sentencesHtml}
         ${dateStr ? `<p style="text-align:center; font-size:12px; color:var(--text-tertiary); margin-top:12px;">前回のセッション: ${dateStr}${countStr ? ' (' + countStr + ')' : ''}</p>` : ''}`;
     }
 
@@ -4188,6 +4203,9 @@ IMPORTANT: Write all content below in Japanese.
 - [練習した主な表現・センテンスをメモ付きで日本語で記述]
 
 **Overall Progress:** [全体的な進捗を日本語で簡潔に記述]
+
+**Shadowing Sentences:**
+[List EVERY English sentence used in shadowing drills this session, one per line, exactly as spoken. Format: • sentence]
 
 === NEXT SESSION PROMPT ===
 [Output a self-contained instruction block for the next session, referencing:
