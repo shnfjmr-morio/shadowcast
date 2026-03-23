@@ -3560,7 +3560,7 @@
         if (data.url) {
           window.location.href = data.url;
         } else {
-          alert('決済ページの作成に失敗しました。もう一度お試しください。');
+          alert('決済ページの作成に失敗しました。\n' + JSON.stringify(data));
         }
       } catch (err) {
         alert('エラーが発生しました。もう一度お試しください。');
