@@ -5268,22 +5268,25 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       renderPresets();
     }
 
+    let _initAppCalled = false;
     function initApp() {
+      if (_initAppCalled) return;
+      _initAppCalled = true;
+
       // Load preferences
       const prefs = loadPreferences();
       const theme = prefs?.theme || 'dark';
       applyTheme(theme);
 
-      // Load session
+      // Apply saved settings regardless of session existence
       const session = loadSession();
+      const savedSettings = prefs?.settings || session?.settings;
+      if (savedSettings) {
+        applySettingsToDOM(savedSettings);
+        appState.settings = savedSettings;
+      }
 
       if (session) {
-        // Apply saved settings (prefs takes priority as more recent)
-        const savedSettings = prefs?.settings || session.settings;
-        if (savedSettings) {
-          applySettingsToDOM(savedSettings);
-          appState.settings = savedSettings;
-        }
 
         // Show previous session
         renderPreviousSession(session);
