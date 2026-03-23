@@ -2225,7 +2225,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.1</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.2</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -3545,7 +3545,7 @@
       const btn = document.getElementById('pro-checkout-btn');
       if (btn) { btn.disabled = true; btn.textContent = '処理中...'; }
       try {
-        const session = supabase.auth.session ? supabase.auth.session() : (await supabase.auth.getSession()).data.session;
+        const { data: { session } } = await supabaseClient.auth.getSession();
         const token = session?.access_token;
         if (!token) {
           closeProSheet();
@@ -3571,7 +3571,7 @@
 
     async function openBillingPortal() {
       try {
-        const session = supabase.auth.session ? supabase.auth.session() : (await supabase.auth.getSession()).data.session;
+        const { data: { session } } = await supabaseClient.auth.getSession();
         const token = session?.access_token;
         if (!token) return;
         const res = await fetch('/api/create-portal-session', {
