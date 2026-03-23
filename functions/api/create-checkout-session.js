@@ -106,7 +106,7 @@ export async function onRequest(context) {
     const session = await sessionRes.json()
 
     if (!session.url) {
-      return new Response(JSON.stringify({ error: 'Failed to create session', stripe: session }), { status: 500, headers })
+      return new Response(JSON.stringify({ error: 'Failed to create session' }), { status: 500, headers })
     }
 
     return new Response(JSON.stringify({ url: session.url }), { status: 200, headers })

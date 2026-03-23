@@ -2225,7 +2225,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.3</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.4</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -2234,6 +2234,7 @@
           <div class="user-dropdown hidden" id="user-dropdown">
             <div class="user-email" id="user-email-display"></div>
             <div class="user-plan-badge" id="user-plan-badge">FREE</div>
+            <button id="btn-manage-subscription" class="hidden" onclick="openBillingPortal()">サブスクリプション管理</button>
             <button onclick="signOut()">ログアウト</button>
           </div>
         </div>
@@ -3241,6 +3242,8 @@
           planBtn.textContent = isPro ? 'PRO' : 'FREE'
           planBtn.className = 'btn-plan ' + (isPro ? 'pro' : 'free')
         }
+        const manageBtn = document.getElementById('btn-manage-subscription')
+        if (manageBtn) manageBtn.classList.toggle('hidden', !isPro)
       } else {
         btnLogin?.classList.remove('hidden')
         userMenu?.classList.add('hidden')
@@ -3560,7 +3563,7 @@
         if (data.url) {
           window.location.href = data.url;
         } else {
-          alert('決済ページの作成に失敗しました。\n' + JSON.stringify(data));
+          alert('決済ページの作成に失敗しました。もう一度お試しください。');
         }
       } catch (err) {
         alert('エラーが発生しました。もう一度お試しください。');
