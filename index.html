@@ -5382,40 +5382,31 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
 
     function toggleSettingByNum(num) {
       const detailPanel = document.getElementById('settings-detail-panel');
-      const tiles = document.querySelectorAll('.settings-overview-tile');
       const currentActive = document.querySelector('.settings-overview-tile.active');
       const isAlreadyOpen = currentActive?.dataset.settingNum === num;
 
-      // Deactivate all tiles
-      tiles.forEach(t => t.classList.remove('active'));
+      // Always restore current DOM content back to its group BEFORE touching detailPanel
+      closeSettingsDetailPanel();
 
-      if (isAlreadyOpen || !detailPanel) {
-        if (detailPanel) detailPanel.innerHTML = '';
-        return;
-      }
+      if (isAlreadyOpen) return; // was open → now closed, done
 
       // Find the group for this num
       const group = [...document.querySelectorAll('.settings-group.accordion-group')]
         .find(g => g.querySelector('.settings-label-num')?.textContent?.trim() === num);
-      if (!group) return;
+      if (!group || !detailPanel) return;
 
       // Mark tile active
       document.querySelector(`.settings-overview-tile[data-setting-num="${num}"]`)?.classList.add('active');
 
-      // Get the setting title for the detail panel header
       const tileData = { '1': '英語レベル', '2': 'トピック', '3': 'フォーカス', '4': 'シャドーイング回数', '5': 'フリートーク介入頻度', '6': '前回プロンプト' };
+      detailPanel.innerHTML = `<div class="settings-detail-card"><div class="settings-detail-title">${tileData[num] || ''}</div></div>`;
 
-      detailPanel.innerHTML = `<div class="settings-detail-card">
-    <div class="settings-detail-title">${tileData[num] || ''}</div>
-  </div>`;
-
-      // Move actual DOM children (not clone) into detail panel to keep event listeners
+      // Move actual DOM children (not clone) into detail panel to preserve event listeners and state
       const detailCard = detailPanel.querySelector('.settings-detail-card');
       const body = group.querySelector('.accordion-body');
       if (body) {
         detailCard.appendChild(body);
       } else {
-        // No accordion-body yet: move all non-label children
         Array.from(group.children).filter(c => !c.classList.contains('settings-label')).forEach(c => {
           detailCard.appendChild(c);
         });
