@@ -1923,12 +1923,12 @@
       margin-bottom: 5px;
     }
     .settings-overview-tile-value {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--text-primary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: pre-line;
+      line-height: 1.4;
+      word-break: break-word;
     }
     .settings-overview-tile .tile-chevron {
       font-size: 10px;
@@ -3876,18 +3876,20 @@
         if (txt) result.strengths = txt;
       }
 
-      // Extract Areas for Improvement
-      const weaknessMatch = evalText.match(
-        new RegExp(`${h('Areas for Improvement').source}([\\s\\S]*?)(?=${h('Key Expressions').source}|${h('Overall').source}|={3}|$)`, 'i')
+      // Extract Next Session Focus (new format) or Areas for Improvement (legacy)
+      const focusMatch = evalText.match(
+        new RegExp(`${h('Next Session Focus').source}([\\s\\S]*?)(?=${h('Key Expressions').source}|${h('Shadowing').source}|={3}|$)`, 'i')
+      ) || evalText.match(
+        new RegExp(`${h('Areas for Improvement').source}([\\s\\S]*?)(?=${h('Key Expressions').source}|${h('Overall').source}|${h('Shadowing').source}|={3}|$)`, 'i')
       );
-      if (weaknessMatch) {
-        const txt = weaknessMatch[1].trim().replace(/^[-•*]\s*/gm, '').trim();
+      if (focusMatch) {
+        const txt = focusMatch[1].trim().replace(/^[-•*]\s*/gm, '').trim();
         if (txt) result.weaknesses = txt;
       }
 
-      // Extract Overall Progress
+      // Extract Overall Progress (legacy fallback for improvements card)
       const overallMatch = evalText.match(
-        new RegExp(`${h('Overall Progress').source}([\\s\\S]*?)(?=${h('Key Expressions').source}|={3}|$)`, 'i')
+        new RegExp(`${h('Overall Progress').source}([\\s\\S]*?)(?=${h('Key Expressions').source}|${h('Shadowing').source}|={3}|$)`, 'i')
       );
       if (overallMatch) {
         const txt = overallMatch[1].trim();
@@ -4035,13 +4037,8 @@
           </div>
           <div class="eval-card weaknesses glass-card">
             <span class="eval-card-icon">🎯</span>
-            <div class="eval-card-label">改善点</div>
+            <div class="eval-card-label">次回のフォーカス</div>
             <div class="eval-card-content">${escapeHtml(sections.weaknesses)}</div>
-          </div>
-          <div class="eval-card improvements glass-card">
-            <span class="eval-card-icon">📈</span>
-            <div class="eval-card-label">次回に向けて</div>
-            <div class="eval-card-content">${escapeHtml(sections.improvements)}</div>
           </div>
         </div>
         ${sentencesHtml}
@@ -4268,15 +4265,10 @@ When the student says they want to end, or when ~20 minutes have passed:
 IMPORTANT: Write all content below in Japanese.
 
 **Strengths:**
-- [2〜3個の具体的な強みを日本語で記述]
+- [このセッションで特に良かった点を2〜3個、具体的に日本語で記述]
 
-**Areas for Improvement:**
-- [具体的なセッション中の例を挙げながら、2〜3個の改善点を日本語で記述]
-
-**Key Expressions Practiced:**
-- [練習した主な表現・センテンスをメモ付きで日本語で記述]
-
-**Overall Progress:** [全体的な進捗を日本語で簡潔に記述]
+**Next Session Focus:**
+- [今日見えた弱点をもとに、次回の練習で意識すべき具体的なアクションを2〜3個、日本語で記述。「〜を使って練習する」「〜に注意して発音する」のようにアクション形式で。前回を振り返るのではなく、次回どう伸ばすかにフォーカスすること]
 
 **Shadowing Sentences:**
 [List EVERY English sentence used in shadowing drills this session, one per line, exactly as spoken. Format: • sentence]
@@ -4796,10 +4788,11 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       if (!raw) return [];
       const cleaned = raw.replace(/===.*?===/g, '').trim();
       const sections = [];
-      const HEADER_RE = /^\*{0,2}(strengths?|weaknesses?|areas?\s+for\s+improvement|recommended\s+improvements?|improvements?|tips?\s+for|next\s+steps?|action\s+items?)\*{0,2}\s*:?\s*$/i;
+      const HEADER_RE = /^\*{0,2}(strengths?|weaknesses?|areas?\s+for\s+improvement|next\s+session\s+focus|recommended\s+improvements?|improvements?|tips?\s+for|next\s+steps?|action\s+items?)\*{0,2}\s*:?\s*$/i;
       const getTitle = (h) => {
         const t = h.replace(/\*/g, '').replace(/:$/, '').trim().toLowerCase();
         if (/strength/.test(t)) return '💪 強み';
+        if (/next\s+session|focus/.test(t)) return '🎯 次回のフォーカス';
         if (/weakness|areas?\s+for/.test(t)) return '📌 改善点';
         return '🎯 アドバイス';
       };
@@ -5326,7 +5319,7 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       if (num === '2') return topicMap[document.querySelector('[name="topic"]:checked')?.value] || '—';
       if (num === '3') {
         const checked = Array.from(document.querySelectorAll('[name="focus"]:checked')).map(i => focusMap[i.value] || i.value);
-        return checked.join(' + ') || '—';
+        return checked.join('\n') || '—';
       }
       if (num === '4') return (document.querySelector('#count-segment .segment-btn.active')?.dataset.value || '5') + '文';
       if (num === '5') return intMap[document.querySelector('[name="intervention"]:checked')?.value] || '—';
