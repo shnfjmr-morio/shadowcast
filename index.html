@@ -2911,21 +2911,6 @@
                 <span id="copy-icon">📋</span>
                 <span id="copy-text">Copy</span>
               </button>
-              <div class="gemini-link" id="ai-open-btn" onclick="toggleAIDropdown(event)">
-                <span>✨</span>
-                AIを開く
-                <div class="ai-open-dropdown hidden" id="ai-open-dropdown">
-                  <a class="ai-open-item" onclick="openAI('chatgpt')">
-                    <span>🤖</span><span>ChatGPT</span>
-                  </a>
-                  <a class="ai-open-item" onclick="openAI('gemini')">
-                    <span>✨</span><span>Gemini</span>
-                  </a>
-                  <a class="ai-open-item" onclick="openAI('claude')">
-                    <span>🧠</span><span>Claude</span>
-                  </a>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -2934,6 +2919,10 @@
               <div class="prompt-line-numbers" id="prompt-line-numbers"></div>
               <pre class="prompt-text" id="prompt-output"></pre>
             </div>
+          </div>
+          <div style="margin-top:16px; padding:12px 16px; background:var(--bg-tertiary); border-radius:10px; font-size:13px; color:var(--text-secondary); line-height:1.7;">
+            📋 コピーしたら GeminiやChatGPT のテキストチャットに貼り付け → AIから「了解しました」と返ってきたら<br>
+            🎙️ <strong style="color:var(--text-primary);">「会話を開始」ボタン</strong>を押して声をかけてください
           </div>
         </div>
 
@@ -4162,7 +4151,16 @@ async function startCheckout() {
       const hasPrevEval         = previousEvaluation && previousEvaluation.raw && previousEvaluation.raw.trim().length > 0;
       const hasNextSessionPrompt = nextSessionPrompt && nextSessionPrompt.raw && nextSessionPrompt.raw.trim().length > 0;
 
-      let prompt = `You are an English shadowing practice partner. Follow the instructions below strictly.
+      let prompt = `## IMPORTANT: How to respond to this prompt
+
+You are receiving this as a text message. Reply ONLY with this exact Japanese text and nothing else:
+「了解しました！準備ができたら声をかけてください。」
+Do NOT greet. Do NOT start the practice. Do NOT say anything else. Just that one line.
+When the student then speaks to you (e.g. says "Hello" or "よろしく"), THEN begin the session as described below.
+
+---
+
+You are an English shadowing practice partner. Follow the instructions below strictly.
 
 ## Session Settings
 - Student Level: ${levelDesc}
@@ -4188,13 +4186,6 @@ ${nextSessionPrompt.raw.trim()}`;
       }
 
       prompt += `
-
-## How to start this session
-
-When you receive this prompt (in text chat), reply ONLY with a short acknowledgment in Japanese, such as:
-「了解しました！準備ができたら声をかけてください。」
-Do NOT start the practice yet. Wait for the student to initiate the voice conversation (they will say something like "Hello" or "よろしく").
-Once the student speaks to you, THEN begin with a warm greeting and immediately move into Phase 1.
 
 ## Phase 1: Shadowing Practice
 
