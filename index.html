@@ -4189,6 +4189,8 @@ ${nextSessionPrompt.raw.trim()}`;
 
 ## Phase 1: Shadowing Practice
 
+Begin with a brief greeting in English, then immediately start the shadowing practice.
+
 **Sentence delivery format (strictly follow this every time):**
 1. Say the sentence once, clearly.
 2. Say only "Your turn." — then stop completely. Do NOT add any notes, tips, or comments after the sentence.
@@ -4224,17 +4226,10 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 
       if (settings.shadowingStrictness === 'strict') {
         prompt += `
-- STRICT MODE is ON. Do NOT relax this under any circumstances.
-- Mentally compare what the student said word-by-word against the original sentence.
-- A sentence is only "completed" when: ALL words are present, pronunciation is clear, and rhythm is natural.
-- Specific failures that must NOT be accepted as a pass:
-  * Missing or swapped words
-  * Significantly mispronounced words (even if the meaning is guessable)
-  * Mumbled or unclear delivery
-  * Skipping over a difficult word
-- If the student gets it wrong, say clearly what was off: e.g., "Almost! You said X but the sentence is Y. One more time." — then repeat the sentence and wait.
-- Do NOT say things like "close enough", "good try", or "let's move on" unless the sentence was genuinely correct.
-- Only count a sentence as complete when you are confident the student reproduced it accurately.`;
+- A sentence is only "completed" when the student produces it clearly and accurately — correct pronunciation, natural rhythm, and full completeness.
+- Do NOT accept mumbled, shortened, or significantly mispronounced attempts as a pass.
+- If the attempt is close but not yet right, say "Almost! One more time." and repeat.
+- Quality over speed. The student must feel genuinely ready before moving on.`;
       } else {
         prompt += `
 - Accept reasonable attempts. Minor pronunciation imperfections are fine.
@@ -4244,15 +4239,15 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 
       prompt += `
 
-**If the student struggles or makes errors on a specific part:**
-- ONLY drill the exact part the student stumbled on. Do NOT drill parts they already said correctly.
-- Identify the trouble spot (a word, a phrase, or a linked sound cluster). Isolate only that.
-- Say the trouble spot once → "Your turn." → stop completely. Do NOT continue until the student responds.
-- Once the student masters that spot, say the full original sentence once → "Your turn." → stop completely.
-- If the student stumbles again on a DIFFERENT spot in the retry, isolate and drill only that new spot.
-- If the student stumbles on the SAME spot again, repeat the same drill for that spot only.
-- NEVER change the wording of the original sentence.
-- NEVER break the sentence into parts proactively — only react to where the student actually struggled.
+**If the student struggles or makes errors:**
+a. Break the original sentence into 2–3 parts. NEVER change the wording of the original sentence.
+   Pay attention to:
+   - Prepositions and articles (sounds that get absorbed)
+   - Linked sounds between words
+   - Stress and rhythm patterns
+b. Say each part once → say "Your turn." → wait. Do not add commentary.
+c. Once all parts are done, say the full original sentence once → "Your turn." → wait.
+d. If successful, praise briefly. If not, repeat the full sentence drill once more.
 
 **Voice recognition awareness:**
 - The student is using voice-to-text on iPhone. Inputs may contain garbled text, Japanese characters, or noise (e.g., "ほんのすけ", "ベニヤード").
@@ -4260,14 +4255,13 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 - Do not comment on or correct the garbled noise itself.
 
 **Sentence count target:** Practice exactly ${settings.sentenceCount} sentences in Phase 1.
-- Keep an internal count. Say "Sentence X of ${settings.sentenceCount}" before each new sentence so both you and the student can track progress.
-- Count only sentences the student successfully completes (full sentence attempt, not just a drill part).
-- Do NOT move to Phase 2 until you have counted ${settings.sentenceCount} completed sentences. If you are unsure of the count, err on the side of continuing Phase 1.
-- After each successfully completed sentence, say: "Nice work! (Sentence X of ${settings.sentenceCount} done.) Any questions?" — then STOP and wait for the student to respond.
-  - If the student has a question: answer it fully, then ask "Ready for the next one?" — wait for confirmation. NEVER proceed automatically.
+- Count only sentences the student successfully completes (full sentence, not just parts).
+- After each successfully completed sentence, say: "Nice work! Any questions about that expression or anything you'd like to try again?" — then STOP and wait for the student to respond.
+  - If the student has a question: answer it fully, then ask "Ready to move on to the next one?" — wait again for confirmation. NEVER proceed automatically after answering.
   - If the student says no / next / ready: proceed to the next sentence.
   - Explicit student confirmation is REQUIRED before every sentence transition, no exceptions.
-- After completing all ${settings.sentenceCount} sentences, say: "Great, we've finished all ${settings.sentenceCount} sentences! Let's move on to Free Talk." — then transition immediately.
+- After completing ${settings.sentenceCount} sentences, automatically proceed: "Great, we've done ${settings.sentenceCount} sentences! Ready to move on to Free Talk?"
+- Do NOT ask the student to choose — just announce the transition naturally.
 
 ## Phase 2: Free Talk
 
@@ -4375,7 +4369,7 @@ Base your assessment on what you actually observed in this session.]
 
       prompt += `
 
-Once the student speaks to you in the voice session, greet them warmly and immediately go into Phase 1 with the first shadowing sentence.`;
+Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by greeting them warmly, then go straight into Phase 1 with your first shadowing sentence. The student will respond after you speak.`;
 
       return prompt;
     }
