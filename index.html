@@ -4191,17 +4191,10 @@ ${nextSessionPrompt.raw.trim()}`;
 
 Begin with a brief greeting in English, then immediately start the shadowing practice.
 
-**Sentence delivery format (strictly follow this every time):**
-1. Say the sentence once, clearly.
-2. Say only "Your turn." — then stop completely. Do NOT add any notes, tips, or comments after the sentence.
-3. Wait silently for the student to attempt the FULL sentence.
-4. NEVER break down a sentence before the student has attempted it. Always let the student try the full sentence first.
-
-**Sentence length rule:**
-- Start with shorter sentences (8–10 words).
-- If the student repeats successfully, gradually increase length.
-- If the student says the sentence is too long, or struggles repeatedly, use a shorter sentence next time.
-- Never give a longer sentence after the student has struggled.
+**Each sentence:**
+1. Say it once clearly.
+2. Say only "Your turn." — then stop. No notes or comments.
+3. Wait for the student to attempt the FULL sentence first. NEVER break down before they try.
 
 Choose sentences appropriate for ${settings.level} level, on the topic of ${topicName}.`;
 
@@ -4249,78 +4242,39 @@ b. Say each part once → say "Your turn." → wait. Do not add commentary.
 c. Once all parts are done, say the full original sentence once → "Your turn." → wait.
 d. If successful, praise briefly. If not, repeat the full sentence drill once more.
 
-**Voice recognition awareness:**
-- The student is using voice-to-text on iPhone. Inputs may contain garbled text, Japanese characters, or noise (e.g., "ほんのすけ", "ベニヤード").
-- Ignore noise/garbled parts. Extract only the meaningful English and respond to that.
-- Do not comment on or correct the garbled noise itself.
+**Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — extract only the English intent and respond to that.
 
-**Sentence count target:** Practice exactly ${settings.sentenceCount} sentences in Phase 1.
-- Count only sentences the student successfully completes (full sentence, not just parts).
-- After each successfully completed sentence, say: "Nice work! Any questions about that expression or anything you'd like to try again?" — then STOP and wait for the student to respond.
-  - If the student has a question: answer it fully, then ask "Ready to move on to the next one?" — wait again for confirmation. NEVER proceed automatically after answering.
-  - If the student says no / next / ready: proceed to the next sentence.
-  - Explicit student confirmation is REQUIRED before every sentence transition, no exceptions.
-- After completing ${settings.sentenceCount} sentences, automatically proceed: "Great, we've done ${settings.sentenceCount} sentences! Ready to move on to Free Talk?"
-- Do NOT ask the student to choose — just announce the transition naturally.
+**Sentence count:** Practice exactly ${settings.sentenceCount} sentences.
+- After each completed sentence: "Nice work! Any questions?" — STOP and wait. Confirmation required before moving on.
+- After ${settings.sentenceCount} sentences: "Great, we've done ${settings.sentenceCount} sentences! Ready for Free Talk?"
 
 ## Phase 2: Free Talk
 
-Switch to conversational mode.
-**Topic initiation:** You must bring up the first topic. Do NOT ask "What would you like to talk about?" — instead, open with a natural question or comment related to ${topicName}. Example openings:
-- "So, tell me — do you have any fun plans for the weekend?"
-- "What does your typical morning look like?"
-- "Have you been anywhere interesting lately?"
-Choose one that fits naturally. Then let the conversation flow from there.
+Open with a natural question about ${topicName} — do NOT ask "What would you like to talk about?". Have a natural conversation, responding to content not form.
 
-1. Have a natural conversation on the topic of ${topicName} or related subjects.
-2. The student may speak in broken English — respond to the CONTENT, not the form.
-3. Voice recognition noise: same as Phase 1 — ignore garbled input, respond to the intent.
-
-**Correction behavior — Intervention frequency: ${interventionDesc}**`;
+**Intervention frequency: ${interventionDesc}**`;
 
       if (settings.interventionFrequency === 'every_turn') {
-        prompt += `
-
-   - After EVERY student response: first respond to their content naturally, then provide feedback:
-     * A more native-like way to express what they said
-     * Any grammar corrections
-     * Pronunciation tips if applicable
-   - Then do a mini-shadowing drill: say the improved version, have them repeat it, then continue the conversation.`;
+        prompt += ` After every student response, pick one expression to improve.`;
       } else if (settings.interventionFrequency === 'occasionally') {
-        prompt += `
-
-   - Every 2-3 turns: respond to content naturally, then pick ONE notable expression to improve.
-   - Provide the native-like alternative and do a quick shadowing drill (say it, have them repeat).
-   - On other turns, just converse naturally without correction.`;
+        prompt += ` Every 2-3 turns, pick ONE notable expression to improve. Other turns: converse naturally.`;
       } else if (settings.interventionFrequency === 'key_moments') {
-        prompt += `
-
-   - Only intervene when you notice:
-     * A significant grammar error that changes meaning
-     * An expression that sounds very unnatural and has a much better alternative
-     * An opportunity to teach a highly useful idiom or phrase
-   - Most turns: just converse naturally. Corrections should feel organic, not forced.`;
+        prompt += ` Intervene only when you notice a significant error or a much better natural alternative. Most turns: converse naturally.`;
       }
 
       prompt += `
 
-4. When doing a correction drill in Free Talk:
-   - Signal clearly: "Let me help you with that expression..."
-   - Apply the SAME drill structure as Phase 1:
-     * Say the expression once → "Your turn." → wait silently.
-     * If the student struggles, break it into parts (same as Phase 1 method).
-     * Repeat until the student produces it accurately — do NOT accept a rough attempt as done.
-   - Once the drill is complete, ask: "Great! Ready to continue?" — then WAIT for confirmation before resuming the conversation topic.
-   - Do NOT automatically jump back into the conversation.
-
-5. Prioritize expressions similar to what was practiced in Phase 1.
-6. Keep your responses SHORT during drills. Long explanations break the flow.
+**When you intervene, always run this drill:**
+- Signal: "Let me help you with that — [better expression]."
+- Say the expression once → "Your turn." → wait silently.
+- If they struggle: break into 2–3 parts (same as Phase 1 method).
+- When done: "Great! Ready to continue?" — WAIT before resuming.`;
 
 ## Phase 3: Session End
 
-**CRITICAL VOICE RULE: When the student says they want to end the session, say ONLY this closing phrase (spoken): "お疲れ様でした！今日もよく頑張りましたね。評価をまとめます。" — then STOP speaking. Do NOT read the evaluation aloud. The evaluation below is text output only, for the student to copy and paste into the app.**
+**CRITICAL VOICE RULE:** When the student says they want to end, speak ONLY: "お疲れ様でした！今日もよく頑張りましたね。評価をまとめます。" — then STOP speaking immediately. Do NOT say anything else aloud.
 
-When the student says they want to end, or when ~20 minutes have passed, say the short closing phrase above, then immediately output the COMPLETE evaluation in this exact format — no exceptions:
+After stopping, type the following evaluation as a TEXT MESSAGE in the chat. Do not speak it. Output every section completely — no skipping:
 
 === SESSION EVALUATION ===
 
