@@ -602,7 +602,8 @@
       cursor: pointer;
     }
 
-    .toggle-chip input[type="checkbox"] {
+    .toggle-chip input[type="checkbox"],
+    .toggle-chip input[type="radio"] {
       position: absolute;
       opacity: 0;
       width: 0;
@@ -2657,30 +2658,18 @@
             <span class="settings-label-num">1</span>
             英語レベル
           </div>
-          <div class="radio-cards cols-3">
-            <label class="radio-card" data-level="beginner">
+          <div class="toggle-chips">
+            <label class="toggle-chip" data-level="beginner">
               <input type="radio" name="level" value="beginner" checked />
-              <div class="radio-card-inner">
-                <span class="radio-card-emoji">🌱</span>
-                <div class="radio-card-title">Beginner</div>
-                <div class="radio-card-desc">基本的なフレーズから</div>
-              </div>
+              <div class="toggle-chip-inner"><span>🌱 Beginner</span></div>
             </label>
-            <label class="radio-card" data-level="intermediate">
+            <label class="toggle-chip" data-level="intermediate">
               <input type="radio" name="level" value="intermediate" />
-              <div class="radio-card-inner">
-                <span class="radio-card-emoji">🌿</span>
-                <div class="radio-card-title">Intermediate</div>
-                <div class="radio-card-desc">日常会話レベル</div>
-              </div>
+              <div class="toggle-chip-inner"><span>🌿 Intermediate</span></div>
             </label>
-            <label class="radio-card" data-level="advanced">
+            <label class="toggle-chip" data-level="advanced">
               <input type="radio" name="level" value="advanced" />
-              <div class="radio-card-inner">
-                <span class="radio-card-emoji">🌳</span>
-                <div class="radio-card-title">Advanced</div>
-                <div class="radio-card-desc">ネイティブレベルの表現</div>
-              </div>
+              <div class="toggle-chip-inner"><span>🌳 Advanced</span></div>
             </label>
           </div>
         </div>
@@ -2691,53 +2680,30 @@
             <span class="settings-label-num">2</span>
             トピック
           </div>
-          <div class="radio-cards cols-5">
-            <label class="radio-card" data-topic="daily">
+          <div class="toggle-chips">
+            <label class="toggle-chip" data-topic="daily">
               <input type="radio" name="topic" value="daily" checked />
-              <div class="radio-card-inner">
-                <span class="radio-card-emoji">💬</span>
-                <div class="radio-card-title">Daily</div>
-                <div class="radio-card-desc">日常会話</div>
-              </div>
+              <div class="toggle-chip-inner"><span>💬 Daily</span></div>
             </label>
-            <label class="radio-card" data-topic="business">
+            <label class="toggle-chip" data-topic="business">
               <input type="radio" name="topic" value="business" />
-              <div class="radio-card-inner">
-                <span class="radio-card-emoji">💼</span>
-                <div class="radio-card-title">Business</div>
-                <div class="radio-card-desc">ビジネス</div>
-              </div>
+              <div class="toggle-chip-inner"><span>💼 Business</span></div>
             </label>
-            <label class="radio-card" data-topic="travel">
+            <label class="toggle-chip" data-topic="travel">
               <input type="radio" name="topic" value="travel" />
-              <div class="radio-card-inner">
-                <span class="radio-card-emoji">✈️</span>
-                <div class="radio-card-title">Travel</div>
-                <div class="radio-card-desc">旅行</div>
-              </div>
+              <div class="toggle-chip-inner"><span>✈️ Travel</span></div>
             </label>
-            <label class="radio-card" data-topic="news">
+            <label class="toggle-chip" data-topic="news">
               <input type="radio" name="topic" value="news" />
-              <div class="radio-card-inner">
-                <span class="radio-card-emoji">📰</span>
-                <div class="radio-card-title">News</div>
-                <div class="radio-card-desc">ニュース</div>
-              </div>
+              <div class="toggle-chip-inner"><span>📰 News</span></div>
             </label>
-            <label class="radio-card" data-topic="academic">
+            <label class="toggle-chip" data-topic="academic">
               <input type="radio" name="topic" value="academic" />
-              <div class="radio-card-inner">
-                <span class="radio-card-emoji">🎓</span>
-                <div class="radio-card-title">Academic</div>
-                <div class="radio-card-desc">アカデミック</div>
-              </div>
+              <div class="toggle-chip-inner"><span>🎓 Academic</span></div>
             </label>
-            <label class="radio-card" data-topic="custom">
-              <input type="radio" name="topic" value="custom">
-              <div class="radio-card-inner">
-                <span class="radio-card-icon">✏️</span>
-                <span class="radio-card-label">カスタム</span>
-              </div>
+            <label class="toggle-chip" data-topic="custom">
+              <input type="radio" name="topic" value="custom" />
+              <div class="toggle-chip-inner"><span>✏️ カスタム</span></div>
             </label>
           </div>
           <div id="custom-topic-wrapper" style="display:none; margin-top:12px;">
