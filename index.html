@@ -1395,6 +1395,46 @@
       border-radius: 3px;
       transition: width 0.5s ease;
     }
+    .cefr-ref-card {
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: var(--bg-tertiary);
+      margin-bottom: 8px;
+      opacity: 0.55;
+    }
+    .cefr-ref-card.current {
+      opacity: 1;
+      border: 1px solid var(--accent);
+      background: rgba(0, 113, 227, 0.08);
+    }
+    .cefr-ref-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .cefr-ref-level {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .cefr-ref-en {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+    .cefr-ref-you {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .cefr-ref-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin: 0;
+    }
 
     /* ============================================================
        PREVIOUS EVAL RAW TEXT
@@ -3078,10 +3118,16 @@
             </div>
           </div>
           <div class="glass-card" style="padding:20px; margin-top:16px;">
-            <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">スキル別レーダー（最新）</h3>
+            <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">スキル別（最新セッション）</h3>
             <div id="cefr-radar-container" style="display:flex; justify-content:center;"></div>
             <div style="font-size:12px; color:var(--text-tertiary); margin-top:8px; text-align:center;" id="cefr-radar-no-data">
               データがありません
+            </div>
+          </div>
+          <div class="glass-card" style="padding:20px; margin-top:16px;">
+            <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">CEFRレベルの目安</h3>
+            <div id="cefr-reference-container">
+              <p style="font-size:12px; color:var(--text-tertiary); text-align:center;">セッションを完了するとレベルの説明が表示されます</p>
             </div>
           </div>
         </div>
@@ -4578,6 +4624,45 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
     // ============================================================
     const CEFR_ORDER = ['Pre-A1','A1','A1+','A2','A2+','B1','B1+','B2','B2+','C1','C1+','C2'];
 
+    const CEFR_DESC = {
+      'Pre-A1': { en: 'Pre-beginner', ja: '入門前', desc: '基本的な単語やフレーズをわずかに理解・使用できる段階。日常的なコミュニケーションはほぼ困難。' },
+      'A1':     { en: 'Breakthrough', ja: '入門',   desc: '日常的なごく基本的な表現や定型フレーズを理解・使用できる。自己紹介や身近な事柄についての簡単な質問・回答が可能。相手がゆっくりはっきり話す必要がある。' },
+      'A1+':    { en: 'Breakthrough+', ja: '入門上', desc: 'A1を超え、身近な話題について少し広がりのある表現が使える。基本的な情報交換ができ始める段階。' },
+      'A2':     { en: 'Waystage', ja: '初級',       desc: '買い物・職場・地域など身近な事柄に関する文章や頻出表現を理解できる。単純で日常的なやり取りに対応できる。' },
+      'A2+':    { en: 'Waystage+', ja: '初級上',    desc: '日常的な状況に対応でき、簡単な説明や意見の交換が始められる段階。' },
+      'B1':     { en: 'Threshold', ja: '中級',      desc: '仕事・学校・余暇など身近な話題の明瞭な文章を理解できる。旅行中のほとんどの場面に対応でき、なじみのある話題について簡単にまとまった文章を話せる。' },
+      'B1+':    { en: 'Threshold+', ja: '中級上',   desc: 'B1を超え、より複雑な内容も理解でき、自分の意見を明確に述べ始められる。' },
+      'B2':     { en: 'Vantage', ja: '中上級',      desc: '具体的・抽象的な話題の複雑な文章の要点を理解できる。母語話者と流暢で自然なやり取りが可能。幅広いテーマについて明確かつ詳細に話せる。' },
+      'B2+':    { en: 'Vantage+', ja: '中上級上',   desc: 'B2を超え、専門的な話題でも論理的に立場を説明できる段階。' },
+      'C1':     { en: 'Effective Proficiency', ja: '上級', desc: '難解な長文や行間の意味を理解できる。社会的・学術的・職業的な場面でほぼ流暢に表現でき、複雑な話題も柔軟に扱える。' },
+      'C1+':    { en: 'Proficiency+', ja: '上級上', desc: 'C1を超え、ほぼすべての状況で流暢かつ正確に表現できる。ニュアンスのある表現も自在。' },
+      'C2':     { en: 'Mastery', ja: '熟達',        desc: '聞いたり読んだりするものをほぼ完全に理解できる。複雑な状況でも精確・流暢・自然に表現でき、ネイティブスピーカーと同等のコミュニケーションが可能。' },
+    };
+
+    function renderCefrReference(currentLevel) {
+      const container = document.getElementById('cefr-reference-container');
+      if (!container) return;
+      const idx = CEFR_ORDER.indexOf(currentLevel);
+      if (idx === -1) { container.innerHTML = ''; return; }
+      const levels = [
+        idx > 0 ? { level: CEFR_ORDER[idx - 1], type: 'below' } : null,
+        { level: currentLevel, type: 'current' },
+        idx < CEFR_ORDER.length - 1 ? { level: CEFR_ORDER[idx + 1], type: 'above' } : null,
+      ].filter(Boolean);
+      container.innerHTML = levels.map(({ level, type }) => {
+        const d = CEFR_DESC[level] || {};
+        const isCurrent = type === 'current';
+        return `<div class="cefr-ref-card ${isCurrent ? 'current' : ''}">
+          <div class="cefr-ref-top">
+            <span class="cefr-ref-level">${level}</span>
+            <span class="cefr-ref-en">${d.en || ''}</span>
+            ${isCurrent ? '<span class="cefr-ref-you">← あなた</span>' : ''}
+          </div>
+          <p class="cefr-ref-desc">${d.desc || ''}</p>
+        </div>`;
+      }).join('');
+    }
+
     function cefrToNum(level) {
       const idx = CEFR_ORDER.indexOf(level);
       return idx === -1 ? -1 : idx;
@@ -4702,26 +4787,34 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
         </div>`;
       }).join('');
       if (radarContainer) radarContainer.innerHTML = `<div style="width:100%">${skillRows}</div>`;
-      // Also populate the skills tab breakdown
       const skillBreakdown = document.getElementById('skill-breakdown-container');
       if (skillBreakdown) skillBreakdown.innerHTML = `<div style="width:100%">${skillRows}</div>`;
+      renderCefrReference(latest.cefr_assessment.overall);
     }
 
     function extractLogSections(raw) {
       if (!raw) return [];
-      const cleaned = raw.replace(/=== SESSION EVALUATION ===/g, '').replace(/=== NEXT SESSION PROMPT ===/g, '').trim();
+      const cleaned = raw.replace(/===.*?===/g, '').trim();
       const sections = [];
-      const patterns = [
-        { title: '💪 強み', re: /\*{0,2}strengths?\*{0,2}:?\s*([\s\S]*?)(?=\*{0,2}(?:weaknesses?|areas? for improvement|improvements?)\*{0,2}:|$)/i },
-        { title: '📌 改善点', re: /\*{0,2}(?:weaknesses?|areas? for improvement)\*{0,2}:?\s*([\s\S]*?)(?=\*{0,2}(?:improvements?|recommended)\*{0,2}:|$)/i },
-        { title: '🎯 アドバイス', re: /\*{0,2}(?:recommended improvements?|improvements?)\*{0,2}:?\s*([\s\S]*?)(?=={3}|$)/i },
-      ];
-      for (const p of patterns) {
-        const m = cleaned.match(p.re);
-        if (m && m[1].trim().length > 5) sections.push({ title: p.title, content: m[1].trim() });
+      const HEADER_RE = /^\*{0,2}(strengths?|weaknesses?|areas?\s+for\s+improvement|recommended\s+improvements?|improvements?|tips?\s+for|next\s+steps?|action\s+items?)\*{0,2}\s*:?\s*$/i;
+      const getTitle = (h) => {
+        const t = h.replace(/\*/g, '').replace(/:$/, '').trim().toLowerCase();
+        if (/strength/.test(t)) return '💪 強み';
+        if (/weakness|areas?\s+for/.test(t)) return '📌 改善点';
+        return '🎯 アドバイス';
+      };
+      let current = null;
+      for (const line of cleaned.split('\n')) {
+        if (HEADER_RE.test(line.trim())) {
+          if (current && current.content.trim().length > 5) sections.push(current);
+          current = { title: getTitle(line), content: '' };
+        } else if (current) {
+          current.content += line + '\n';
+        }
       }
+      if (current && current.content.trim().length > 5) sections.push(current);
       if (sections.length === 0 && cleaned.length > 10) {
-        sections.push({ title: '評価', content: cleaned.substring(0, 600) });
+        sections.push({ title: '評価', content: cleaned.substring(0, 800) });
       }
       return sections;
     }
