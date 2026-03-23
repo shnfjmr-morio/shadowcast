@@ -425,7 +425,7 @@
 
     .eval-cards {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 20px;
       margin-bottom: 32px;
     }
@@ -2225,15 +2225,16 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.4</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.5</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
         <div class="user-menu hidden" id="user-menu">
-          <button class="btn-plan free" id="btn-plan" onclick="onPlanBtnClick()">FREE</button>
+          <button class="btn-plan free" id="btn-plan">FREE</button>
           <div class="user-dropdown hidden" id="user-dropdown">
             <div class="user-email" id="user-email-display"></div>
             <div class="user-plan-badge" id="user-plan-badge">FREE</div>
+            <button id="btn-upgrade-dropdown" class="hidden" onclick="startCheckout(); event.stopPropagation();" style="color:var(--accent); font-weight:700;">⚡ PROにアップグレード</button>
             <button id="btn-manage-subscription" class="hidden" onclick="openBillingPortal()">サブスクリプション管理</button>
             <button onclick="signOut()">ログアウト</button>
           </div>
@@ -3242,6 +3243,8 @@
           planBtn.textContent = isPro ? 'PRO' : 'FREE'
           planBtn.className = 'btn-plan ' + (isPro ? 'pro' : 'free')
         }
+        const upgradeDropdownBtn = document.getElementById('btn-upgrade-dropdown')
+        if (upgradeDropdownBtn) upgradeDropdownBtn.classList.toggle('hidden', isPro)
         const manageBtn = document.getElementById('btn-manage-subscription')
         if (manageBtn) manageBtn.classList.toggle('hidden', !isPro)
       } else {
@@ -3539,12 +3542,7 @@
       document.body.style.overflow = '';
     }
 
-    function onPlanBtnClick() {
-      if (currentPlan === 'pro') return; // PROユーザーは何もしない
-      startCheckout();
-    }
-
-    async function startCheckout() {
+async function startCheckout() {
       const btn = document.getElementById('pro-checkout-btn');
       if (btn) { btn.disabled = true; btn.textContent = '処理中...'; }
       try {
@@ -5243,10 +5241,11 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       const session = loadSession();
 
       if (session) {
-        // Apply saved settings
-        if (session.settings) {
-          applySettingsToDOM(session.settings);
-          appState.settings = session.settings;
+        // Apply saved settings (prefs takes priority as more recent)
+        const savedSettings = prefs?.settings || session.settings;
+        if (savedSettings) {
+          applySettingsToDOM(savedSettings);
+          appState.settings = savedSettings;
         }
 
         // Show previous session
@@ -5306,15 +5305,23 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
     // ============================================================
     // RADIO CARD EVENT LISTENERS (for settings state)
     // ============================================================
+    function autoSaveSettings() {
+      const s = collectSettings();
+      appState.settings = { ...appState.settings, ...s };
+      savePreferences({ ...loadPreferences(), settings: s });
+    }
+
     document.querySelectorAll('[name="level"]').forEach(input => {
       input.addEventListener('change', () => {
         appState.settings.level = input.value;
+        autoSaveSettings();
       });
     });
 
     document.querySelectorAll('[name="topic"]').forEach(input => {
       input.addEventListener('change', () => {
         appState.settings.topic = input.value;
+        autoSaveSettings();
       });
     });
 
