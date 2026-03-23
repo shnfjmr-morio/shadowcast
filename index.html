@@ -1709,6 +1709,13 @@
       background: var(--bg-tertiary); color: var(--text-secondary);
     }
     .user-plan-badge.pro { background: var(--accent); color: #fff; }
+    .btn-upgrade {
+      font-size: 12px; font-weight: 700; padding: 5px 12px;
+      border-radius: 20px; border: none; cursor: pointer;
+      background: var(--accent); color: #fff;
+      margin-right: 6px; white-space: nowrap;
+    }
+    .btn-upgrade:hover { opacity: 0.85; }
     .user-dropdown button {
       width: 100%; text-align: left; background: none; border: none;
       color: var(--text-primary); font-size: 13px; padding: 6px 0;
@@ -2218,6 +2225,7 @@
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
         <div class="user-menu hidden" id="user-menu">
+          <button class="btn-upgrade hidden" id="btn-upgrade" onclick="startCheckout()">⚡ PRO ¥480/月</button>
           <span class="user-avatar" id="user-avatar">👤</span>
           <div class="user-dropdown hidden" id="user-dropdown">
             <div class="user-email" id="user-email-display"></div>
@@ -3215,6 +3223,7 @@
       const emailDisplay = document.getElementById('user-email-display')
       const planBadge = document.getElementById('user-plan-badge')
 
+      const upgradeBtn = document.getElementById('btn-upgrade')
       if (currentUser) {
         btnLogin?.classList.add('hidden')
         userMenu?.classList.remove('hidden')
@@ -3223,9 +3232,11 @@
           planBadge.textContent = currentPlan === 'pro' ? 'PRO' : 'FREE'
           planBadge.className = 'user-plan-badge' + (currentPlan === 'pro' ? ' pro' : '')
         }
+        if (upgradeBtn) upgradeBtn.classList.toggle('hidden', currentPlan === 'pro')
       } else {
         btnLogin?.classList.remove('hidden')
         userMenu?.classList.add('hidden')
+        if (upgradeBtn) upgradeBtn.classList.add('hidden')
       }
       // Show/hide tab bar FIRST (before feature gates which may error)
       const isLoggedIn = !!currentUser;
