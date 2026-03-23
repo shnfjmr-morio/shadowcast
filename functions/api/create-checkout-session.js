@@ -34,8 +34,7 @@ export async function onRequest(context) {
       }
     })
     if (!userRes.ok) {
-      const errBody = await userRes.text()
-      return new Response(JSON.stringify({ error: 'Invalid token', status: userRes.status, detail: errBody, hasUrl: !!SUPABASE_URL, hasKey: !!SERVICE_KEY }), { status: 401, headers })
+      return new Response(JSON.stringify({ error: 'Invalid token' }), { status: 401, headers })
     }
     const user = await userRes.json()
     if (!user?.id) {

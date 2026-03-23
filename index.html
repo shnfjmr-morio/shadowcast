@@ -2225,7 +2225,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.2</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.3</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -3342,7 +3342,7 @@
       }
     }
 
-    const BETA_MODE = true; // ベータ期間中: ログイン済みユーザーは全機能開放
+    const BETA_MODE = false; // 本番モード: PROプランのみ全機能開放
 
     function applyFeatureGates(isLoggedIn) {
       const isPro = BETA_MODE ? isLoggedIn : currentPlan === 'pro'
@@ -3560,7 +3560,7 @@
         if (data.url) {
           window.location.href = data.url;
         } else {
-          alert('決済ページの作成に失敗しました。\n' + JSON.stringify(data));
+          alert('決済ページの作成に失敗しました。もう一度お試しください。');
         }
       } catch (err) {
         alert('エラーが発生しました。もう一度お試しください。');
