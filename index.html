@@ -2225,7 +2225,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.5</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.6</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -3195,7 +3195,12 @@
     const ADMIN_EMAILS_LIST = ['shnfjmr@gmail.com']
 
     async function onAuthStateChange(user, token) {
+      const prevUserId = currentUser?.id
       currentUser = user
+      // ユーザーが切り替わったらセッションデータをリロード
+      if (prevUserId && prevUserId !== user.id) {
+        reinitSessionData()
+      }
 
       // 管理者は即PRO（クライアント側チェック）
       if (ADMIN_EMAILS_LIST.includes(user.email)) {
@@ -3688,12 +3693,21 @@ async function startCheckout() {
     // ============================================================
     // LOCAL STORAGE
     // ============================================================
-    const STORAGE_KEY = 'shadowcast_session';
-    const PREF_KEY    = 'shadowcast_preferences';
+    const PREF_KEY = 'shadowcast_preferences';
+
+    function sessionKey() {
+      return currentUser ? `shadowcast_session_${currentUser.id}` : 'shadowcast_session_guest';
+    }
+    function historyKey() {
+      return currentUser ? `shadowcast_history_${currentUser.id}` : 'shadowcast_history_guest';
+    }
+    function presetsKey() {
+      return currentUser ? `shadowcast_presets_${currentUser.id}` : 'shadowcast_presets_guest';
+    }
 
     function loadSession() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(sessionKey());
         if (!raw) return null;
         return JSON.parse(raw);
       } catch (e) {
@@ -3703,7 +3717,7 @@ async function startCheckout() {
 
     function saveSession(data) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        localStorage.setItem(sessionKey(), JSON.stringify(data));
       } catch (e) {
         console.error('Failed to save session:', e);
       }
@@ -3728,19 +3742,19 @@ async function startCheckout() {
     // localStorage helpers for history and presets
     function loadHistory() {
       try {
-        return JSON.parse(localStorage.getItem('shadowcast_history') || '[]');
+        return JSON.parse(localStorage.getItem(historyKey()) || '[]');
       } catch { return []; }
     }
     function saveHistory(arr) {
-      localStorage.setItem('shadowcast_history', JSON.stringify(arr));
+      localStorage.setItem(historyKey(), JSON.stringify(arr));
     }
     function loadPresets() {
       try {
-        return JSON.parse(localStorage.getItem('shadowcast_presets') || '[]');
+        return JSON.parse(localStorage.getItem(presetsKey()) || '[]');
       } catch { return []; }
     }
     function savePresets(arr) {
-      localStorage.setItem('shadowcast_presets', JSON.stringify(arr));
+      localStorage.setItem(presetsKey(), JSON.stringify(arr));
     }
 
     // ============================================================
@@ -5231,6 +5245,23 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
     // ============================================================
     // INIT APP
     // ============================================================
+    function reinitSessionData() {
+      const session = loadSession();
+      const prefs = loadPreferences();
+      if (session?.settings || prefs?.settings) {
+        const savedSettings = prefs?.settings || session?.settings;
+        applySettingsToDOM(savedSettings);
+        appState.settings = savedSettings;
+      }
+      if (session) {
+        renderPreviousSession(session);
+      } else {
+        document.getElementById('previous-session')?.classList.add('hidden');
+      }
+      renderHistory();
+      renderPresets();
+    }
+
     function initApp() {
       // Load preferences
       const prefs = loadPreferences();
