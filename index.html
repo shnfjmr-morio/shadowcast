@@ -3809,6 +3809,7 @@ async function startCheckout() {
         appState.settings.interventionFrequency = input.value;
         updateSessionPreview();
         updateAccordionValues();
+        autoSaveSettings();
       });
     });
 
@@ -3822,6 +3823,7 @@ async function startCheckout() {
         appState.settings.sentenceCount = parseInt(btn.dataset.value, 10);
         updateSessionPreview();
         updateAccordionValues();
+        autoSaveSettings();
       });
     });
 
@@ -5383,6 +5385,14 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
         appState.settings.focus = Array.from(
           document.querySelectorAll('[name="focus"]:checked')
         ).map(el => el.value);
+        autoSaveSettings();
+      });
+    });
+
+    document.querySelectorAll('[name="shadowing_strictness"]').forEach(input => {
+      input.addEventListener('change', () => {
+        appState.settings.shadowingStrictness = input.value;
+        autoSaveSettings();
       });
     });
 
