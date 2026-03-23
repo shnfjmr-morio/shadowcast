@@ -3543,8 +3543,7 @@
 
     async function startCheckout() {
       const btn = document.getElementById('pro-checkout-btn');
-      btn.disabled = true;
-      btn.textContent = '処理中...';
+      if (btn) { btn.disabled = true; btn.textContent = '処理中...'; }
       try {
         const session = supabase.auth.session ? supabase.auth.session() : (await supabase.auth.getSession()).data.session;
         const token = session?.access_token;
@@ -3566,8 +3565,7 @@
       } catch (err) {
         alert('エラーが発生しました。もう一度お試しください。');
       } finally {
-        btn.disabled = false;
-        btn.textContent = 'PROプランに登録する（¥480/月）';
+        if (btn) { btn.disabled = false; btn.textContent = 'PROプランに登録する（¥480/月）'; }
       }
     }
 
