@@ -20,6 +20,7 @@
       --border-glass: rgba(255, 255, 255, 0.1);
       --text-primary: #f5f5f7;
       --text-secondary: #a1a1a6;
+      --text-tertiary: #6e6e73;
       --accent: #0071E3;
       --accent-hover: #0077ED;
       --accent-glow: rgba(0, 113, 227, 0.3);
@@ -38,6 +39,7 @@
       --border-glass: rgba(0, 0, 0, 0.1);
       --text-primary: #1d1d1f;
       --text-secondary: #6e6e73;
+      --text-tertiary: #aeaeb2;
       --accent: #0071E3;
       --accent-hover: #0077ED;
       --accent-glow: rgba(0, 113, 227, 0.2);
@@ -1263,15 +1265,16 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3px;
-      color: var(--text-tertiary);
-      transition: color 0.15s;
-      padding: 0;
-      padding-bottom: 2px;
+      gap: 4px;
+      color: rgba(142, 142, 147, 0.8);
+      transition: color 0.2s;
+      padding: 0 0 2px;
+      -webkit-tap-highlight-color: transparent;
     }
     .tab-btn.active { color: var(--accent); }
-    .tab-icon { font-size: 22px; line-height: 1; }
-    .tab-label { font-size: 10px; font-weight: 600; letter-spacing: 0.02em; }
+    .tab-btn:active { opacity: 0.7; }
+    .tab-icon { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .tab-label { font-size: 10px; font-weight: 600; letter-spacing: 0.03em; }
 
     /* Push content above tab bar when visible */
     body.has-tab-bar main { padding-bottom: calc(56px + env(safe-area-inset-bottom) + 20px); }
@@ -1331,14 +1334,33 @@
       padding: 2px 8px;
       border-radius: 8px;
     }
-    .dash-log-body {
-      margin-top: 12px;
+    .dash-log-body { display: none; padding: 12px 0 4px; border-top: 1px solid var(--border-glass); }
+    .dash-log-body.open { display: block; }
+    .dash-log-date { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .dash-log-arrow { font-size: 16px; color: var(--text-tertiary); transition: transform 0.2s; display: inline-block; }
+    .dash-log-section { border-top: 1px solid var(--border-glass); }
+    .dash-log-section:first-child { border-top: none; }
+    .dash-log-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .dash-log-section-arrow { font-size: 14px; color: var(--text-tertiary); transition: transform 0.2s; display: inline-block; }
+    .dash-log-section-body {
+      display: none;
+      padding: 0 0 12px;
       font-size: 13px;
       color: var(--text-secondary);
+      line-height: 1.6;
       white-space: pre-wrap;
-      display: none;
     }
-    .dash-log-body.open { display: block; }
+    .dash-log-section-body.open { display: block; }
+    .dash-log-empty { color: var(--text-secondary); font-size: 13px; padding: 8px 0; }
     .cefr-skill-row {
       display: flex;
       align-items: center;
@@ -3042,7 +3064,7 @@
         <!-- Dashboard sub-tabs -->
         <div class="dash-tabs">
           <button class="dash-tab active" data-tab="cefr" onclick="switchDashTab('cefr')">📈 レベル推移</button>
-          <button class="dash-tab" data-tab="skills" onclick="switchDashTab('skills')">🎯 スキル別</button>
+          <button class="dash-tab" data-tab="skills" onclick="switchDashTab('skills')">🎯 スキル</button>
           <button class="dash-tab" data-tab="log" onclick="switchDashTab('log')">📋 ログ</button>
         </div>
 
@@ -3066,22 +3088,21 @@
 
         <!-- Sub-tab: Skills -->
         <div class="dash-panel hidden" id="dash-panel-skills">
-          <div class="eval-cards" id="progress-stats" style="margin-bottom:16px;"></div>
-          <div class="progress-charts">
-            <div class="glass-card" id="chart-streak" style="padding:20px;">
-              <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">練習カレンダー</h3>
-              <div class="streak-grid" id="streak-grid"></div>
-              <div style="display:flex; gap:8px; align-items:center; margin-top:12px; font-size:12px; color:var(--text-tertiary);">
-                <span>少ない</span>
-                <div style="width:12px;height:12px;border-radius:2px;background:rgba(0,113,227,0.2);"></div>
-                <div style="width:12px;height:12px;border-radius:2px;background:rgba(0,113,227,0.5);"></div>
-                <div style="width:12px;height:12px;border-radius:2px;background:var(--accent);"></div>
-                <span>多い</span>
-              </div>
+          <div class="glass-card" style="padding:20px; margin-bottom:16px;">
+            <h3 style="font-size:13px; color:var(--text-secondary); margin:0 0 16px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">最新セッションのスキル評価</h3>
+            <div id="skill-breakdown-container">
+              <p style="color:var(--text-secondary); font-size:13px; text-align:center; padding:16px 0;">新しいセッションを完了するとスキル評価が表示されます</p>
             </div>
-            <div class="glass-card" id="chart-focus" style="padding:20px;">
-              <h3 style="font-size:14px; color:var(--text-secondary); margin:0 0 16px; font-weight:600;">フォーカス分布</h3>
-              <div id="focus-chart-container" style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;"></div>
+          </div>
+          <div class="glass-card" style="padding:20px;">
+            <h3 style="font-size:13px; color:var(--text-secondary); margin:0 0 16px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">練習カレンダー</h3>
+            <div class="streak-grid" id="streak-grid"></div>
+            <div style="display:flex; gap:8px; align-items:center; margin-top:12px; font-size:12px; color:var(--text-tertiary);">
+              <span>少ない</span>
+              <div style="width:12px;height:12px;border-radius:2px;background:rgba(0,113,227,0.2);"></div>
+              <div style="width:12px;height:12px;border-radius:2px;background:rgba(0,113,227,0.5);"></div>
+              <div style="width:12px;height:12px;border-radius:2px;background:var(--accent);"></div>
+              <span>多い</span>
             </div>
           </div>
         </div>
@@ -3100,11 +3121,11 @@
   <!-- Bottom Tab Bar (shown for logged-in users with ≥1 session) -->
   <nav id="bottom-tab-bar" class="hidden" role="navigation" aria-label="メインナビゲーション">
     <button class="tab-btn active" id="tab-btn-practice" onclick="switchMainTab('practice')">
-      <span class="tab-icon">🎙️</span>
+      <svg class="tab-icon" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
       <span class="tab-label">練習</span>
     </button>
     <button class="tab-btn" id="tab-btn-growth" onclick="switchMainTab('growth')">
-      <span class="tab-icon">📊</span>
+      <svg class="tab-icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
       <span class="tab-label">成長</span>
     </button>
   </nav>
@@ -3280,6 +3301,7 @@
 
         // Refresh UI with synced data
         renderHistory();
+        renderGrowthDashboard();
         renderPreviousSessionState(true);
         initPracticeCard();
         updateSessionCountDisplay(appState.sessionCount || 0);
@@ -4680,6 +4702,28 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
         </div>`;
       }).join('');
       if (radarContainer) radarContainer.innerHTML = `<div style="width:100%">${skillRows}</div>`;
+      // Also populate the skills tab breakdown
+      const skillBreakdown = document.getElementById('skill-breakdown-container');
+      if (skillBreakdown) skillBreakdown.innerHTML = `<div style="width:100%">${skillRows}</div>`;
+    }
+
+    function extractLogSections(raw) {
+      if (!raw) return [];
+      const cleaned = raw.replace(/=== SESSION EVALUATION ===/g, '').replace(/=== NEXT SESSION PROMPT ===/g, '').trim();
+      const sections = [];
+      const patterns = [
+        { title: '💪 強み', re: /\*{0,2}strengths?\*{0,2}:?\s*([\s\S]*?)(?=\*{0,2}(?:weaknesses?|areas? for improvement|improvements?)\*{0,2}:|$)/i },
+        { title: '📌 改善点', re: /\*{0,2}(?:weaknesses?|areas? for improvement)\*{0,2}:?\s*([\s\S]*?)(?=\*{0,2}(?:improvements?|recommended)\*{0,2}:|$)/i },
+        { title: '🎯 アドバイス', re: /\*{0,2}(?:recommended improvements?|improvements?)\*{0,2}:?\s*([\s\S]*?)(?=={3}|$)/i },
+      ];
+      for (const p of patterns) {
+        const m = cleaned.match(p.re);
+        if (m && m[1].trim().length > 5) sections.push({ title: p.title, content: m[1].trim() });
+      }
+      if (sections.length === 0 && cleaned.length > 10) {
+        sections.push({ title: '評価', content: cleaned.substring(0, 600) });
+      }
+      return sections;
     }
 
     function renderDashLog(history) {
@@ -4697,24 +4741,43 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
         const stars = s.user_rating ? '★'.repeat(s.user_rating) + '☆'.repeat(5 - s.user_rating) : '';
         const cefrBadge = s.cefr_assessment?.overall
           ? `<span class="dash-log-cefr">${s.cefr_assessment.overall}</span>` : '';
-        const evalPreview = (s.evaluation_raw || '').replace(/=== SESSION EVALUATION ===/g, '').trim().substring(0, 200);
+        const sections = extractLogSections(s.evaluation_raw || '');
+        const sectionsHtml = sections.map((sec, j) => `
+          <div class="dash-log-section">
+            <div class="dash-log-section-header" onclick="toggleDashLogSection(${i},${j},event)">
+              <span>${sec.title}</span>
+              <span class="dash-log-section-arrow" id="dash-sec-arrow-${i}-${j}">›</span>
+            </div>
+            <div class="dash-log-section-body" id="dash-log-sec-${i}-${j}">${sec.content}</div>
+          </div>`).join('');
         return `<div class="dash-log-card">
           <div class="dash-log-header" onclick="toggleDashLog(${i})">
             <div>
-              <div style="font-size:14px; font-weight:600; color:var(--text-primary);">${dateStr}</div>
-              <div class="dash-log-meta">${levelMap[s.settings?.level] || '—'} ・ ${topicMap[s.settings?.topic] || '—'} ${stars ? '・ ' + stars : ''}</div>
+              <div class="dash-log-date">${dateStr}</div>
+              <div class="dash-log-meta">${levelMap[s.settings?.level] || '—'} ・ ${topicMap[s.settings?.topic] || '—'}${stars ? ' ・ ' + stars : ''}</div>
             </div>
-            ${cefrBadge}
+            <div style="display:flex;align-items:center;gap:8px;">${cefrBadge}<span class="dash-log-arrow" id="dash-log-arrow-${i}">›</span></div>
           </div>
-          <div class="dash-log-body" id="dash-log-body-${i}">
-            ${evalPreview || '評価データなし'}${evalPreview.length >= 200 ? '...' : ''}
-          </div>
+          <div class="dash-log-body" id="dash-log-body-${i}">${sectionsHtml || '<p class="dash-log-empty">評価データなし</p>'}</div>
         </div>`;
       }).join('');
     }
 
     function toggleDashLog(i) {
-      document.getElementById(`dash-log-body-${i}`)?.classList.toggle('open');
+      const body = document.getElementById(`dash-log-body-${i}`);
+      const arrow = document.getElementById(`dash-log-arrow-${i}`);
+      if (!body) return;
+      const isOpen = body.classList.toggle('open');
+      if (arrow) arrow.style.transform = isOpen ? 'rotate(90deg)' : '';
+    }
+
+    function toggleDashLogSection(i, j, e) {
+      e.stopPropagation();
+      const body = document.getElementById(`dash-log-sec-${i}-${j}`);
+      const arrow = document.getElementById(`dash-sec-arrow-${i}-${j}`);
+      if (!body) return;
+      const isOpen = body.classList.toggle('open');
+      if (arrow) arrow.style.transform = isOpen ? 'rotate(90deg)' : '';
     }
 
     // ============================================================
