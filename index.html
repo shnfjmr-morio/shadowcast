@@ -1892,53 +1892,55 @@
       margin-bottom: 14px;
     }
 
+    /* settings tile grid replaced by inline accordion */
     /* ===== SETTINGS ACCORDION ===== */
-    /* Settings overview grid (shows all 6 tiles when panel opens) */
-    .settings-overview-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 20px;
+    .settings-overview-list {
+      display: flex;
+      flex-direction: column;
     }
-    .settings-overview-tile {
-      background: var(--bg-glass);
-      border: 1.5px solid var(--border-glass);
-      border-radius: 14px;
-      padding: 14px 14px;
+    .settings-tile-row {
+      border-bottom: 1px solid var(--border-glass);
+    }
+    .settings-tile-row:last-child { border-bottom: none; }
+    .settings-tile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 2px;
+      width: 100%;
+      background: none;
+      border: none;
       cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
+      color: var(--text-primary);
+      text-align: left;
       -webkit-tap-highlight-color: transparent;
     }
-    .settings-overview-tile:hover,
-    .settings-overview-tile.active {
-      border-color: var(--accent);
-      background: rgba(0, 113, 227, 0.07);
-    }
-    .settings-overview-tile-label {
-      font-size: 10px;
-      color: var(--text-tertiary);
+    .settings-tile-label-text {
+      font-size: 14px;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 5px;
-    }
-    .settings-overview-tile-value {
-      font-size: 13px;
-      font-weight: 700;
       color: var(--text-primary);
-      white-space: pre-line;
-      line-height: 1.4;
-      word-break: break-word;
     }
-    .settings-overview-tile .tile-chevron {
-      font-size: 10px;
+    .settings-tile-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .settings-tile-value {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 700;
+      text-align: right;
+    }
+    .settings-tile-chevron {
+      font-size: 14px;
       color: var(--text-tertiary);
-      margin-top: 4px;
-      transition: transform 0.2s ease;
-      display: block;
+      transition: transform 0.2s;
+      display: inline-block;
     }
-    .settings-overview-tile.active .tile-chevron {
-      transform: rotate(180deg);
+    .settings-tile-body {
+      display: none;
+      padding: 4px 0 16px;
     }
 
     /* Settings group detail panels (collapsible, shown below overview) */
@@ -5319,7 +5321,9 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       if (num === '2') return topicMap[document.querySelector('[name="topic"]:checked')?.value] || '—';
       if (num === '3') {
         const checked = Array.from(document.querySelectorAll('[name="focus"]:checked')).map(i => focusMap[i.value] || i.value);
-        return checked.join('\n') || '—';
+        if (checked.length === 0) return '—';
+        if (checked.length >= 4) return '全て';
+        return checked.join('・');
       }
       if (num === '4') return (document.querySelector('#count-segment .segment-btn.active')?.dataset.value || '5') + '文';
       if (num === '5') return intMap[document.querySelector('[name="intervention"]:checked')?.value] || '—';
@@ -5336,37 +5340,53 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       const inner = document.querySelector('.practice-card-settings-inner');
       if (!inner) return;
 
-      // Build overview grid
-      const grid = document.createElement('div');
-      grid.className = 'settings-overview-grid';
-      grid.id = 'settings-overview-grid';
-      SETTING_TILES.forEach(({ num, emoji, label }) => {
-        const tile = document.createElement('button');
-        tile.className = 'settings-overview-tile';
-        tile.dataset.settingNum = num;
-        tile.setAttribute('type', 'button');
-        tile.innerHTML = `
-          <div class="settings-overview-tile-label">${emoji} ${label}</div>
-          <div class="settings-overview-tile-value" id="tile-val-${num}">—</div>
-          <span class="tile-chevron">▾</span>`;
-        tile.addEventListener('click', () => toggleSettingByNum(num));
-        grid.appendChild(tile);
-      });
-      inner.insertBefore(grid, inner.firstChild);
+      // Remove existing grid if any
+      const existing = document.getElementById('settings-overview-grid');
+      if (existing) existing.remove();
 
-      // Wrap each group's body in collapsible div; collapse all
+      const list = document.createElement('div');
+      list.className = 'settings-overview-list';
+      list.id = 'settings-overview-grid';
+
+      SETTING_TILES.forEach(({ num, emoji, label }) => {
+        const row = document.createElement('div');
+        row.className = 'settings-tile-row';
+        row.dataset.settingNum = num;
+
+        const header = document.createElement('button');
+        header.className = 'settings-tile-header';
+        header.setAttribute('type', 'button');
+        header.innerHTML = `
+          <span class="settings-tile-label-text">${emoji} ${label}</span>
+          <div class="settings-tile-right">
+            <span class="settings-tile-value" id="tile-val-${num}">—</span>
+            <span class="settings-tile-chevron" id="tile-chevron-${num}">›</span>
+          </div>`;
+        header.addEventListener('click', () => toggleSettingInline(num));
+
+        const body = document.createElement('div');
+        body.className = 'settings-tile-body';
+        body.id = `settings-inline-${num}`;
+
+        row.appendChild(header);
+        row.appendChild(body);
+        list.appendChild(row);
+      });
+
+      inner.insertBefore(list, inner.firstChild);
+
+      // Wrap each group's content in accordion-body if not already
       document.querySelectorAll('.settings-group.accordion-group').forEach(group => {
         const num = group.querySelector('.settings-label-num')?.textContent?.trim();
         if (!num) return;
-        let body = group.querySelector('.accordion-body');
-        if (!body) {
-          body = document.createElement('div');
+        if (!group.querySelector('.accordion-body')) {
+          const body = document.createElement('div');
           body.className = 'accordion-body';
-          const children = Array.from(group.children).filter(c => !c.classList.contains('settings-label'));
-          children.forEach(c => body.appendChild(c));
+          Array.from(group.children)
+            .filter(c => !c.classList.contains('settings-label'))
+            .forEach(c => body.appendChild(c));
           group.appendChild(body);
         }
-        // Collapse all by default
         group.classList.add('accordion-collapsed');
       });
 
@@ -5374,58 +5394,67 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
     }
 
     function toggleSettingByNum(num) {
-      const detailPanel = document.getElementById('settings-detail-panel');
-      const currentActive = document.querySelector('.settings-overview-tile.active');
-      const isAlreadyOpen = currentActive?.dataset.settingNum === num;
+      toggleSettingInline(num);
+    }
 
-      // Always restore current DOM content back to its group BEFORE touching detailPanel
-      closeSettingsDetailPanel();
+    function toggleSettingInline(num) {
+      const clickedBody = document.getElementById(`settings-inline-${num}`);
+      if (!clickedBody) return;
+      const isOpen = clickedBody.style.display === 'block';
 
-      if (isAlreadyOpen) return; // was open → now closed, done
+      // Close all open inline bodies first (returning DOM to accordion groups)
+      document.querySelectorAll('.settings-tile-body').forEach(b => {
+        if (b.style.display === 'block') {
+          const openNum = b.closest('.settings-tile-row')?.dataset.settingNum;
+          if (openNum) {
+            const group = [...document.querySelectorAll('.settings-group.accordion-group')]
+              .find(g => g.querySelector('.settings-label-num')?.textContent?.trim() === openNum);
+            const accBody = b.querySelector('.accordion-body');
+            if (group && accBody) group.appendChild(accBody);
+            b.innerHTML = '';
+            b.style.display = 'none';
+            const ch = document.getElementById(`tile-chevron-${openNum}`);
+            if (ch) ch.style.transform = '';
+          }
+        }
+      });
 
-      // Find the group for this num
+      if (isOpen) return; // was open, now closed
+
+      // Open clicked one
       const group = [...document.querySelectorAll('.settings-group.accordion-group')]
         .find(g => g.querySelector('.settings-label-num')?.textContent?.trim() === num);
-      if (!group || !detailPanel) return;
-
-      // Mark tile active
-      document.querySelector(`.settings-overview-tile[data-setting-num="${num}"]`)?.classList.add('active');
-
-      const tileData = { '1': '英語レベル', '2': 'トピック', '3': 'フォーカス', '4': 'シャドーイング回数', '5': 'フリートーク介入頻度', '6': '前回プロンプト' };
-      detailPanel.innerHTML = `<div class="settings-detail-card"><div class="settings-detail-title">${tileData[num] || ''}</div></div>`;
-
-      // Move actual DOM children (not clone) into detail panel to preserve event listeners and state
-      const detailCard = detailPanel.querySelector('.settings-detail-card');
-      const body = group.querySelector('.accordion-body');
-      if (body) {
-        detailCard.appendChild(body);
-      } else {
-        Array.from(group.children).filter(c => !c.classList.contains('settings-label')).forEach(c => {
-          detailCard.appendChild(c);
-        });
+      const accBody = group?.querySelector('.accordion-body');
+      if (accBody) {
+        clickedBody.appendChild(accBody);
+        clickedBody.style.display = 'block';
+        const ch = document.getElementById(`tile-chevron-${num}`);
+        if (ch) ch.style.transform = 'rotate(90deg)';
       }
 
       updateAccordionValues();
     }
 
     function closeSettingsDetailPanel() {
-      const detailPanel = document.getElementById('settings-detail-panel');
-      if (!detailPanel) return;
-      const detailCard = detailPanel.querySelector('.settings-detail-card');
-      if (!detailCard) return;
-      // Find what num is active
-      const activeNum = document.querySelector('.settings-overview-tile.active')?.dataset.settingNum;
-      if (activeNum) {
-        const group = [...document.querySelectorAll('.settings-group.accordion-group')]
-          .find(g => g.querySelector('.settings-label-num')?.textContent?.trim() === activeNum);
-        if (group) {
-          // Move children back (everything except the title div)
-          Array.from(detailCard.children)
-            .filter(c => !c.classList.contains('settings-detail-title'))
-            .forEach(c => group.appendChild(c));
+      // Close all open inline tile bodies, returning DOM to accordion groups
+      document.querySelectorAll('.settings-tile-body').forEach(b => {
+        if (b.style.display === 'block') {
+          const openNum = b.closest('.settings-tile-row')?.dataset.settingNum;
+          if (openNum) {
+            const group = [...document.querySelectorAll('.settings-group.accordion-group')]
+              .find(g => g.querySelector('.settings-label-num')?.textContent?.trim() === openNum);
+            const accBody = b.querySelector('.accordion-body');
+            if (group && accBody) group.appendChild(accBody);
+            b.innerHTML = '';
+            b.style.display = 'none';
+            const ch = document.getElementById(`tile-chevron-${openNum}`);
+            if (ch) ch.style.transform = '';
+          }
         }
-      }
-      detailPanel.innerHTML = '';
+      });
+      // Also clear old detail panel if it exists
+      const dp = document.getElementById('settings-detail-panel');
+      if (dp) dp.innerHTML = '';
       document.querySelectorAll('.settings-overview-tile').forEach(t => t.classList.remove('active'));
     }
 
