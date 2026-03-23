@@ -1709,13 +1709,18 @@
       background: var(--bg-tertiary); color: var(--text-secondary);
     }
     .user-plan-badge.pro { background: var(--accent); color: #fff; }
-    .btn-upgrade {
-      font-size: 12px; font-weight: 700; padding: 5px 12px;
+    .btn-plan {
+      font-size: 12px; font-weight: 700; padding: 5px 14px;
       border-radius: 20px; border: none; cursor: pointer;
-      background: var(--accent); color: #fff;
-      margin-right: 6px; white-space: nowrap;
+      white-space: nowrap; line-height: 1;
     }
-    .btn-upgrade:hover { opacity: 0.85; }
+    .btn-plan.free {
+      background: var(--bg-tertiary); color: var(--text-secondary);
+    }
+    .btn-plan.free:hover { opacity: 0.75; }
+    .btn-plan.pro {
+      background: var(--accent); color: #fff; cursor: default;
+    }
     .user-dropdown button {
       width: 100%; text-align: left; background: none; border: none;
       color: var(--text-primary); font-size: 13px; padding: 6px 0;
@@ -2225,8 +2230,7 @@
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
         <div class="user-menu hidden" id="user-menu">
-          <button class="btn-upgrade hidden" id="btn-upgrade" onclick="startCheckout()">⚡ PRO ¥480/月</button>
-          <span class="user-avatar" id="user-avatar">👤</span>
+          <button class="btn-plan free" id="btn-plan" onclick="onPlanBtnClick()">FREE</button>
           <div class="user-dropdown hidden" id="user-dropdown">
             <div class="user-email" id="user-email-display"></div>
             <div class="user-plan-badge" id="user-plan-badge">FREE</div>
@@ -3223,20 +3227,23 @@
       const emailDisplay = document.getElementById('user-email-display')
       const planBadge = document.getElementById('user-plan-badge')
 
-      const upgradeBtn = document.getElementById('btn-upgrade')
+      const planBtn = document.getElementById('btn-plan')
       if (currentUser) {
         btnLogin?.classList.add('hidden')
         userMenu?.classList.remove('hidden')
         if (emailDisplay) emailDisplay.textContent = currentUser.email
+        const isPro = currentPlan === 'pro'
         if (planBadge) {
-          planBadge.textContent = currentPlan === 'pro' ? 'PRO' : 'FREE'
-          planBadge.className = 'user-plan-badge' + (currentPlan === 'pro' ? ' pro' : '')
+          planBadge.textContent = isPro ? 'PRO' : 'FREE'
+          planBadge.className = 'user-plan-badge' + (isPro ? ' pro' : '')
         }
-        if (upgradeBtn) upgradeBtn.classList.toggle('hidden', currentPlan === 'pro')
+        if (planBtn) {
+          planBtn.textContent = isPro ? 'PRO' : 'FREE'
+          planBtn.className = 'btn-plan ' + (isPro ? 'pro' : 'free')
+        }
       } else {
         btnLogin?.classList.remove('hidden')
         userMenu?.classList.add('hidden')
-        if (upgradeBtn) upgradeBtn.classList.add('hidden')
       }
       // Show/hide tab bar FIRST (before feature gates which may error)
       const isLoggedIn = !!currentUser;
@@ -3527,6 +3534,11 @@
       document.getElementById('pro-sheet-overlay').classList.remove('active');
       document.getElementById('pro-bottom-sheet').classList.remove('active');
       document.body.style.overflow = '';
+    }
+
+    function onPlanBtnClick() {
+      if (currentPlan === 'pro') return; // PROユーザーは何もしない
+      startCheckout();
     }
 
     async function startCheckout() {
