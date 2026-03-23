@@ -3023,8 +3023,8 @@
         <div class="pro-sheet-desc" id="pro-sheet-desc">この機能はPROプランでご利用いただけます</div>
       </div>
       <div class="pro-sheet-benefits" id="pro-sheet-benefits"></div>
-      <button class="btn btn-primary" style="width:100%; padding:14px;" onclick="closeProSheet()">
-        PROプランを見る（近日公開）
+      <button class="btn btn-primary" style="width:100%; padding:14px;" id="pro-checkout-btn" onclick="startCheckout()">
+        PROプランに登録する（¥480/月）
       </button>
       <button class="pro-sheet-later" onclick="closeProSheet()">あとで</button>
     </div>
@@ -3517,6 +3517,63 @@
       document.getElementById('pro-bottom-sheet').classList.remove('active');
       document.body.style.overflow = '';
     }
+
+    async function startCheckout() {
+      const btn = document.getElementById('pro-checkout-btn');
+      btn.disabled = true;
+      btn.textContent = '処理中...';
+      try {
+        const session = supabase.auth.session ? supabase.auth.session() : (await supabase.auth.getSession()).data.session;
+        const token = session?.access_token;
+        if (!token) {
+          closeProSheet();
+          openAuthModal();
+          return;
+        }
+        const res = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert('決済ページの作成に失敗しました。もう一度お試しください。');
+        }
+      } catch (err) {
+        alert('エラーが発生しました。もう一度お試しください。');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'PROプランに登録する（¥480/月）';
+      }
+    }
+
+    async function openBillingPortal() {
+      try {
+        const session = supabase.auth.session ? supabase.auth.session() : (await supabase.auth.getSession()).data.session;
+        const token = session?.access_token;
+        if (!token) return;
+        const res = await fetch('/api/create-portal-session', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+      } catch (err) {
+        alert('エラーが発生しました。もう一度お試しください。');
+      }
+    }
+
+    // 決済完了・キャンセル時のURL処理
+    (function handlePaymentReturn() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('payment') === 'success') {
+        window.history.replaceState({}, '', '/');
+        setTimeout(() => alert('PROプランへの登録が完了しました！'), 500);
+      } else if (params.get('payment') === 'cancelled') {
+        window.history.replaceState({}, '', '/');
+      }
+    })();
 
     function openAuthModal() {
       document.getElementById('auth-modal')?.classList.remove('hidden')
