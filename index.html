@@ -3770,7 +3770,7 @@ async function startCheckout() {
         icon.textContent = '🌙';
       }
       appState.theme = theme;
-      savePreferences({ theme });
+      savePreferences({ ...loadPreferences(), theme });
     }
 
     document.getElementById('theme-toggle').addEventListener('click', () => {
@@ -4189,9 +4189,14 @@ ${nextSessionPrompt.raw.trim()}`;
 
       prompt += `
 
-## Phase 1: Shadowing Practice
+## How to start this session
 
-Begin with a brief greeting in English, then immediately start the shadowing practice.
+When you receive this prompt (in text chat), reply ONLY with a short acknowledgment in Japanese, such as:
+「了解しました！準備ができたら声をかけてください。」
+Do NOT start the practice yet. Wait for the student to initiate the voice conversation (they will say something like "Hello" or "よろしく").
+Once the student speaks to you, THEN begin with a warm greeting and immediately move into Phase 1.
+
+## Phase 1: Shadowing Practice
 
 **Sentence delivery format (strictly follow this every time):**
 1. Say the sentence once, clearly.
@@ -4228,12 +4233,17 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 
       if (settings.shadowingStrictness === 'strict') {
         prompt += `
-- STRICT MODE is ON. Do NOT relax this standard under any circumstances.
-- A sentence is only "completed" when the student produces the full sentence clearly, with correct pronunciation and natural rhythm.
-- Do NOT accept mumbled, shortened, skipped words, or significantly mispronounced attempts as a pass.
-- Do NOT say things like "that's close enough" or "good enough for now" — this is not acceptable in strict mode.
-- If the attempt is not yet right, say "Almost! One more time." and have them retry.
-- Only move to the next sentence when the current one is genuinely mastered.`;
+- STRICT MODE is ON. Do NOT relax this under any circumstances.
+- Mentally compare what the student said word-by-word against the original sentence.
+- A sentence is only "completed" when: ALL words are present, pronunciation is clear, and rhythm is natural.
+- Specific failures that must NOT be accepted as a pass:
+  * Missing or swapped words
+  * Significantly mispronounced words (even if the meaning is guessable)
+  * Mumbled or unclear delivery
+  * Skipping over a difficult word
+- If the student gets it wrong, say clearly what was off: e.g., "Almost! You said X but the sentence is Y. One more time." — then repeat the sentence and wait.
+- Do NOT say things like "close enough", "good try", or "let's move on" unless the sentence was genuinely correct.
+- Only count a sentence as complete when you are confident the student reproduced it accurately.`;
       } else {
         prompt += `
 - Accept reasonable attempts. Minor pronunciation imperfections are fine.
@@ -4374,7 +4384,7 @@ Base your assessment on what you actually observed in this session.]
 
       prompt += `
 
-Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by greeting them warmly, then go straight into Phase 1 with your first shadowing sentence. The student will respond after you speak.`;
+Once the student speaks to you in the voice session, greet them warmly and immediately go into Phase 1 with the first shadowing sentence.`;
 
       return prompt;
     }
