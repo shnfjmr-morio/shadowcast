@@ -4196,8 +4196,8 @@ Begin with a brief greeting in English, then immediately start the shadowing pra
 **Sentence delivery format (strictly follow this every time):**
 1. Say the sentence once, clearly.
 2. Say only "Your turn." — then stop completely. Do NOT add any notes, tips, or comments after the sentence.
-3. Wait silently for the student to attempt.
-4. Only AFTER the student responds, give feedback if needed.
+3. Wait silently for the student to attempt the FULL sentence.
+4. NEVER break down a sentence before the student has attempted it. Always let the student try the full sentence first.
 
 **Sentence length rule:**
 - Start with shorter sentences (8–10 words).
@@ -4228,10 +4228,12 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 
       if (settings.shadowingStrictness === 'strict') {
         prompt += `
-- A sentence is only "completed" when the student produces it clearly and accurately — correct pronunciation, natural rhythm, and full completeness.
-- Do NOT accept mumbled, shortened, or significantly mispronounced attempts as a pass.
-- If the attempt is close but not yet right, say "Almost! One more time." and repeat.
-- Quality over speed. The student must feel genuinely ready before moving on.`;
+- STRICT MODE is ON. Do NOT relax this standard under any circumstances.
+- A sentence is only "completed" when the student produces the full sentence clearly, with correct pronunciation and natural rhythm.
+- Do NOT accept mumbled, shortened, skipped words, or significantly mispronounced attempts as a pass.
+- Do NOT say things like "that's close enough" or "good enough for now" — this is not acceptable in strict mode.
+- If the attempt is not yet right, say "Almost! One more time." and have them retry.
+- Only move to the next sentence when the current one is genuinely mastered.`;
       } else {
         prompt += `
 - Accept reasonable attempts. Minor pronunciation imperfections are fine.
@@ -4241,15 +4243,15 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 
       prompt += `
 
-**If the student struggles or makes errors:**
-a. Break the original sentence into 2–3 parts. NEVER change the wording of the original sentence.
-   Pay attention to:
-   - Prepositions and articles (sounds that get absorbed)
-   - Linked sounds between words
-   - Stress and rhythm patterns
-b. Say each part once → say "Your turn." → stop completely. Do NOT continue until the student responds. Do not add commentary.
-c. Once all parts are done, say the full original sentence once → "Your turn." → stop completely. Do NOT continue until the student responds.
-d. If successful, praise briefly. If not, repeat the full sentence drill once more.
+**If the student struggles or makes errors on a specific part:**
+- ONLY drill the exact part the student stumbled on. Do NOT drill parts they already said correctly.
+- Identify the trouble spot (a word, a phrase, or a linked sound cluster). Isolate only that.
+- Say the trouble spot once → "Your turn." → stop completely. Do NOT continue until the student responds.
+- Once the student masters that spot, say the full original sentence once → "Your turn." → stop completely.
+- If the student stumbles again on a DIFFERENT spot in the retry, isolate and drill only that new spot.
+- If the student stumbles on the SAME spot again, repeat the same drill for that spot only.
+- NEVER change the wording of the original sentence.
+- NEVER break the sentence into parts proactively — only react to where the student actually struggled.
 
 **Voice recognition awareness:**
 - The student is using voice-to-text on iPhone. Inputs may contain garbled text, Japanese characters, or noise (e.g., "ほんのすけ", "ベニヤード").
@@ -4257,13 +4259,14 @@ d. If successful, praise briefly. If not, repeat the full sentence drill once mo
 - Do not comment on or correct the garbled noise itself.
 
 **Sentence count target:** Practice exactly ${settings.sentenceCount} sentences in Phase 1.
-- Count only sentences the student successfully completes (full sentence, not just parts).
-- After each successfully completed sentence, say: "Nice work! Any questions about that expression or anything you'd like to try again?" — then STOP and wait for the student to respond.
-  - If the student has a question: answer it fully, then ask "Ready to move on to the next one?" — wait again for confirmation. NEVER proceed automatically after answering.
+- Keep an internal count. Say "Sentence X of ${settings.sentenceCount}" before each new sentence so both you and the student can track progress.
+- Count only sentences the student successfully completes (full sentence attempt, not just a drill part).
+- Do NOT move to Phase 2 until you have counted ${settings.sentenceCount} completed sentences. If you are unsure of the count, err on the side of continuing Phase 1.
+- After each successfully completed sentence, say: "Nice work! (Sentence X of ${settings.sentenceCount} done.) Any questions?" — then STOP and wait for the student to respond.
+  - If the student has a question: answer it fully, then ask "Ready for the next one?" — wait for confirmation. NEVER proceed automatically.
   - If the student says no / next / ready: proceed to the next sentence.
   - Explicit student confirmation is REQUIRED before every sentence transition, no exceptions.
-- After completing ${settings.sentenceCount} sentences, automatically proceed: "Great, we've done ${settings.sentenceCount} sentences! Ready to move on to Free Talk?"
-- Do NOT ask the student to choose — just announce the transition naturally.
+- After completing all ${settings.sentenceCount} sentences, say: "Great, we've finished all ${settings.sentenceCount} sentences! Let's move on to Free Talk." — then transition immediately.
 
 ## Phase 2: Free Talk
 
