@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.8.4 -->
+<!-- BUILD: 20260324-v2.8.5 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.4</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.5</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -3030,6 +3030,13 @@
                   style="max-height:200px; overflow-y:auto;"
                 ></textarea>
               </div>
+            </div>
+
+            <div style="margin-top:8px; margin-bottom:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-size:12px; color:var(--text-tertiary);">評価が出なかった場合 →</span>
+              <button type="button" id="copy-eval-prompt-btn" onclick="copyEvalPrompt()" style="display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:8px; border:1px solid var(--border-glass); background:var(--bg-glass); color:var(--text-secondary); font-size:12px; cursor:pointer;">
+                <span>📋</span><span id="copy-eval-prompt-label">再評価プロンプトをコピー</span>
+              </button>
             </div>
 
             <div class="save-extra-fields">
@@ -4562,12 +4569,18 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
     // SAVE SESSION
     // ============================================================
     function parseSessionOutput(text) {
-      const evalMarker = '=== SESSION EVALUATION ==='
-      const nextMarker = '=== NEXT SESSION PROMPT ==='
-      const cefrMarker = '=== CEFR ASSESSMENT ==='
-      const evalIdx = text.indexOf(evalMarker)
-      const nextIdx = text.indexOf(nextMarker)
-      const cefrIdx = text.indexOf(cefrMarker)
+      // Case-insensitive, whitespace-tolerant marker search
+      const findMarker = (t, marker) => {
+        const re = new RegExp(marker.replace(/[=]/g, '\\$&').replace(/\s+/g, '\\s*'), 'i');
+        const m = t.match(re);
+        return m ? m.index : -1;
+      };
+      const evalMarkerRe  = '=== SESSION EVALUATION ==='
+      const nextMarkerRe  = '=== NEXT SESSION PROMPT ==='
+      const cefrMarkerRe  = '=== CEFR ASSESSMENT ==='
+      const evalIdx  = findMarker(text, evalMarkerRe)
+      const nextIdx  = findMarker(text, nextMarkerRe)
+      const cefrIdx  = findMarker(text, cefrMarkerRe)
       let evalText = '', nextPromptText = '', cefrText = ''
 
       if (evalIdx !== -1) {
@@ -4579,7 +4592,9 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
         nextPromptText = text.substring(nextIdx, nextEnd).trim()
       }
       if (cefrIdx !== -1) {
-        cefrText = text.substring(cefrIdx + cefrMarker.length).trim()
+        // Skip past the marker itself
+        const afterMarker = text.indexOf('\n', cefrIdx);
+        cefrText = (afterMarker !== -1 ? text.substring(afterMarker) : text.substring(cefrIdx + cefrMarkerRe.length)).trim()
       }
       if (evalIdx === -1 && nextIdx === -1 && cefrIdx === -1) {
         evalText = text
@@ -4595,17 +4610,64 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
         const firstBrace = cleaned.indexOf('{')
         const lastBrace = cleaned.lastIndexOf('}')
         if (firstBrace === -1 || lastBrace === -1) return null
-        return JSON.parse(cleaned.substring(firstBrace, lastBrace + 1))
+        const parsed = JSON.parse(cleaned.substring(firstBrace, lastBrace + 1))
+        // Normalize: strip parenthetical notes like "B1 (based on...)"
+        const LEVELS = ['Pre-A1','A1','A1+','A2','A2+','B1','B1+','B2','B2+','C1','C1+','C2'];
+        const normalize = v => {
+          if (!v) return v;
+          const m = v.match(/^(Pre-A1|A1\+?|A2\+?|B1\+?|B2\+?|C1\+?|C2)/i);
+          return m ? m[1] : v;
+        };
+        ['overall','pronunciation','fluency','vocabulary','listening','grammar'].forEach(k => {
+          if (parsed[k]) parsed[k] = normalize(parsed[k]);
+        });
+        return parsed;
       } catch (e) {
         console.warn('CEFR parse failed:', e)
         return null
       }
     }
 
+    // Fallback: try to extract CEFR JSON from any text (evaluation_raw or full paste)
+    function tryExtractCefrFromText(text) {
+      if (!text) return null;
+      // Look for a JSON object containing "overall" key
+      const re = /\{[^{}]*"overall"\s*:\s*"([^"]+)"[^{}]*\}/g;
+      let m;
+      while ((m = re.exec(text)) !== null) {
+        try {
+          const json = JSON.parse(m[0]);
+          if (json.overall) return parseCefrAssessment(JSON.stringify(json));
+        } catch {}
+      }
+      // Broader: find last { ... } in text
+      const lastOpen = text.lastIndexOf('{');
+      const lastClose = text.lastIndexOf('}');
+      if (lastOpen !== -1 && lastClose > lastOpen) {
+        try {
+          const json = JSON.parse(text.substring(lastOpen, lastClose + 1));
+          if (json.overall) return parseCefrAssessment(JSON.stringify(json));
+        } catch {}
+      }
+      return null;
+    }
+
+    function copyEvalPrompt() {
+      const prompt = 'Session Evaluation以下のフォーマットに従って評価を再度出力するように';
+      navigator.clipboard.writeText(prompt).then(() => {
+        const label = document.getElementById('copy-eval-prompt-label');
+        if (label) {
+          label.textContent = 'コピーしました！';
+          setTimeout(() => { label.textContent = '再評価プロンプトをコピー'; }, 2000);
+        }
+      });
+    }
+
     async function handleSave() {
       const combinedText = document.getElementById('combined-eval-input').value.trim();
       const { evalText, nextPromptText, cefrText } = parseSessionOutput(combinedText);
-      const cefrAssessment = parseCefrAssessment(cefrText);
+      // Try CEFR section first, then fall back to searching the full text
+      const cefrAssessment = parseCefrAssessment(cefrText) || tryExtractCefrFromText(combinedText);
       const saveBtn       = document.getElementById('save-btn');
       const saveIcon      = document.getElementById('save-icon');
       const saveText      = document.getElementById('save-text');
@@ -4647,6 +4709,7 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
           settings: sessionRecord.settings,
           evaluation_raw: sessionRecord.evaluation_raw,
           next_session_prompt: sessionRecord.next_session_prompt,
+          cefr_assessment: sessionRecord.cefr_assessment,
           duration_minutes: sessionRecord.duration_minutes,
           user_rating: sessionRecord.user_rating,
           session_date: sessionRecord.session_date
@@ -4796,7 +4859,18 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
     }
 
     function renderGrowthDashboard() {
-      const history = loadHistory();
+      // Migrate existing logs: try to extract cefr_assessment from evaluation_raw
+      let history = loadHistory();
+      let migrated = false;
+      history = history.map(s => {
+        if (!s.cefr_assessment && s.evaluation_raw) {
+          const cefr = tryExtractCefrFromText(s.evaluation_raw);
+          if (cefr) { migrated = true; return { ...s, cefr_assessment: cefr }; }
+        }
+        return s;
+      });
+      if (migrated) saveHistory(history);
+
       renderCefrChart(history);
       renderDashLog(history);
       // Reuse existing progress render for skills tab
