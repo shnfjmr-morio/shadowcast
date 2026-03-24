@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.7.2 -->
+<!-- BUILD: 20260324-v2.7.3 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2250,7 +2250,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.7.2</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.7.3</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4297,9 +4297,7 @@ Open with a natural question about ${topicName} — do NOT ask "What would you l
 
 ## Phase 3: Session End
 
-When the student says they want to end:
-1. Say: "お疲れ様でした！今日もよく頑張りましたね。評価をまとめます。"
-2. Immediately output the complete evaluation below. Do not skip any section.
+When the student says they want to end, output the full evaluation:
 
 === SESSION EVALUATION ===
 
