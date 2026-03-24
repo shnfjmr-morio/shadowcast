@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.8.7 -->
+<!-- BUILD: 20260324-v2.8.8 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.7</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.8</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4623,6 +4623,8 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
 
     // フィールドを正規表現で直接抽出するフォールバック（JSON.parse失敗時）
     function extractCefrByRegex(text) {
+      // Normalize smart/curly quotes to straight quotes
+      text = text.replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g, '"').replace(/[\u2018\u2019\u201A\u201B\u2032\u2035]/g, "'");
       const levelPat = 'Pre-A1|C2|[ABC][12]\\+?';
       const extract = key => {
         const m = text.match(new RegExp(`"${key}"\\s*:\\s*"(${levelPat})`, 'i'));
@@ -4642,6 +4644,8 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
 
     function parseCefrAssessment(cefrText) {
       if (!cefrText) return null
+      // Normalize smart/curly quotes to straight quotes (common when pasting from ChatGPT)
+      cefrText = cefrText.replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g, '"').replace(/[\u2018\u2019\u201A\u201B\u2032\u2035]/g, "'");
       const normalize = v => {
         if (!v) return v;
         const m = v.match(/^(Pre-A1|A1\+?|A2\+?|B1\+?|B2\+?|C1\+?|C2)/i);
@@ -4783,7 +4787,8 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
         saveText.textContent = 'セッションを保存する';
         feedback.classList.remove('visible');
 
-        // Refresh state
+        // Refresh state (reset guard so initApp can re-run)
+        _initAppCalled = false;
         initApp();
       }, 3000);
     }
@@ -4930,7 +4935,7 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       const radarNoData = document.getElementById('cefr-radar-no-data');
       if (!container) return;
 
-      const withCefr = history.filter(s => s.cefr_assessment && s.cefr_assessment.overall);
+      const withCefr = history.filter(s => s.cefr_assessment && s.cefr_assessment.overall).reverse();
       if (withCefr.length === 0) {
         container.innerHTML = '';
         if (noData) noData.style.display = 'block';
@@ -4979,8 +4984,8 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
           ${xLabels}
         </svg>`;
 
-      // Radar chart for latest session skills
-      const latest = withCefr[0];
+      // Radar chart for latest session skills (withCefr is oldest-first after reverse)
+      const latest = withCefr[withCefr.length - 1];
       const skills = [
         { key: 'pronunciation', label: '発音' },
         { key: 'fluency', label: '流暢さ' },
