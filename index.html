@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.8.1 -->
+<!-- BUILD: 20260324-v2.8.2 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.1</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.2</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -5617,12 +5617,19 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       const body = document.getElementById('practice-settings-body');
       const toggleLabel = document.getElementById('practice-toggle-label');
 
-      if (sessionCount === 0) {
-        // First-time: show settings open, no main button
+      if (sessionCount === 0 && currentUser) {
+        // Logged-in first-time user: show settings open, no main button
         if (cardTop) cardTop.style.display = 'none';
         if (body) body.classList.add('open');
         if (toggleBtn) toggleBtn.classList.add('open');
         if (toggleLabel) toggleLabel.textContent = '⚙️ 設定を閉じる';
+      } else if (sessionCount === 0 && !currentUser) {
+        // Guest: show generate button, keep settings collapsed
+        if (cardTop) cardTop.style.display = 'block';
+        if (mainBtn) mainBtn.style.display = 'block';
+        if (body) body.classList.remove('open');
+        if (toggleBtn) toggleBtn.classList.remove('open');
+        if (toggleLabel) toggleLabel.textContent = '⚙️ 設定を変更する';
       } else {
         // Returning user: show main button + summary, settings collapsed
         if (cardTop) cardTop.style.display = 'block';
@@ -5645,6 +5652,9 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       if (isOpen && currentUser) {
         // Build overview grid on first open for logged-in users
         initSettingsAccordion();
+      } else if (isOpen && !currentUser) {
+        // Re-apply feature gate locks for guests each time settings are opened
+        applyFeatureGates(false);
       }
       // When closing the panel, restore detail panel content back to its group
       if (!isOpen) {
