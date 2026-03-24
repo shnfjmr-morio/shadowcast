@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.8.2 -->
+<!-- BUILD: 20260324-v2.8.3 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.2</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.3</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -3560,6 +3560,9 @@
         const existingGrid = document.getElementById('settings-overview-grid');
         if (existingGrid) existingGrid.remove();
         _accordionInited = false;
+        // Show the settings groups container (hidden by default, shown via accordion for logged-in users)
+        const groupsContainer = document.getElementById('settings-groups-container');
+        if (groupsContainer) groupsContainer.style.display = '';
       }
 
       // Always show all settings groups — locked items show lock icon instead of being hidden
