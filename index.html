@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.8.0 -->
+<!-- BUILD: 20260324-v2.8.1 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.0</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.1</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -2332,6 +2332,9 @@
     <!-- ============================================================
          HOW IT WORKS — HORIZONTAL CAROUSEL
     ============================================================ -->
+    <section class="how-section" id="how-section-placeholder"></section>
+
+    <template id="how-section-template">
     <section class="how-section">
       <div class="how-header scroll-reveal">
         <div class="how-label">How it works</div>
@@ -2624,6 +2627,7 @@
         <span class="how-scroll-hint-arrow">→</span>
       </div>
     </section>
+    </template>
 
     <!-- ============================================================
          SECTION B: PREVIOUS SESSION
@@ -3063,6 +3067,9 @@
       </div>
     </section>
 
+    <!-- How it works (ログイン時はここに移動) -->
+    <div id="how-section-bottom"></div>
+
     <!-- Footer -->
     <footer style="text-align:center; padding: 60px 24px 40px;">
       <div style="font-size: clamp(48px, 12vw, 96px); font-weight: 800; letter-spacing: -3px; line-height: 1; color: var(--text-primary);">
@@ -3342,7 +3349,21 @@
       initPracticeCard();
 
       // Hide "how it works" for logged-in users
-      // how-section は常に表示（ログイン後も使い方を確認できるように）
+      // how-section: 未ログインは上部、ログイン後は下部に配置
+      (function() {
+        const tmpl = document.getElementById('how-section-template');
+        if (!tmpl) return;
+        const placeholder = document.getElementById('how-section-placeholder');
+        const bottom = document.getElementById('how-section-bottom');
+        if (!placeholder || !bottom) return;
+        const clone = tmpl.content.cloneNode(true);
+        if (currentUser) {
+          bottom.appendChild(clone);
+          placeholder.style.display = 'none';
+        } else {
+          placeholder.replaceWith(clone);
+        }
+      })();
 
       // Refresh previous session panel for logged-in state
       renderPreviousSessionState(isLoggedIn);
