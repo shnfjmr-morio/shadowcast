@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.7.5 -->
+<!-- BUILD: 20260324-v2.7.6 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2250,7 +2250,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.7.5</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.7.6</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -5639,6 +5639,20 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
           hintHidden = true;
         }
       }, { passive: true });
+    })();
+
+    // UTM parameter capture — runs before initApp
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ref'];
+      const data = {};
+      keys.forEach(k => { const v = params.get(k); if (v) data[k] = v; });
+      if (Object.keys(data).length > 0) {
+        data.captured_at = new Date().toISOString();
+        localStorage.setItem('shadowcast_utm', JSON.stringify(data));
+        // URLをクリーンに保つ（パラメータを履歴から消す）
+        window.history.replaceState({}, '', window.location.pathname);
+      }
     })();
 
     document.addEventListener('DOMContentLoaded', () => {
