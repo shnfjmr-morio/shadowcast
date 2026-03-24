@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.8.6 -->
+<!-- BUILD: 20260324-v2.8.7 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.6</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.7</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4607,27 +4607,65 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       return { evalText, nextPromptText, cefrText }
     }
 
+    // JSON文字列内の生改行をエスケープして JSON.parse できるようにする
+    function fixJsonNewlines(jsonStr) {
+      let result = '', inString = false, escape = false;
+      for (let i = 0; i < jsonStr.length; i++) {
+        const c = jsonStr[i];
+        if (escape) { result += c; escape = false; continue; }
+        if (c === '\\') { result += c; escape = true; continue; }
+        if (c === '"') { inString = !inString; result += c; continue; }
+        if (inString && (c === '\n' || c === '\r')) { result += ' '; continue; }
+        result += c;
+      }
+      return result;
+    }
+
+    // フィールドを正規表現で直接抽出するフォールバック（JSON.parse失敗時）
+    function extractCefrByRegex(text) {
+      const levelPat = 'Pre-A1|C2|[ABC][12]\\+?';
+      const extract = key => {
+        const m = text.match(new RegExp(`"${key}"\\s*:\\s*"(${levelPat})`, 'i'));
+        return m ? m[1] : null;
+      };
+      const overall = extract('overall');
+      if (!overall) return null;
+      return {
+        overall,
+        pronunciation: extract('pronunciation'),
+        fluency:       extract('fluency'),
+        vocabulary:    extract('vocabulary'),
+        listening:     extract('listening'),
+        grammar:       extract('grammar'),
+      };
+    }
+
     function parseCefrAssessment(cefrText) {
       if (!cefrText) return null
+      const normalize = v => {
+        if (!v) return v;
+        const m = v.match(/^(Pre-A1|A1\+?|A2\+?|B1\+?|B2\+?|C1\+?|C2)/i);
+        return m ? m[1] : v;
+      };
+      const applyNormalize = parsed => {
+        ['overall','pronunciation','fluency','vocabulary','listening','grammar'].forEach(k => {
+          if (parsed[k]) parsed[k] = normalize(parsed[k]);
+        });
+        return parsed;
+      };
       try {
         // Strip code fences if AI wrapped in them
         const cleaned = cefrText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
         const firstBrace = cleaned.indexOf('{')
         const lastBrace = cleaned.lastIndexOf('}')
-        if (firstBrace === -1 || lastBrace === -1) return null
-        const parsed = JSON.parse(cleaned.substring(firstBrace, lastBrace + 1))
-        // Normalize: strip parenthetical notes like "B1 (based on...)"
-        const LEVELS = ['Pre-A1','A1','A1+','A2','A2+','B1','B1+','B2','B2+','C1','C1+','C2'];
-        const normalize = v => {
-          if (!v) return v;
-          const m = v.match(/^(Pre-A1|A1\+?|A2\+?|B1\+?|B2\+?|C1\+?|C2)/i);
-          return m ? m[1] : v;
-        };
-        ['overall','pronunciation','fluency','vocabulary','listening','grammar'].forEach(k => {
-          if (parsed[k]) parsed[k] = normalize(parsed[k]);
-        });
-        return parsed;
+        if (firstBrace === -1 || lastBrace === -1) throw new Error('no braces')
+        // Fix unescaped newlines inside string values before parsing
+        const jsonStr = fixJsonNewlines(cleaned.substring(firstBrace, lastBrace + 1))
+        return applyNormalize(JSON.parse(jsonStr))
       } catch (e) {
+        // Fallback: regex field extraction (handles malformed JSON)
+        const result = extractCefrByRegex(cefrText);
+        if (result) return applyNormalize(result);
         console.warn('CEFR parse failed:', e)
         return null
       }
@@ -4636,25 +4674,15 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
     // Fallback: try to extract CEFR JSON from any text (evaluation_raw or full paste)
     function tryExtractCefrFromText(text) {
       if (!text) return null;
-      // Look for a JSON object containing "overall" key
-      const re = /\{[^{}]*"overall"\s*:\s*"([^"]+)"[^{}]*\}/g;
-      let m;
-      while ((m = re.exec(text)) !== null) {
-        try {
-          const json = JSON.parse(m[0]);
-          if (json.overall) return parseCefrAssessment(JSON.stringify(json));
-        } catch {}
+      // Look for the CEFR block between { and last }
+      const firstBrace = text.indexOf('{');
+      const lastClose  = text.lastIndexOf('}');
+      if (firstBrace !== -1 && lastClose > firstBrace) {
+        const result = parseCefrAssessment(text.substring(firstBrace, lastClose + 1));
+        if (result?.overall) return result;
       }
-      // Broader: find last { ... } in text
-      const lastOpen = text.lastIndexOf('{');
-      const lastClose = text.lastIndexOf('}');
-      if (lastOpen !== -1 && lastClose > lastOpen) {
-        try {
-          const json = JSON.parse(text.substring(lastOpen, lastClose + 1));
-          if (json.overall) return parseCefrAssessment(JSON.stringify(json));
-        } catch {}
-      }
-      return null;
+      // Try regex extraction directly on full text
+      return extractCefrByRegex(text);
     }
 
     function copyEvalPrompt() {
