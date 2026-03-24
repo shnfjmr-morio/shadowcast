@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.8.3 -->
+<!-- BUILD: 20260324-v2.8.4 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.3</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.4</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -3544,25 +3544,16 @@
         saveFormInner.style.display = isLoggedIn ? '' : 'none'
       }
 
-      // Accordion / overview grid: init for logged-in, remove collapse for guests
-      if (isLoggedIn) {
-        _accordionInited = false; // allow rebuild on next open
-        // If settings panel is already open, build the grid immediately
-        const settingsBody = document.getElementById('practice-settings-body');
-        if (settingsBody?.classList.contains('open')) {
-          initSettingsAccordion();
-        }
-      } else {
-        // Remove accordion for guests — all groups visible
-        document.querySelectorAll('.settings-group.accordion-group').forEach(group => {
-          group.classList.remove('accordion-collapsed');
-        });
-        const existingGrid = document.getElementById('settings-overview-grid');
-        if (existingGrid) existingGrid.remove();
-        _accordionInited = false;
-        // Show the settings groups container (hidden by default, shown via accordion for logged-in users)
-        const groupsContainer = document.getElementById('settings-groups-container');
-        if (groupsContainer) groupsContainer.style.display = '';
+      // Accordion / overview grid: same tile UI for both logged-in and guests
+      // settings-groups-container must always stay hidden (accordion moves content out of it)
+      const groupsContainer = document.getElementById('settings-groups-container');
+      if (groupsContainer) groupsContainer.style.display = 'none';
+
+      _accordionInited = false; // allow rebuild on next open
+      // If settings panel is already open, build the grid immediately
+      const settingsBody = document.getElementById('practice-settings-body');
+      if (settingsBody?.classList.contains('open')) {
+        initSettingsAccordion();
       }
 
       // Always show all settings groups — locked items show lock icon instead of being hidden
@@ -5652,12 +5643,11 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       const isOpen = body.classList.toggle('open');
       toggleBtn?.classList.toggle('open', isOpen);
       if (toggleLabel) toggleLabel.textContent = isOpen ? '⚙️ 設定を閉じる' : '⚙️ 設定を変更する';
-      if (isOpen && currentUser) {
-        // Build overview grid on first open for logged-in users
+      if (isOpen) {
+        // Build overview grid (same tile UI for both logged-in and guests)
         initSettingsAccordion();
-      } else if (isOpen && !currentUser) {
-        // Re-apply feature gate locks for guests each time settings are opened
-        applyFeatureGates(false);
+        // Re-apply locks for guests after accordion builds DOM
+        if (!currentUser) applyFeatureGates(false);
       }
       // When closing the panel, restore detail panel content back to its group
       if (!isOpen) {
