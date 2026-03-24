@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.7.8 -->
+<!-- BUILD: 20260324-v2.7.9 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2250,7 +2250,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.7.8</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.7.9</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -3519,15 +3519,9 @@
         _accordionInited = false;
       }
 
-      // Guest mode: hide non-topic settings groups
-      const guestHiddenNums = ['1', '3', '4', '5', '6'];
+      // Always show all settings groups — locked items show lock icon instead of being hidden
       document.querySelectorAll('.settings-group.accordion-group').forEach(group => {
-        const num = group.querySelector('.settings-label-num')?.textContent?.trim();
-        if (!isLoggedIn && guestHiddenNums.includes(num)) {
-          group.classList.add('guest-hidden');
-        } else {
-          group.classList.remove('guest-hidden');
-        }
+        group.classList.remove('guest-hidden');
       });
 
       // Show/hide guest hint text
