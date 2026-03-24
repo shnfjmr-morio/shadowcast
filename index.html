@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.8.5 -->
+<!-- BUILD: 20260324-v2.8.6 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.5</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.6</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -2337,7 +2337,7 @@
     <template id="how-section-template">
     <section class="how-section">
       <div class="how-header scroll-reveal">
-        <div class="how-label">How it works</div>
+        <div class="how-label">使い方</div>
         <h2 class="how-title">生成して、貼って、話すだけ。</h2>
       </div>
 
@@ -3355,20 +3355,25 @@
       // Re-init practice card state (session count may have changed)
       initPracticeCard();
 
-      // Hide "how it works" for logged-in users
-      // how-section: 未ログインは上部、ログイン後は下部に配置
+      // how-section: 未ログインは上部、ログイン後は下部に配置（重複挿入を防ぐ）
       (function() {
         const tmpl = document.getElementById('how-section-template');
         if (!tmpl) return;
-        const placeholder = document.getElementById('how-section-placeholder');
         const bottom = document.getElementById('how-section-bottom');
-        if (!placeholder || !bottom) return;
-        const clone = tmpl.content.cloneNode(true);
+        const placeholder = document.getElementById('how-section-placeholder');
         if (currentUser) {
-          bottom.appendChild(clone);
-          placeholder.style.display = 'none';
+          if (bottom && !bottom.querySelector('.how-section')) {
+            const clone = tmpl.content.cloneNode(true);
+            bottom.appendChild(clone);
+          }
+          if (placeholder) placeholder.style.display = 'none';
         } else {
-          placeholder.replaceWith(clone);
+          if (placeholder && !placeholder._howInserted) {
+            placeholder._howInserted = true;
+            const clone = tmpl.content.cloneNode(true);
+            placeholder.replaceWith(clone);
+          }
+          if (bottom) bottom.innerHTML = '';
         }
       })();
 
@@ -4827,6 +4832,8 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       const growthEl = document.getElementById('growth-dashboard');
       const tabPractice = document.getElementById('tab-btn-practice');
       const tabGrowth = document.getElementById('tab-btn-growth');
+      const howBottom = document.getElementById('how-section-bottom');
+      const siteFooter = document.querySelector('footer');
 
       if (tab === 'practice') {
         practiceEls.forEach(sel => {
@@ -4834,6 +4841,8 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
           if (el && !el.dataset.hiddenByAuth) el.classList.remove('hidden-by-tab');
         });
         growthEl?.classList.add('hidden');
+        if (howBottom) howBottom.style.display = '';
+        if (siteFooter) siteFooter.style.display = '';
         tabPractice?.classList.add('active');
         tabGrowth?.classList.remove('active');
       } else {
@@ -4842,6 +4851,8 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
           if (el) el.classList.add('hidden-by-tab');
         });
         growthEl?.classList.remove('hidden');
+        if (howBottom) howBottom.style.display = 'none';
+        if (siteFooter) siteFooter.style.display = 'none';
         tabPractice?.classList.remove('active');
         tabGrowth?.classList.add('active');
         renderGrowthDashboard();
@@ -4870,6 +4881,13 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
         return s;
       });
       if (migrated) saveHistory(history);
+
+      // Debug: log CEFR state for troubleshooting
+      console.log('[ShadowCast] Growth history CEFR state:', history.map(s => ({
+        date: s.session_date,
+        cefr_assessment: s.cefr_assessment,
+        has_eval_raw: !!s.evaluation_raw
+      })));
 
       renderCefrChart(history);
       renderDashLog(history);
