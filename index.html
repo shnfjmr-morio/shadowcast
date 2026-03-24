@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.7.6 -->
+<!-- BUILD: 20260324-v2.7.7 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2250,7 +2250,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.7.6</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.7.7</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -3207,7 +3207,7 @@
       }
       supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (session?.user) {
-          await onAuthStateChange(session.user, session.access_token)
+          await onAuthStateChange(event, session.user, session.access_token)
         } else {
           onSignOut()
         }
@@ -3216,7 +3216,29 @@
 
     const ADMIN_EMAILS_LIST = ['shnfjmr@gmail.com']
 
-    async function onAuthStateChange(user, token) {
+    async function saveUtmToSupabase(user) {
+      try {
+        const raw = localStorage.getItem('shadowcast_utm')
+        if (!raw) return
+        const utmData = JSON.parse(raw)
+        // utm_dataがまだ未保存のプロフィールにだけ書き込む
+        await supabaseClient
+          .from('profiles')
+          .update({ utm_data: utmData })
+          .eq('id', user.id)
+          .is('utm_data', null)
+        localStorage.removeItem('shadowcast_utm')
+      } catch(e) {
+        // UTM保存失敗はサイレントに無視
+      }
+    }
+
+    async function onAuthStateChange(event, user, token) {
+      // 新規ログイン・新規登録時にUTMをSupabaseへ保存
+      if (event === 'SIGNED_IN') {
+        saveUtmToSupabase(user)
+      }
+
       const prevUserId = currentUser?.id
       currentUser = user
       // ユーザーが切り替わったらセッションデータをリロード
