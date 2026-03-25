@@ -1,0 +1,35 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#06030F"/>
+
+  <!-- Subtle radial glow behind text -->
+  <radialGradient id="glow" cx="50%" cy="50%" r="40%">
+    <stop offset="0%" stop-color="#0071E3" stop-opacity="0.15"/>
+    <stop offset="100%" stop-color="#06030F" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="512" height="512" fill="url(#glow)"/>
+
+  <!-- "Shadow" -->
+  <text
+    x="256"
+    y="232"
+    text-anchor="middle"
+    font-family="Inter, -apple-system, BlinkMacSystemFont, Helvetica Neue, sans-serif"
+    font-weight="800"
+    font-size="86"
+    letter-spacing="-4"
+    fill="#f0efff"
+  >Shadow</text>
+
+  <!-- "Cast" in accent blue -->
+  <text
+    x="256"
+    y="318"
+    text-anchor="middle"
+    font-family="Inter, -apple-system, BlinkMacSystemFont, Helvetica Neue, sans-serif"
+    font-weight="800"
+    font-size="86"
+    letter-spacing="-4"
+    fill="#0071E3"
+  >Cast</text>
+</svg>

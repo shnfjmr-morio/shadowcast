@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShadowCast 販売戦略ドキュメント</title>
+<style>
+  :root {
+    --accent: #6C63FF;
+    --accent-light: #ede9ff;
+    --bg: #f8f9fc;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --text-sub: #555;
+    --border: #e0e0f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 40px 20px 80px;
+  }
+  .wrapper { max-width: 900px; margin: 0 auto; }
+
+  /* Header */
+  .doc-header {
+    text-align: center;
+    padding: 48px 0 40px;
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: 48px;
+  }
+  .doc-header .logo { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+  .doc-header .logo span { color: var(--accent); }
+  .doc-header h1 { font-size: 22px; font-weight: 700; margin-top: 8px; color: var(--text-sub); }
+  .doc-header .date { font-size: 13px; color: #999; margin-top: 8px; }
+
+  /* Section */
+  .section { margin-bottom: 48px; }
+  .section-title {
+    font-size: 20px; font-weight: 800;
+    border-left: 4px solid var(--accent);
+    padding-left: 14px;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+  .phase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .phase-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    border-top: 3px solid var(--accent);
+  }
+  .phase-card h3 { font-size: 14px; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
+  .phase-card p { font-size: 13px; color: var(--text-sub); }
+  .phase-card .kpi { font-size: 12px; background: var(--accent-light); color: var(--accent); padding: 4px 8px; border-radius: 6px; display: inline-block; margin-top: 8px; font-weight: 700; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+  th { background: var(--accent); color: #fff; padding: 10px 14px; text-align: left; font-weight: 700; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card h3 { font-size: 15px; font-weight: 800; margin-bottom: 10px; }
+  .card p, .card li { font-size: 14px; color: var(--text-sub); }
+  .card ul { padding-left: 18px; }
+  .card li { margin-bottom: 4px; }
+
+  /* Tweet example */
+  .tweet {
+    background: #f0f4ff;
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    font-size: 14px;
+    white-space: pre-line;
+    margin: 12px 0;
+    color: #333;
+  }
+
+  /* Quote */
+  blockquote {
+    background: var(--accent-light);
+    border-left: 4px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    font-size: 14px;
+    color: #444;
+    margin: 12px 0;
+  }
+
+  /* Checklist */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: '☐';
+    color: var(--accent);
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Highlight box */
+  .highlight {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+  }
+  .highlight h3 { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+  .highlight p { font-size: 14px; opacity: 0.9; }
+
+  /* Budget table */
+  .budget-total td { font-weight: 800; background: var(--accent-light) !important; color: var(--accent); }
+
+  h4 { font-size: 15px; font-weight: 700; margin: 20px 0 10px; }
+  p { font-size: 14px; color: var(--text-sub); margin-bottom: 10px; }
+  code {
+    font-family: 'Menlo', 'Monaco', monospace;
+    font-size: 12px;
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 10px;
+    font-size: 12px;
+    overflow-x: auto;
+    margin: 12px 0;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div class="logo">Shadow<span>Cast</span></div>
+    <h1>販売戦略ドキュメント</h1>
+    <div class="date">2026年3月策定</div>
+  </div>
+
+  <!-- 1. フェーズ別ロードマップ -->
+  <div class="section">
+    <div class="section-title">1. フェーズ別ロードマップ</div>
+    <div class="phase-grid">
+      <div class="phase-card">
+        <h3>Phase 1</h3>
+        <p><strong>クローズドBETA</strong><br>知人20〜50名にテスト。フィードバック収集。致命バグをゼロに。</p>
+        <span class="kpi">期間: 2〜3週間</span>
+      </div>
+      <div class="phase-card">
+        <h3>Phase 2</h3>
+        <p><strong>ローンチ準備</strong><br>Xアカウント開設・ブルーマーク取得。動画・画像素材を制作。</p>
+        <span class="kpi">期間: 1〜2週間</span>
+      </div>
+      <div class="phase-card">
+        <h3>Phase 3</h3>
+        <p><strong>パブリックローンチ</strong><br>X・YouTubeショート・TikTok同時展開。Product Hunt掲載。</p>
+        <span class="kpi">目標 MRR: ¥72,000</span>
+      </div>
+      <div class="phase-card">
+        <h3>Phase 4</h3>
+        <p><strong>海外展開</strong><br>韓国・台湾・中南米へ。日本のPMF確認後、数週間以内に展開。</p>
+        <span class="kpi">目標 MRR: ¥500,000</span>
+      </div>
+    </div>
+
+    <h4>Phase 3 のKPI</h4>
+    <table>
+      <tr><th>指標</th><th>目標値</th></tr>
+      <tr><td>登録ユーザー</td><td>3,000名</td></tr>
+      <tr><td>有料転換率</td><td>5%（150名）</td></tr>
+      <tr><td>MRR</td><td>¥72,000</td></tr>
+      <tr><td>チャーンレート</td><td>10%以下</td></tr>
+    </table>
+  </div>
+
+  <!-- 2. コンテンツマーケティング -->
+  <div class="section">
+    <div class="section-title">2. コンテンツマーケティング戦略</div>
+    <p><strong>コンテンツの軸：「教育（50%）× 共感（30%）× 製品デモ（20%）」</strong></p>
+
+    <h4>X（Twitter）— 投稿例</h4>
+    <div class="tweet">シャドーイングの月額サービス調べたら月10,780円だった。
+
+年間約13万円。
+
+同じことAIにやらせたら月480円。
+
+年間5,760円。
+
+差額12万円。
+
+12万あったら実際に海外行けるんだよな。</div>
+
+    <table>
+      <tr><th>プラットフォーム</th><th>投稿頻度</th><th>主な戦術</th></tr>
+      <tr><td>X（Twitter）</td><td>1日2〜3投稿</td><td>教育系・共感系・デモ動画。フックは価格差</td></tr>
+      <tr><td>YouTubeショート</td><td>週3〜5本</td><td>Before/After型が最も効果的。尺30〜45秒</td></tr>
+      <tr><td>TikTok</td><td>週5〜7本</td><td>Xの素材を縦動画化して転用。冒頭1秒のフック命</td></tr>
+    </table>
+  </div>
+
+  <!-- 3. グロースハック -->
+  <div class="section">
+    <div class="section-title">3. グロースハック施策</div>
+
+    <h4>紹介制度「Shadow Together」</h4>
+    <table>
+      <tr><th>アクション</th><th>紹介者の特典</th><th>被紹介者の特典</th></tr>
+      <tr><td>友達が無料登録</td><td>PRO機能を3日間</td><td>PRO機能を7日間</td></tr>
+      <tr><td>友達がPROに課金</td><td>翌月¥240引き</td><td>初月¥240</td></tr>
+      <tr><td>3人紹介達成</td><td>1ヶ月PRO無料</td><td>—</td></tr>
+      <tr><td>10人紹介達成</td><td>永久PRO無料</td><td>—</td></tr>
+    </table>
+
+    <h4>早期割引・限定感</h4>
+    <div class="card">
+      <h3>🎯 Early Adopterプログラム</h3>
+      <ul>
+        <li>最初の1,000名限定で年額プラン <strong>¥3,980/年</strong>（通常換算 ¥5,760 から31%OFF）</li>
+        <li>最初の500名に永久「Early Adopterバッジ」（後から取得不可）</li>
+        <li>締め切ったら絶対に再販売しない。限定感は本物でなければ逆効果</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 4. 流入元トラッキング -->
+  <div class="section">
+    <div class="section-title">4. 流入元トラッキング</div>
+
+    <h4>UTMパラメータ設計</h4>
+    <table>
+      <tr><th>チャネル</th><th>UTMパラメータ</th></tr>
+      <tr><td>Xプロフィール</td><td><code>?utm_source=x&utm_medium=social&utm_campaign=profile</code></td></tr>
+      <tr><td>YouTubeショート</td><td><code>?utm_source=youtube&utm_medium=video&utm_campaign=shorts</code></td></tr>
+      <tr><td>TikTok</td><td><code>?utm_source=tiktok&utm_medium=social&utm_campaign=profile</code></td></tr>
+      <tr><td>Product Hunt</td><td><code>?utm_source=producthunt&utm_medium=listing&utm_campaign=launch</code></td></tr>
+      <tr><td>アフィリエイト</td><td><code>?utm_source=affiliate&utm_campaign=aff-{id}</code></td></tr>
+      <tr><td>紹介リンク</td><td><code>?ref={user_id}</code></td></tr>
+    </table>
+
+    <h4>実装コード（index.htmlに追加）</h4>
+    <pre>const params = new URLSearchParams(window.location.search);
+const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'ref'];
+const utmData = {};
+utmKeys.forEach(key => {
+  const val = params.get(key);
+  if (val) utmData[key] = val;
+});
+if (Object.keys(utmData).length > 0) {
+  localStorage.setItem('shadowcast_utm', JSON.stringify(utmData));
+  window.history.replaceState({}, '', window.location.pathname);
+}</pre>
+  </div>
+
+  <!-- 5. 海外展開 -->
+  <div class="section">
+    <div class="section-title">5. 海外展開戦略</div>
+
+    <h4>展開タイミングの判断基準（3条件すべて満たしたら開始）</h4>
+    <div class="card">
+      <ul>
+        <li>✅ 日本で有料転換率 5%以上が2週間継続</li>
+        <li>✅ 致命的バグの報告が週0件</li>
+        <li>✅ 月次チャーンレート（解約率）が10%以下</li>
+      </ul>
+    </div>
+
+    <h4>市場優先順位</h4>
+    <table>
+      <tr><th>順位</th><th>市場</th><th>理由</th></tr>
+      <tr><td>1位</td><td>🇰🇷 韓国</td><td>英語学習熱が日本と同レベル。TOEIC文化圏。市場規模大</td></tr>
+      <tr><td>2位</td><td>🇹🇼 台湾</td><td>英語学習ニーズ高。親日で心理的障壁低</td></tr>
+      <tr><td>3位</td><td>🇧🇷 ブラジル・中南米</td><td>英語学習人口急増中。安価なサービスへの需要大</td></tr>
+      <tr><td>4位</td><td>🌏 英語圏（非ネイティブ）</td><td>移民・留学生向け。市場規模大だがリーチコスト高</td></tr>
+    </table>
+  </div>
+
+  <!-- 6. アフィリエイト -->
+  <div class="section">
+    <div class="section-title">6. アフィリエイト・プロモーションフィー設計</div>
+
+    <table>
+      <tr><th>種別</th><th>報酬額</th><th>条件</th></tr>
+      <tr><td>PRO月額転換</td><td>¥200（初回のみ）</td><td>ユーザーが初月の支払いを完了</td></tr>
+      <tr><td>PRO年額転換</td><td>¥1,000（初回のみ）</td><td>ユーザーが年額の支払いを完了</td></tr>
+    </table>
+
+    <h4>インフルエンサーマーケティング</h4>
+    <table>
+      <tr><th>提供内容</th><th>条件</th></tr>
+      <tr><td>PRO永久無料</td><td>レビュー動画/記事を1本以上投稿</td></tr>
+      <tr><td>追加謝礼 ¥5,000〜20,000</td><td>フォロワー規模に応じて</td></tr>
+      <tr><td>アフィリエイトリンク</td><td>継続的な収益機会として提供</td></tr>
+    </table>
+  </div>
+
+  <!-- 7. 競合対策 -->
+  <div class="section">
+    <div class="section-title">7. 競合対策</div>
+
+    <h4>差別化メッセージ</h4>
+    <blockquote>vs シャドテン（¥10,780/月）<br>「人間のコーチに月1万円。それとも、AIのコーチに月480円。22倍の価格差、あなたならどちらを選びますか？」</blockquote>
+    <blockquote>vs ELSA Speak / Speak（¥1,500〜4,000/月）<br>「アプリのインストール不要。ブラウザを開くだけ。しかも月480円。」</blockquote>
+
+    <h4>防御戦略</h4>
+    <div class="card">
+      <ul>
+        <li><strong>ブランド認知の先行獲得</strong>：「シャドーイング × AI」で検索した時に最初に出てくる存在になる</li>
+        <li><strong>コミュニティ構築</strong>：Discord / LINEオープンチャットでユーザー同士の交流を促進</li>
+        <li><strong>切り替えコストの埋め込み</strong>：練習履歴・ストリーク・統計データを蓄積させる</li>
+        <li><strong>毎週新機能リリース</strong>：常に「先を行っている」状態を維持する</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 8. 予算 -->
+  <div class="section">
+    <div class="section-title">8. 予算配分案</div>
+
+    <table>
+      <tr><th>項目</th><th>Phase 1（月0）</th><th>Phase 2（月1）</th><th>Phase 3（月2-3）</th><th>Phase 4（月4-6）</th></tr>
+      <tr><td>Xブルーマーク</td><td>—</td><td>¥980</td><td>¥980</td><td>¥980</td></tr>
+      <tr><td>ドメイン・インフラ</td><td>¥1,000</td><td>¥1,000</td><td>¥3,000</td><td>¥5,000</td></tr>
+      <tr><td>動画制作</td><td>—</td><td>¥5,000</td><td>¥10,000</td><td>¥15,000</td></tr>
+      <tr><td>インフルエンサー謝礼</td><td>—</td><td>—</td><td>¥30,000</td><td>¥50,000</td></tr>
+      <tr><td>アフィリエイト報酬</td><td>—</td><td>—</td><td>¥10,000</td><td>¥30,000</td></tr>
+      <tr><td>有料広告</td><td>—</td><td>—</td><td>—</td><td>¥50,000</td></tr>
+      <tr class="budget-total"><td><strong>月間合計</strong></td><td><strong>¥3,000</strong></td><td><strong>¥9,980</strong></td><td><strong>¥58,980</strong></td><td><strong>¥155,980</strong></td></tr>
+    </table>
+
+    <h4>損益分岐</h4>
+    <table>
+      <tr><th>指標</th><th>数値</th></tr>
+      <tr><td>PRO月額</td><td>¥480</td></tr>
+      <tr><td>想定平均LTV（6ヶ月継続）</td><td>¥2,880</td></tr>
+      <tr><td>許容CPA</td><td>¥960（LTVの1/3）</td></tr>
+      <tr><td>損益分岐の有料ユーザー数</td><td>約125名</td></tr>
+    </table>
+  </div>
+
+  <!-- 初動チェックリスト -->
+  <div class="section">
+    <div class="section-title">付録：初動チェックリスト</div>
+    <div class="card">
+      <ul class="checklist">
+        <li>BETAテスター20名をリストアップし、招待URLを個別に送付</li>
+        <li>Googleフォームでフィードバックフォームを作成（5問以内）</li>
+        <li>Xアカウントを開設し、ブルーマークを申請</li>
+        <li>UTMパラメータの保存コードを index.html に実装</li>
+        <li>紹介URL生成機能を実装（?ref={user_id}）</li>
+        <li>ローンチ日を決定（BETA開始から3〜4週間後を目安）</li>
+        <li>ティザーツイートを5本分下書き</li>
+        <li>競合サービス（シャドテン・ELSA・Speak）を実際に契約し、比較素材を作成</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- まとめ -->
+  <div class="highlight">
+    <h3>まとめ：最重要ポイント3つ</h3>
+    <p>1. <strong>BETAで「使い続ける人がいる」ことを確認してからローンチする</strong> — PMFがない状態でマーケティングしても穴の空いたバケツに水を注ぐだけ</p>
+    <p>2. <strong>価格差を最大の武器にする</strong> — 「シャドテンの22分の1」という比較は、どんなコピーライティングより強い</p>
+    <p>3. <strong>スピードが唯一の堀</strong> — 先にブランドを確立し、先にコミュニティを作り、先に海外展開する。「最初に知られた者が勝つ」</p>
+  </div>
+
+</div>
+</body>
+</html>
