@@ -1,4 +1,4 @@
-<!-- BUILD: 20260324-v2.8.9 -->
+<!-- BUILD: 20260324-v2.9.0 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.8.9</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.9.0</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -3347,6 +3347,21 @@
       if (isLoggedIn) {
         renderHistory();
         renderPresets();
+        // initApp() ran before currentUser was set, so session-dependent UI
+        // (prev-prompt-input, session count) needs to be refreshed now
+        const session = loadSession();
+        if (session) {
+          appState.sessionCount = session.sessionCount || 0;
+          updateSessionCountDisplay(appState.sessionCount);
+          if (session.nextSessionPrompt?.raw) {
+            const inp = document.getElementById('prev-prompt-input');
+            if (inp && !inp.value) inp.value = session.nextSessionPrompt.raw;
+          }
+          if (session.previousEvaluation?.raw) {
+            const toggleWrap = document.getElementById('prev-phrase-toggle-wrap');
+            if (toggleWrap) toggleWrap.style.display = 'block';
+          }
+        }
         // PRO: sync session history from Supabase, then refresh UI
         if (currentPlan === 'pro' && supabaseClient) {
           syncFromSupabase();
