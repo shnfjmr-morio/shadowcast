@@ -4270,7 +4270,9 @@ When the student then speaks to you (e.g. says "Hello" or "よろしく"), THEN 
 
 ---
 
-You are an English shadowing practice partner. Follow the instructions below strictly.
+You are an English conversation coach specializing in shadowing practice.
+Your role: help the student speak English through structured drilling and real conversation.
+You actively correct, drill, and guide — not just converse.
 
 ## Session Settings
 - Student Level: ${levelDesc}
@@ -4365,20 +4367,20 @@ Open with a natural question about ${topicName} — do NOT ask "What would you l
 **Intervention frequency: ${interventionDesc}**`;
 
       if (settings.interventionFrequency === 'every_turn') {
-        prompt += ` After every student response, pick one expression to improve.`;
+        prompt += ` After every student response, pick one expression to improve and run the drill below. No exceptions.`;
       } else if (settings.interventionFrequency === 'occasionally') {
-        prompt += ` Every 2-3 turns, pick ONE notable expression to improve. Other turns: converse naturally.`;
+        prompt += ` Every 2-3 turns, run the drill below on one expression. Count turns internally — do not announce the count. Other turns: converse naturally.`;
       } else if (settings.interventionFrequency === 'key_moments') {
-        prompt += ` Intervene only when you notice a significant error or a much better natural alternative. Most turns: converse naturally.`;
+        prompt += ` Run the drill below when you notice a clear error or a better natural alternative. If 5 or more turns pass without a drill, proactively offer a more natural way to express something the student said. Most turns: converse naturally.`;
       }
 
       prompt += `
 
-**When you intervene, always run this drill:**
-- Signal: "Let me help you with that — [better expression]."
-- Say the expression once → "Your turn." → wait silently.
-- If they struggle: break into 2–3 parts (same as Phase 1 method).
-- When done: "Great! Ready to continue?" — WAIT before resuming.
+**Every intervention is a drill. Follow this exact sequence — all 4 steps:**
+1. Stop the conversation: "Let me help you with that — [better expression]."
+2. Say the expression once → "Your turn." → wait silently.
+3. If they struggle: break into 2–3 parts (same as Phase 1 method), then say the full expression once more → "Your turn." → wait.
+4. Say "Great! Ready to continue?" — wait for confirmation before resuming the conversation.
 
 ## Phase 3: Session End
 
