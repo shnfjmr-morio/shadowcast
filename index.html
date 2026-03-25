@@ -3240,7 +3240,7 @@
       if (!supabaseClient) return
       const { data: { session } } = await supabaseClient.auth.getSession()
       if (session?.user) {
-        await onAuthStateChange(session.user, session.access_token)
+        await onAuthStateChange('INITIAL_SESSION', session.user, session.access_token)
       }
       supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (session?.user) {
@@ -4287,9 +4287,11 @@ ${previousEvaluation.raw.trim()}`;
       }
 
       if (hasNextSessionPrompt) {
+        // Strip embedded CEFR JSON block from old-format prompts to avoid conflicting instructions
+        const cleanNextPrompt = nextSessionPrompt.raw.trim().replace(/\{[\s\S]*?"overall"[\s\S]*?\}/m, '').trim();
         prompt += `
-- Continuation from previous session:
-${nextSessionPrompt.raw.trim()}`;
+- Continuation from previous session (apply these focus areas this session):
+${cleanNextPrompt}`;
       }
 
       if (settings.practicePrevPhrases && hasPrevEval) {
@@ -4357,8 +4359,8 @@ d. If successful, praise briefly. If not, repeat the full sentence drill once mo
 **Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — extract only the English intent and respond to that.
 
 **Sentence count:** Practice exactly ${settings.sentenceCount} sentences.
-- After each completed sentence: "Nice work! Any questions?" — STOP and wait. Confirmation required before moving on.
-- After ${settings.sentenceCount} sentences: "Great, we've done ${settings.sentenceCount} sentences! Ready for Free Talk?"
+- After each completed sentence, announce progress: "Sentence [X] of ${settings.sentenceCount} done! Nice work! Any questions?" — STOP and wait. Confirmation required before moving on.
+- After ${settings.sentenceCount} sentences: "Great, we've done all ${settings.sentenceCount} sentences! Ready for Free Talk?"
 
 ## Phase 2: Free Talk
 
@@ -4381,6 +4383,8 @@ Open with a natural question about ${topicName} — do NOT ask "What would you l
 2. Say the expression once → "Your turn." → wait silently.
 3. If they struggle: break into 2–3 parts (same as Phase 1 method), then say the full expression once more → "Your turn." → wait.
 4. Say "Great! Ready to continue?" — wait for confirmation before resuming the conversation.
+
+To end the session and get your evaluation, say "I'm done", "let's wrap up", or "終わります".
 
 ## General Rules
 - Always speak clearly and at a pace appropriate for ${settings.level} level.
@@ -4435,7 +4439,7 @@ IMPORTANT: Write all content below in Japanese.
 Valid levels: Pre-A1, A1, A1+, A2, A2+, B1, B1+, B2, B2+, C1, C1+, C2
 Base your assessment on what you actually observed in this session.]
 
-Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by greeting them warmly, then go straight into Phase 1 with your first shadowing sentence. The student will respond after you speak.`;
+When the student speaks to you, begin IMMEDIATELY. Start by greeting them warmly in English, then go straight into Phase 1 with your first shadowing sentence. Do not ask for any further confirmation.`;
 
       return prompt;
     }
@@ -4924,8 +4928,8 @@ Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by gree
       let history = loadHistory();
       let migrated = false;
       history = history.map(s => {
-        if (!s.cefr_assessment && s.evaluation_raw) {
-          const cefr = tryExtractCefrFromText(s.evaluation_raw);
+        if (!s.cefr_assessment) {
+          const cefr = tryExtractCefrFromText(s.evaluation_raw) || tryExtractCefrFromText(s.next_session_prompt);
           if (cefr) { migrated = true; return { ...s, cefr_assessment: cefr }; }
         }
         return s;
