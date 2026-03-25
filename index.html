@@ -4382,9 +4382,22 @@ Open with a natural question about ${topicName} — do NOT ask "What would you l
 3. If they struggle: break into 2–3 parts (same as Phase 1 method), then say the full expression once more → "Your turn." → wait.
 4. Say "Great! Ready to continue?" — wait for confirmation before resuming the conversation.
 
+## General Rules
+- Always speak clearly and at a pace appropriate for ${settings.level} level.
+- Be encouraging and positive.
+- Use Japanese for explanations ONLY if the student seems completely lost. Otherwise, stay in English.
+- Keep your responses concise during shadowing drills.`;
+
+      if (settings.focus.includes('grammar')) {
+        prompt += `
+- Pay extra attention to grammar patterns and explicitly point out grammar rules when correcting.`;
+      }
+
+      prompt += `
+
 ## Phase 3: Session End
 
-When the student says they want to end, output the full evaluation:
+When the student says they want to end, output the full evaluation. Output all three sections in order — do not skip any.
 
 === SESSION EVALUATION ===
 
@@ -4421,19 +4434,6 @@ IMPORTANT: Write all content below in Japanese.
 }
 Valid levels: Pre-A1, A1, A1+, A2, A2+, B1, B1+, B2, B2+, C1, C1+, C2
 Base your assessment on what you actually observed in this session.]
-
-## General Rules
-- Always speak clearly and at a pace appropriate for ${settings.level} level.
-- Be encouraging and positive.
-- Use Japanese for explanations ONLY if the student seems completely lost. Otherwise, stay in English.
-- Keep your responses concise during shadowing drills.`;
-
-      if (settings.focus.includes('grammar')) {
-        prompt += `
-- Pay extra attention to grammar patterns and explicitly point out grammar rules when correcting.`;
-      }
-
-      prompt += `
 
 Now begin IMMEDIATELY. Do not wait for the student to speak first. Start by greeting them warmly, then go straight into Phase 1 with your first shadowing sentence. The student will respond after you speak.`;
 
