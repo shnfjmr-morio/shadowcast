@@ -1,4 +1,4 @@
-<!-- BUILD: 20260326-v2.10.1 -->
+<!-- BUILD: 20260326-v2.10.2 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.10.1</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.10.2</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4206,8 +4206,8 @@ async function startCheckout() {
       }
       const sentencesHtml = sections.shadowingSentences
         ? `<div class="glass-card" style="margin-top:16px; padding:16px 20px;">
-            <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px;">📝 練習したセンテンス</div>
-            <div style="font-size:14px; color:var(--text-primary); line-height:1.8; white-space:pre-wrap;">${escapeHtml(sections.shadowingSentences)}</div>
+            <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px;">📝 練習した表現</div>
+            <div>${formatKeyExpressions(sections.shadowingSentences)}</div>
           </div>`
         : '';
       stateDiv.innerHTML = `
@@ -4229,6 +4229,26 @@ async function startCheckout() {
 
     function escapeHtml(str) {
       return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function formatKeyExpressions(text) {
+      if (!text) return '';
+      return text.split('\n')
+        .map(line => line.trim().replace(/^[-•*]\s*/, ''))
+        .filter(line => line.length > 0)
+        .map(line => {
+          const jpIdx = line.search(/[（(]/);
+          if (jpIdx > 0) {
+            const english = escapeHtml(line.substring(0, jpIdx).trim());
+            const note    = escapeHtml(line.substring(jpIdx));
+            return `<div style="margin-bottom:12px;">
+              <div style="font-weight:700; font-size:14px; color:var(--text-primary); line-height:1.5;">${english}</div>
+              <div style="font-size:11px; color:var(--text-secondary); line-height:1.5; margin-top:2px;">${note}</div>
+            </div>`;
+          }
+          return `<div style="margin-bottom:12px; font-weight:700; font-size:14px; color:var(--text-primary);">${escapeHtml(line)}</div>`;
+        })
+        .join('');
     }
 
     // ============================================================
