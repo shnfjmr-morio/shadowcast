@@ -508,7 +508,7 @@
     ============================================================ */
     #settings {
       min-height: auto;
-      padding: 80px 24px;
+      padding: 40px 24px 48px;
     }
 
     .settings-group {
@@ -1064,7 +1064,7 @@
     ============================================================ */
     #save-session {
       min-height: auto;
-      padding: 80px 24px;
+      padding: 40px 24px 60px;
     }
 
     .save-form {
@@ -2926,7 +2926,7 @@
 
         </div><!-- /#settings-groups-container -->
 
-        <div class="session-info" id="session-info" style="text-align:center; font-size:12px; color:var(--text-tertiary); margin: 8px 0 4px;">
+        <div class="session-info" id="session-info" style="display:none; text-align:center; font-size:12px; color:var(--text-tertiary); margin: 8px 0 4px;">
           セッション回数: <strong id="session-count-display">0</strong> 回目
         </div>
 
@@ -3081,6 +3081,17 @@
     <footer style="text-align:center; padding: 60px 24px 40px;">
       <div style="font-size: clamp(48px, 12vw, 96px); font-weight: 800; letter-spacing: -3px; line-height: 1; color: var(--text-primary);">
         Shadow<span style="color: var(--accent);">Cast</span>
+      </div>
+      <div style="margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">ご意見・ご感想はこちらから</p>
+        <a href="https://x.com/ShadowCast1000" target="_blank" rel="noopener noreferrer"
+           style="display: inline-flex; align-items: center; gap: 8px; color: var(--text-primary); text-decoration: none; font-size: 14px; font-weight: 600; opacity: 0.8; transition: opacity 0.2s;"
+           onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="X">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          @ShadowCast1000
+        </a>
       </div>
     </footer>
 
@@ -3563,13 +3574,18 @@
         }
       }
 
-      // --- セッション保存: ログアウト時はオーバーレイ表示 ---
+      // --- セッション保存: ログアウト時はオーバーレイ表示、ヘッダーをコンパクトに ---
       const saveOverlay = document.getElementById('save-login-overlay')
       const saveFormInner = document.getElementById('save-form-inner')
       if (saveOverlay && saveFormInner) {
         saveOverlay.classList.toggle('hidden', isLoggedIn)
         saveFormInner.style.display = isLoggedIn ? '' : 'none'
       }
+      // 非ログイン時はセクションヘッダーを非表示にしてパディングを縮小
+      const saveSectionHeader = document.querySelector('#save-session .section-header')
+      const saveSection = document.getElementById('save-session')
+      if (saveSectionHeader) saveSectionHeader.style.display = isLoggedIn ? '' : 'none'
+      if (saveSection) saveSection.style.padding = isLoggedIn ? '' : '32px 24px'
 
       // Accordion / overview grid: same tile UI for both logged-in and guests
       // settings-groups-container must always stay hidden (accordion moves content out of it)
@@ -4346,16 +4362,19 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 
       prompt += `
 
-**If the student struggles or makes errors:**
+**Break down drill — trigger conditions (ANY of the following):**
+- Student's attempt is incomplete, has clear errors, or sounds unnatural
+- Student hesitates significantly or repeats the wrong version
+- Student explicitly asks for help (e.g., "break it down", "ブレイクダウン", "パートに分けて", "もう一度", "わからない", or any similar request)
+- Do NOT make your own judgment that "it was close enough" — if in doubt, run the drill
+
+**When break down triggers:**
 **CRITICAL: Send ONE part per message. After each part, STOP completely. Do not send the next part until the student replies.**
+**CRITICAL: NEVER give grammar explanations, vocabulary notes, or tips during this drill. Say ONLY the scripted lines below.**
 a. Break the original sentence into 2–3 parts. NEVER change the wording of the original sentence.
-   Pay attention to:
-   - Prepositions and articles (sounds that get absorbed)
-   - Linked sounds between words
-   - Stress and rhythm patterns
 b. Send part 1 → "Your turn." → STOP. Wait for student response. Then send part 2 → "Your turn." → STOP. Repeat for all parts.
 c. MANDATORY — do NOT skip: after all parts are done, send the full original sentence once → "Your turn." → STOP and wait. This step is required even if every part was correct.
-d. If successful, praise briefly. If not, repeat the full sentence drill once more.
+d. Complete ALL steps a–c before moving to the next sentence. Do NOT skip ahead.
 
 **Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — extract only the English intent and respond to that.
 
@@ -4385,7 +4404,7 @@ Open with a natural question about ${topicName} — do NOT ask "What would you l
 3. **CRITICAL: ONE part per message.** Break into 2–3 parts. Send part 1 → "Your turn." → STOP. Wait. Then send part 2 → "Your turn." → STOP. After all parts: MANDATORY — send full expression once → "Your turn." → STOP and wait. Do NOT skip this final full-expression step.
 4. Say "Great! Ready to continue?" — wait for confirmation before resuming the conversation.
 
-To end the session and get your evaluation, say "I'm done", "let's wrap up", or "終わります".
+To end the session and get your evaluation, say any of: "I'm done", "let's wrap up", "that's enough", "finish", "end the session", "終わります", "終わり", "おわります", "今日はここまで", "やめます", "終わりにします", "もう終わり", or any similar phrase meaning you want to stop.
 
 ## General Rules
 - Always speak clearly and at a pace appropriate for ${settings.level} level.
@@ -4393,7 +4412,9 @@ To end the session and get your evaluation, say "I'm done", "let's wrap up", or 
 - Use Japanese for explanations ONLY if the student seems completely lost. Otherwise, stay in English.
 - Keep your responses concise during shadowing drills.
 - Stick EXACTLY to the script. Do not add any extra words, emoji, or commentary beyond what is specified.
-- During drills, say ONLY what is scripted. Nothing more.`;
+- During drills, say ONLY what is scripted. Nothing more.
+- NEVER switch to explanation or teaching mode during Phase 1 drills. No grammar notes, no vocabulary definitions, no pronunciation tips — just the drill sequence.
+- If the student asks a question mid-drill, briefly acknowledge it and immediately resume the drill sequence.`;
 
       if (settings.focus.includes('grammar')) {
         prompt += `
@@ -4404,7 +4425,7 @@ To end the session and get your evaluation, say "I'm done", "let's wrap up", or 
 
 ## Phase 3: Session End
 
-When the student says they want to end, output the full evaluation.
+When the student indicates they want to end (in any language or phrasing), IMMEDIATELY output the full evaluation — even if Phase 1 or Phase 2 was not fully completed. Do NOT say "we still have X sentences left" or ask to continue. Just output the evaluation.
 CRITICAL: You MUST output all three section markers exactly as written below, in this order:
 1. === SESSION EVALUATION ===
 2. === NEXT SESSION PROMPT ===
@@ -5431,6 +5452,8 @@ When the student speaks to you, begin IMMEDIATELY. Start by greeting them warmly
     function updateSessionCountDisplay(count) {
       const display = document.getElementById('session-count-display');
       if (display) display.textContent = count + 1;
+      const info = document.getElementById('session-info');
+      if (info) info.style.display = currentUser ? '' : 'none';
     }
 
     // ============================================================
