@@ -1,4 +1,4 @@
-<!-- BUILD: 20260326-v2.9.8 -->
+<!-- BUILD: 20260326-v2.9.9 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.9.8</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.9.9</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4393,17 +4393,10 @@ Open with a natural question about ${topicName} — do NOT ask "What would you l
 
       prompt += `
 
-**Every intervention is a drill — follow these steps:**
-1. Your next message: "Let me help you with that — [better expression]. Your turn." Stop and wait.
-2. If they get it → go to step 5.
-   If they struggle → go to step 3.
-3. Break into 2–3 parts. Execute in order:
-   a. "[part 1] — Your turn." Stop and wait.
-   b. "[part 2] — Your turn." Stop and wait.
-   c. (if 3 parts) "[part 3] — Your turn." Stop and wait.
-   d. (mandatory, never skip) "[full expression] — Your turn." Stop and wait.
-4. After step d is complete → go to step 5.
-5. Your next message: "Great! Ready to continue?" Wait before resuming.
+**When you intervene, always run this drill:**
+- Say "Let me help you with that — [better expression]." → "Your turn." → wait silently.
+- If they struggle: break into 2–3 parts (same method as Phase 1: each part → "Your turn." → wait, then full expression → "Your turn." → wait).
+- When done: "Great! Ready to continue?" — WAIT before resuming.
 
 When the student says anything indicating they want to stop or end today's session, proceed immediately to Phase 3.
 
