@@ -1,5 +1,28 @@
 # ShadowCast ベストプロンプト保存メモ
 
+---
+
+## 🥈 第2位: v2.9.9（2026-03-26）
+
+v2.9.0をベースに、既知バグを修正したバージョン。
+
+**v2.9.0からの変更点：**
+- "Almost! One more time." ループを削除（strictモードの無限ループバグ修正）
+- Phase 1: `a/b/c/d` 構造は維持しつつ、精度基準をpass/failの2択に明示化
+- Phase 2: ドリルをv2.9.0の3行構造に戻す（5ステップ+分岐から簡略化）
+- センテンスカウント: "Only step d completions count. Parts a/b/c do NOT count." を追加
+- セッション終了: キーワード指定ではなく意味ベース検知
+
+**安定している理由（v2.9.0と共通）：**
+- Phase 1ドリルが `a/b/c/d` の順序付きリスト（条件分岐なし）
+- `c. Once all parts are done, say the full original sentence` — 条件付きで明確
+- `STOP and wait. Confirmation required` — 自動送りを防ぐ終端命令
+- Phase 2ドリルが3行（AIの判断余地を残す）
+
+---
+
+## 🥇 第1位: v2.9.0（2026-03-25）
+
 > タグ: **今までの中で一番良いプロンプト**
 > バージョン: v2.9.0
 > 保存日: 2026-03-25

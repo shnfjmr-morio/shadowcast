@@ -1,4 +1,4 @@
-<!-- BUILD: 20260326-v2.9.9 -->
+<!-- BUILD: 20260326-v2.10.0 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.9.9</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.10.0</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -3004,8 +3004,7 @@
           <span class="section-tag">セッション保存</span>
           <h2 class="section-title">評価を保存する</h2>
           <p class="section-subtitle">
-            AIとのセッション終了後、出力された評価と次回プロンプトを保存しましょう。
-            次回の練習に活用されます。
+            セッション終了後、下のボタンで評価プロンプトをコピーしてAIに貼り付けてください。出力された評価をここに貼り付けて保存すると、次回の練習に活用されます。
           </p>
         </div>
 
@@ -3033,9 +3032,9 @@
             </div>
 
             <div style="margin-top:8px; margin-bottom:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <span style="font-size:12px; color:var(--text-tertiary);">評価が出なかった場合 →</span>
+              <span style="font-size:12px; color:var(--text-tertiary);">セッション後にAIへ貼り付ける →</span>
               <button type="button" id="copy-eval-prompt-btn" onclick="copyEvalPrompt()" style="display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:8px; border:1px solid var(--border-glass); background:var(--bg-glass); color:var(--text-secondary); font-size:12px; cursor:pointer;">
-                <span>📋</span><span id="copy-eval-prompt-label">再評価プロンプトをコピー</span>
+                <span>📋</span><span id="copy-eval-prompt-label">評価プロンプトをコピー</span>
               </button>
             </div>
 
@@ -4415,45 +4414,9 @@ When the student says anything indicating they want to stop or end today's sessi
 
 ## Phase 3: Session End
 
-When the student wants to end, output the full evaluation immediately — even if Phase 1 or 2 is not complete. Do not ask to continue.
-
-Output all three markers below, in this exact order, with this exact spelling:
-
-=== SESSION EVALUATION ===
-
-IMPORTANT: Write all content below in Japanese.
-
-**Strengths:**
-- [このセッションで特に良かった点を2〜3個、具体的に日本語で記述]
-
-**Areas for Improvement:**
-- [具体的なセッション中の例を挙げながら、2〜3個の改善点を日本語で記述]
-
-**Key Expressions Practiced:**
-- [練習した主な表現・センテンスをメモ付きで日本語で記述]
-
-**Overall Progress:** [全体的な進捗を日本語で簡潔に記述]
-
-=== NEXT SESSION PROMPT ===
-[Output a self-contained instruction block for the next session, referencing:
- - Which areas to focus on based on today's weaknesses
- - Specific grammar patterns or expressions to revisit
- - Suggested difficulty adjustment (easier/same/harder)
- - Any particular sentence patterns to include]
-
-=== CEFR ASSESSMENT ===
-[Output ONLY a raw JSON object with no markdown, no code fences, no extra text — exactly this structure:
-{
-  "overall": "[CEFR level, e.g. B1]",
-  "pronunciation": "[CEFR level]",
-  "fluency": "[CEFR level]",
-  "vocabulary": "[CEFR level]",
-  "listening": "[CEFR level]",
-  "grammar": "[CEFR level]",
-  "reasoning": "[One sentence in Japanese explaining the overall level assessment]"
-}
-Valid levels: Pre-A1, A1, A1+, A2, A2+, B1, B1+, B2, B2+, C1, C1+, C2
-Base your assessment on what you actually observed in this session.]
+When the student says anything indicating they want to stop or end today's session:
+Say "Great session! お疲れ様でした！See you next time." — then stop.
+Do not output an evaluation. The student will request the evaluation separately.
 
 When the student speaks to you, begin IMMEDIATELY. Start by greeting them warmly in English, then go straight into Phase 1 with your first shadowing sentence. Do not ask for any further confirmation.`;
 
@@ -4726,12 +4689,48 @@ When the student speaks to you, begin IMMEDIATELY. Start by greeting them warmly
     }
 
     function copyEvalPrompt() {
-      const prompt = 'Session Evaluation以下のフォーマットに従って評価を再度出力するように';
+      const prompt = `Please output the complete session evaluation based on our conversation today. Output all three sections below in this exact order and spelling:
+
+=== SESSION EVALUATION ===
+
+IMPORTANT: Write all content below in Japanese.
+
+**Strengths:**
+- [このセッションで特に良かった点を2〜3個、具体的に日本語で記述]
+
+**Areas for Improvement:**
+- [具体的なセッション中の例を挙げながら、2〜3個の改善点を日本語で記述]
+
+**Key Expressions Practiced:**
+- [練習した主な表現・センテンスをメモ付きで日本語で記述]
+
+**Overall Progress:** [全体的な進捗を日本語で簡潔に記述]
+
+=== NEXT SESSION PROMPT ===
+[Output a self-contained instruction block for the next session, referencing:
+ - Which areas to focus on based on today's weaknesses
+ - Specific grammar patterns or expressions to revisit
+ - Suggested difficulty adjustment (easier/same/harder)
+ - Any particular sentence patterns to include]
+
+=== CEFR ASSESSMENT ===
+[Output ONLY a raw JSON object with no markdown, no code fences, no extra text — exactly this structure:
+{
+  "overall": "[CEFR level, e.g. B1]",
+  "pronunciation": "[CEFR level]",
+  "fluency": "[CEFR level]",
+  "vocabulary": "[CEFR level]",
+  "listening": "[CEFR level]",
+  "grammar": "[CEFR level]",
+  "reasoning": "[One sentence in Japanese explaining the overall level assessment]"
+}
+Valid levels: Pre-A1, A1, A1+, A2, A2+, B1, B1+, B2, B2+, C1, C1+, C2
+Base your assessment on what you actually observed in this session.]`;
       navigator.clipboard.writeText(prompt).then(() => {
         const label = document.getElementById('copy-eval-prompt-label');
         if (label) {
           label.textContent = 'コピーしました！';
-          setTimeout(() => { label.textContent = '再評価プロンプトをコピー'; }, 2000);
+          setTimeout(() => { label.textContent = '評価プロンプトをコピー'; }, 2000);
         }
       });
     }
