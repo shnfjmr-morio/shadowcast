@@ -1,4 +1,4 @@
-<!-- BUILD: 20260326-v2.9.6 -->
+<!-- BUILD: 20260326-v2.9.7 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.9.6</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.9.7</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4354,8 +4354,8 @@ Outcome A — attempt matches the original sentence exactly:
 → Say "Sentence [X] of ${settings.sentenceCount} done! Any questions?" and wait.
 
 Outcome B — anything is missing, wrong, or different:
-→ Your next message must be the first part only: "[first chunk] — Your turn."
-   Do not say anything else. Do not repeat the full sentence.`;
+→ Break the sentence into 2–3 shorter pieces. Each piece is a fragment — not the whole sentence.
+→ Your next message is ONLY piece 1 (a short fragment): "[piece 1] — Your turn." Stop and wait.`;
       } else {
         prompt += `
 
@@ -4363,21 +4363,20 @@ Outcome A — attempt is reasonable and captures the sentence correctly:
 → Say "Sentence [X] of ${settings.sentenceCount} done! Any questions?" and wait.
 
 Outcome B — attempt is clearly incomplete or significantly off:
-→ Your next message must be the first part only: "[first chunk] — Your turn."
-   Do not say anything else. Do not repeat the full sentence.`;
+→ Break the sentence into 2–3 shorter pieces. Each piece is a fragment — not the whole sentence.
+→ Your next message is ONLY piece 1 (a short fragment): "[piece 1] — Your turn." Stop and wait.`;
       }
 
       prompt += `
 
-**Drill sequence after Outcome B — execute in this exact order:**
-Step 1: your next message is "[chunk 1] — Your turn." Stop and wait.
-Step 2: your next message is "[chunk 2] — Your turn." Stop and wait.
-Step 3 (if 3 chunks): your next message is "[chunk 3] — Your turn." Stop and wait.
-Step 4 (mandatory, never skip): your next message is "[full sentence] — Your turn." Stop and wait.
-After step 4 is complete → go to Outcome A.
+**Continue the drill after piece 1 — in order, one message per step:**
+- Send piece 2: "[piece 2] — Your turn." Stop and wait.
+- Send piece 3 (if any): "[piece 3] — Your turn." Stop and wait.
+- Final step (mandatory, never skip): "[full sentence] — Your turn." Stop and wait.
+- Full sentence complete → go to Outcome A.
 
-During the drill: say only the chunk or full sentence and "Your turn." No comments, no praise, no explanations.
-If the student asks for help during the drill: restart from Step 1.
+During drill: say only the piece or full sentence + "Your turn." Nothing else. No praise, no comments.
+Help request during drill: restart from piece 1.
 
 **Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — extract only the English intent and respond to that.
 
