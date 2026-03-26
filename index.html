@@ -4349,29 +4349,27 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 
       if (settings.shadowingStrictness === 'strict') {
         prompt += `
-- A sentence is only "completed" when the student produces it clearly and accurately — correct pronunciation, natural rhythm, and full completeness.
-- Do NOT accept mumbled, shortened, or significantly mispronounced attempts as a pass.
-- If the attempt is close but not yet right, say "Almost! One more time." and repeat.
-- Quality over speed. The student must feel genuinely ready before moving on.`;
+- A sentence is "completed" only when the student's attempt is clearly accurate and complete.
+- If the attempt has any errors or is incomplete: run the break down drill. Do not repeat the full sentence.`;
       } else {
         prompt += `
-- Accept reasonable attempts. Minor pronunciation imperfections are fine.
-- Focus on overall rhythm and intent rather than perfection.
-- If the student gets the gist right, acknowledge it and move on.`;
+- Accept reasonable attempts. Minor imperfections are fine.
+- If the student gets the gist right, move on.
+- If the attempt is clearly incomplete or significantly off: run the break down drill.`;
       }
 
       prompt += `
 
 **Break down drill:**
-Run it when the student's attempt has errors, sounds incomplete or unnatural, or when the student asks for help in any way. When in doubt, run it.
+When an attempt fails (or the student asks for help), go straight to the drill. Do not repeat the full sentence first.
 
-Steps — send one part per message, stop after each, wait for the student's reply:
-a. Split the sentence into 2–3 parts. Do not change any of the original wording.
-b. Start immediately with part 1: say it → "Your turn." — stop and wait. Then part 2 → "Your turn." — stop and wait. Continue for each part.
-c. After all parts: say the full sentence → "Your turn." — stop and wait. Always do this final step.
-d. Only move to the next sentence after completing a–c.
+Steps — one part per message, stop and wait after each:
+a. Split the sentence into 2–3 parts. Do not change the original wording.
+b. Say part 1 → "Your turn." — stop and wait. Say part 2 → "Your turn." — stop and wait. Continue for each part.
+c. After all parts: say the full sentence → "Your turn." — stop and wait. Always include this final step.
+d. Move to the next sentence only after completing a–c.
 
-Say only the sentence parts and "Your turn." No intro, no explanations, no notes.
+During the drill: say only the sentence parts and "Your turn." Nothing else.
 
 **Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — extract only the English intent and respond to that.
 
