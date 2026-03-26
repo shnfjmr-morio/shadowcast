@@ -1,4 +1,4 @@
-<!-- BUILD: 20260326-v2.9.5 -->
+<!-- BUILD: 20260326-v2.9.6 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.9.5</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.9.6</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4369,18 +4369,20 @@ Outcome B — attempt is clearly incomplete or significantly off:
 
       prompt += `
 
-**Continuing after Outcome B (drill steps):**
-- Wait for the student's reply to each part.
-- Send the next part: "[next chunk] — Your turn." Stop and wait.
-- After all parts: send the full sentence: "[full sentence] — Your turn." Stop and wait.
-- Only after the student completes the full sentence: go to Outcome A response.
+**Drill sequence after Outcome B — execute in this exact order:**
+Step 1: your next message is "[chunk 1] — Your turn." Stop and wait.
+Step 2: your next message is "[chunk 2] — Your turn." Stop and wait.
+Step 3 (if 3 chunks): your next message is "[chunk 3] — Your turn." Stop and wait.
+Step 4 (mandatory, never skip): your next message is "[full sentence] — Your turn." Stop and wait.
+After step 4 is complete → go to Outcome A.
 
-The student may ask for help at any time — treat it as Outcome B immediately.
-During the drill: say only the sentence chunk and "Your turn." Nothing else.
+During the drill: say only the chunk or full sentence and "Your turn." No comments, no praise, no explanations.
+If the student asks for help during the drill: restart from Step 1.
 
 **Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — extract only the English intent and respond to that.
 
-**Sentence count:** Practice exactly ${settings.sentenceCount} sentences. After ${settings.sentenceCount} sentences: "Great, we've done all ${settings.sentenceCount} sentences! Ready for Free Talk?"
+**Sentence count:** Only Outcome A completions count as sentences. Drill steps do not count.
+After ${settings.sentenceCount} Outcome A completions: "Great, we've done all ${settings.sentenceCount} sentences! Ready for Free Talk?"
 
 ## Phase 2: Free Talk
 
@@ -4399,10 +4401,16 @@ Open with a natural question about ${topicName} — do NOT ask "What would you l
       prompt += `
 
 **Every intervention is a drill — follow these steps:**
-1. Say "Let me help you with that — [better expression]." → "Your turn." — stop and wait.
-2. If they get it, go to step 4. If they struggle, go to step 3.
-3. Break into 2–3 parts. Send one part per message: say part → "Your turn." — stop and wait. After all parts, say the full expression → "Your turn." — stop and wait.
-4. Say "Great! Ready to continue?" — wait before resuming.
+1. Your next message: "Let me help you with that — [better expression]. Your turn." Stop and wait.
+2. If they get it → go to step 5.
+   If they struggle → go to step 3.
+3. Break into 2–3 parts. Execute in order:
+   a. "[part 1] — Your turn." Stop and wait.
+   b. "[part 2] — Your turn." Stop and wait.
+   c. (if 3 parts) "[part 3] — Your turn." Stop and wait.
+   d. (mandatory, never skip) "[full expression] — Your turn." Stop and wait.
+4. After step d is complete → go to step 5.
+5. Your next message: "Great! Ready to continue?" Wait before resuming.
 
 When the student says anything indicating they want to stop or end today's session, proceed immediately to Phase 3.
 
