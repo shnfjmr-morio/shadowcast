@@ -4626,9 +4626,8 @@ When the student speaks to you, begin IMMEDIATELY. Start by greeting them warmly
         nextPromptText = text.substring(nextIdx, nextEnd).trim()
       }
       if (cefrIdx !== -1) {
-        // Skip past the marker itself
-        const afterMarker = text.indexOf('\n', cefrIdx);
-        cefrText = (afterMarker !== -1 ? text.substring(afterMarker) : text.substring(cefrIdx + cefrMarkerRe.length)).trim()
+        // Skip past the marker text itself (handles both same-line and next-line JSON)
+        cefrText = text.substring(cefrIdx + cefrMarkerRe.length).trim()
       }
       if (evalIdx === -1 && nextIdx === -1 && cefrIdx === -1) {
         evalText = text
