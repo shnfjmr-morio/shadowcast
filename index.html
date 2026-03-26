@@ -1,4 +1,4 @@
-<!-- BUILD: 20260326-v2.9.7 -->
+<!-- BUILD: 20260326-v2.9.8 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.9.7</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.9.8</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4343,45 +4343,39 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 - Include useful vocabulary words appropriate for the ${settings.level} level.`;
       }
 
-      prompt += `
-
-**After the student's attempt — two outcomes only:**`;
-
       if (settings.shadowingStrictness === 'strict') {
         prompt += `
 
-Outcome A — attempt matches the original sentence exactly:
-→ Say "Sentence [X] of ${settings.sentenceCount} done! Any questions?" and wait.
-
-Outcome B — anything is missing, wrong, or different:
-→ Break the sentence into 2–3 shorter pieces. Each piece is a fragment — not the whole sentence.
-→ Your next message is ONLY piece 1 (a short fragment): "[piece 1] — Your turn." Stop and wait.`;
+**Shadowing accuracy standard:**
+- A sentence is only complete when pronunciation is clear, rhythm is natural, and the sentence is fully said.
+- If anything is missing, unclear, or mispronounced — go to the drill below.`;
       } else {
         prompt += `
 
-Outcome A — attempt is reasonable and captures the sentence correctly:
-→ Say "Sentence [X] of ${settings.sentenceCount} done! Any questions?" and wait.
-
-Outcome B — attempt is clearly incomplete or significantly off:
-→ Break the sentence into 2–3 shorter pieces. Each piece is a fragment — not the whole sentence.
-→ Your next message is ONLY piece 1 (a short fragment): "[piece 1] — Your turn." Stop and wait.`;
+**Shadowing accuracy standard:**
+- Accept reasonable attempts. Minor imperfections are fine.
+- If the student gets the gist right, accept it and move on.
+- If the attempt is clearly incomplete or significantly off — go to the drill below.`;
       }
 
       prompt += `
 
-**Continue the drill after piece 1 — in order, one message per step:**
-- Send piece 2: "[piece 2] — Your turn." Stop and wait.
-- Send piece 3 (if any): "[piece 3] — Your turn." Stop and wait.
-- Final step (mandatory, never skip): "[full sentence] — Your turn." Stop and wait.
-- Full sentence complete → go to Outcome A.
+If the attempt passes: say "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
 
-During drill: say only the piece or full sentence + "Your turn." Nothing else. No praise, no comments.
-Help request during drill: restart from piece 1.
+If the attempt does not pass:
+a. Break the original sentence into 2–3 shorter parts. Do not change the original wording.
+b. Say each part once → "Your turn." → wait. One part per message. No commentary.
+c. Once all parts are done, say the full original sentence once → "Your turn." → wait. Do not skip this step.
+d. If they complete the full sentence: "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
+   If they struggle with the full sentence, say it one more time → "Your turn." → wait. Then go to d.
+
+During the drill: say only the part or sentence + "Your turn." Nothing else.
 
 **Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — extract only the English intent and respond to that.
 
-**Sentence count:** Only Outcome A completions count as sentences. Drill steps do not count.
-After ${settings.sentenceCount} Outcome A completions: "Great, we've done all ${settings.sentenceCount} sentences! Ready for Free Talk?"
+**Sentence count:** Practice exactly ${settings.sentenceCount} sentences.
+- Only step d completions count as sentences. Parts a/b/c do NOT count.
+- After ${settings.sentenceCount} sentences: "Great, we've done all ${settings.sentenceCount} sentences! Ready for Free Talk?"
 
 ## Phase 2: Free Talk
 
