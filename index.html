@@ -1,4 +1,4 @@
-<!-- BUILD: 20260326-v2.10.0 -->
+<!-- BUILD: 20260326-v2.10.1 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.10.0</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.10.1</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4074,8 +4074,12 @@ async function startCheckout() {
         if (txt) result.improvements = txt;
       }
 
-      // Extract Shadowing Sentences
+      // Extract Key Expressions Practiced (current format) or Shadowing Sentences (legacy)
       const shadowingMatch = evalText.match(
+        new RegExp(`${h('Key Expressions Practiced').source}([\\s\\S]*?)(?=${h('Overall Progress').source}|={3}|$)`, 'i')
+      ) || evalText.match(
+        new RegExp(`${h('Key Expressions').source}([\\s\\S]*?)(?=${h('Overall Progress').source}|={3}|$)`, 'i')
+      ) || evalText.match(
         new RegExp(`${h('Shadowing Sentences').source}([\\s\\S]*?)(?=={3}|$)`, 'i')
       );
       if (shadowingMatch) {
