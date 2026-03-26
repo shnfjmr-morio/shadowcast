@@ -4345,37 +4345,42 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 
       prompt += `
 
-**Shadowing accuracy standard:**`;
+**After the student's attempt — two outcomes only:**`;
 
       if (settings.shadowingStrictness === 'strict') {
         prompt += `
-- A sentence is "completed" only when the student's attempt is clearly accurate and complete.
-- If the attempt has any errors or is incomplete: run the break down drill. Do not repeat the full sentence.`;
+
+Outcome A — attempt matches the original sentence exactly:
+→ Say "Sentence [X] of ${settings.sentenceCount} done! Any questions?" and wait.
+
+Outcome B — anything is missing, wrong, or different:
+→ Your next message must be the first part only: "[first chunk] — Your turn."
+   Do not say anything else. Do not repeat the full sentence.`;
       } else {
         prompt += `
-- Accept reasonable attempts. Minor imperfections are fine.
-- If the student gets the gist right, move on.
-- If the attempt is clearly incomplete or significantly off: run the break down drill.`;
+
+Outcome A — attempt is reasonable and captures the sentence correctly:
+→ Say "Sentence [X] of ${settings.sentenceCount} done! Any questions?" and wait.
+
+Outcome B — attempt is clearly incomplete or significantly off:
+→ Your next message must be the first part only: "[first chunk] — Your turn."
+   Do not say anything else. Do not repeat the full sentence.`;
       }
 
       prompt += `
 
-**Break down drill:**
-When an attempt fails (or the student asks for help), go straight to the drill. Do not repeat the full sentence first.
+**Continuing after Outcome B (drill steps):**
+- Wait for the student's reply to each part.
+- Send the next part: "[next chunk] — Your turn." Stop and wait.
+- After all parts: send the full sentence: "[full sentence] — Your turn." Stop and wait.
+- Only after the student completes the full sentence: go to Outcome A response.
 
-Steps — one part per message, stop and wait after each:
-a. Split the sentence into 2–3 parts. Do not change the original wording.
-b. Say part 1 → "Your turn." — stop and wait. Say part 2 → "Your turn." — stop and wait. Continue for each part.
-c. After all parts: say the full sentence → "Your turn." — stop and wait. Always include this final step.
-d. Move to the next sentence only after completing a–c.
-
-During the drill: say only the sentence parts and "Your turn." Nothing else.
+The student may ask for help at any time — treat it as Outcome B immediately.
+During the drill: say only the sentence chunk and "Your turn." Nothing else.
 
 **Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — extract only the English intent and respond to that.
 
-**Sentence count:** Practice exactly ${settings.sentenceCount} sentences.
-- After each completed sentence, announce progress: "Sentence [X] of ${settings.sentenceCount} done! Nice work! Any questions?" — STOP and wait. Confirmation required before moving on.
-- After ${settings.sentenceCount} sentences: "Great, we've done all ${settings.sentenceCount} sentences! Ready for Free Talk?"
+**Sentence count:** Practice exactly ${settings.sentenceCount} sentences. After ${settings.sentenceCount} sentences: "Great, we've done all ${settings.sentenceCount} sentences! Ready for Free Talk?"
 
 ## Phase 2: Free Talk
 
