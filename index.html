@@ -1,4 +1,4 @@
-<!-- BUILD: 20260326-v2.10.4 -->
+<!-- BUILD: 20260326-v2.10.5 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.10.4</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.10.5</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4238,15 +4238,8 @@ async function startCheckout() {
         .filter(line => line.length > 0)
         .map(line => {
           const jpIdx = line.search(/[（(]/);
-          if (jpIdx > 0) {
-            const english = escapeHtml(line.substring(0, jpIdx).trim());
-            const note    = escapeHtml(line.substring(jpIdx));
-            return `<div style="margin-bottom:12px;">
-              <div style="font-weight:700; font-size:14px; color:var(--text-primary); line-height:1.5;">${english}</div>
-              <div style="font-weight:300; font-size:11px; color:var(--text-tertiary); line-height:1.5; margin-top:2px;">${note}</div>
-            </div>`;
-          }
-          return `<div style="margin-bottom:12px; font-weight:700; font-size:14px; color:var(--text-primary);">${escapeHtml(line)}</div>`;
+          const english = escapeHtml(jpIdx > 0 ? line.substring(0, jpIdx).trim() : line);
+          return `<div style="margin-bottom:10px; font-weight:700; font-size:14px; color:var(--text-primary); line-height:1.5;">${english}</div>`;
         })
         .join('');
     }
