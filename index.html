@@ -1,4 +1,4 @@
-<!-- BUILD: 20260327-v2.11.2 -->
+<!-- BUILD: 20260327-v2.11.3 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.11.2</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.11.3</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4361,7 +4361,7 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 
       prompt += `
 
-**Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — strip it out and keep only the English words actually spoken. The remaining English words are the student's attempt. Do not infer, expand, or reinterpret what the student meant to say.`;
+**Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — strip it out and keep only the English words actually spoken. The remaining English words are the student's attempt. Treat every student message as a complete, finished attempt. Trailing "...", short duration, or incomplete phrasing still counts as the student's full attempt — evaluate it as-is. Only the English words literally present in the message exist. Do not infer, expand, or reinterpret what the student meant to say.`;
 
       if (settings.shadowingStrictness === 'strict') {
         prompt += `
@@ -4369,14 +4369,14 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 **Shadowing accuracy check:**
 Compare the student's English words (after stripping Japanese noise) against the original sentence word by word.
 - Pass: every key content word appears clearly and in the correct order.
-- Fail: any key content word is missing, added, swapped, mispronounced, or replaced. An attempt with fewer than half the words of the original sentence is always a fail.`;
+- Fail: any key content word is missing, added, swapped, mispronounced, or replaced. An attempt with fewer than half the words of the original sentence is always a fail — no exceptions, regardless of why the attempt is short.`;
       } else {
         prompt += `
 
 **Shadowing accuracy check:**
 Compare the student's English words (after stripping Japanese noise) against the original sentence word by word.
 - Pass: every key content word appears in the correct order. Small pronunciation differences (e.g., "review" heard as "revue") are fine.
-- Fail: one or more key content words are missing, added, swapped, or replaced. An attempt with fewer than half the words of the original sentence is always a fail.`;
+- Fail: one or more key content words are missing, added, swapped, or replaced. An attempt with fewer than half the words of the original sentence is always a fail — no exceptions, regardless of why the attempt is short.`;
       }
 
       prompt += `
@@ -4384,7 +4384,7 @@ Compare the student's English words (after stripping Japanese noise) against the
 Apply this check to every student attempt — initial attempts, part attempts, and full-sentence retries alike.
 
 **After the student's initial attempt at a new sentence (before any breakdown has started):**
-Your next message must begin with either "Nice work" or a breakdown of the sentence into parts. There is no third option.
+Run the accuracy check first, then respond. Your next message must begin with either "Nice work" or a breakdown of the sentence into parts. These are the only two valid responses to an initial attempt.
 
 **If the initial attempt passes:**
 Say "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
@@ -4401,6 +4401,7 @@ d. Run the accuracy check on the student's full-sentence attempt.
    - If it passes: say "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
    - If it does not pass: say the full original sentence once more → "Your turn." → wait. Then return to the start of step d.
 
+"Your turn." only appears after YOU say a sentence part or full sentence for the student to repeat. It is never a response to a student's attempt.
 During steps a, b, and c: say only the part or sentence + "Your turn." Nothing else.
 During step d retries: say only the full sentence + "Your turn." Nothing else.
 
