@@ -1,4 +1,4 @@
-<!-- BUILD: 20260327-v2.11.1 -->
+<!-- BUILD: 20260327-v2.11.2 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -4359,20 +4359,24 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
 - Include useful vocabulary words appropriate for the ${settings.level} level.`;
       }
 
+      prompt += `
+
+**Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — strip it out and keep only the English words actually spoken. The remaining English words are the student's attempt. Do not infer, expand, or reinterpret what the student meant to say.`;
+
       if (settings.shadowingStrictness === 'strict') {
         prompt += `
 
 **Shadowing accuracy check:**
-Compare the student's attempt against the original sentence word by word.
+Compare the student's English words (after stripping Japanese noise) against the original sentence word by word.
 - Pass: every key content word appears clearly and in the correct order.
-- Fail: any key content word is missing, added, swapped, mispronounced, or replaced.`;
+- Fail: any key content word is missing, added, swapped, mispronounced, or replaced. An attempt with fewer than half the words of the original sentence is always a fail.`;
       } else {
         prompt += `
 
 **Shadowing accuracy check:**
-Compare the student's attempt against the original sentence word by word.
-- Pass: every key content word appears in the correct order. Small pronunciation differences are fine.
-- Fail: one or more key content words are missing, added, swapped, or replaced.`;
+Compare the student's English words (after stripping Japanese noise) against the original sentence word by word.
+- Pass: every key content word appears in the correct order. Small pronunciation differences (e.g., "review" heard as "revue") are fine.
+- Fail: one or more key content words are missing, added, swapped, or replaced. An attempt with fewer than half the words of the original sentence is always a fail.`;
       }
 
       prompt += `
@@ -4399,8 +4403,6 @@ d. Run the accuracy check on the student's full-sentence attempt.
 
 During steps a, b, and c: say only the part or sentence + "Your turn." Nothing else.
 During step d retries: say only the full sentence + "Your turn." Nothing else.
-
-**Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — extract only the English intent and respond to that.
 
 **Sentence count:** Practice exactly ${settings.sentenceCount} sentences.
 - Only step d completions count. Parts in steps a, b, and c do not count.
