@@ -1,4 +1,4 @@
-<!-- BUILD: 20260327-v2.11.0 -->
+<!-- BUILD: 20260327-v2.11.1 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.11.0</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.11.1</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4377,12 +4377,15 @@ Compare the student's attempt against the original sentence word by word.
 
       prompt += `
 
-Your next message after the student's attempt must begin with either "Nice work" or a breakdown of the sentence into parts. There is no third option.
+Apply this check to every student attempt — initial attempts, part attempts, and full-sentence retries alike.
 
-**If the attempt passes:**
+**After the student's initial attempt at a new sentence (before any breakdown has started):**
+Your next message must begin with either "Nice work" or a breakdown of the sentence into parts. There is no third option.
+
+**If the initial attempt passes:**
 Say "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
 
-**If the attempt does not pass, run steps a → b → c → d in order:**
+**If the initial attempt does not pass, run steps a → b → c → d in order:**
 
 a. Break the original sentence into 2–3 shorter parts. Do not change the original wording.
 
@@ -4390,11 +4393,12 @@ b. Say each part once → "Your turn." → wait. One part per message. Say only 
 
 c. Once all parts are done, say the full original sentence once → "Your turn." → wait. Say only the full sentence + "Your turn."
 
-d. After the student attempts the full sentence in step c:
-   - If they complete it: say "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
-   - If they struggle: say the full sentence one more time → "Your turn." → wait. Then say "Nice work! Any questions?" — STOP and wait.
+d. Run the accuracy check on the student's full-sentence attempt.
+   - If it passes: say "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
+   - If it does not pass: say the full original sentence once more → "Your turn." → wait. Then return to the start of step d.
 
 During steps a, b, and c: say only the part or sentence + "Your turn." Nothing else.
+During step d retries: say only the full sentence + "Your turn." Nothing else.
 
 **Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — extract only the English intent and respond to that.
 
