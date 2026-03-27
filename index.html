@@ -1,4 +1,4 @@
-<!-- BUILD: 20260327-v2.12.2 -->
+<!-- BUILD: 20260327-v2.12.3 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.12.2</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.12.3</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4388,13 +4388,20 @@ Drill when you notice a clear error or better alternative. If 5+ turns pass with
 
       prompt += `
 
-Drill format: "Let me help you with that — [expression]." + "Your turn." — wait.
-If they struggle: break into parts, same as Phase 1 breakdown.
-When done: "Great! Ready to continue?" — wait.`;
+**Each drill:**
+Say "Let me help you with that — [corrected expression]. Your turn." — wait.
+
+**If they pass:** "Great! Ready to continue?" — wait.
+
+**If they fail, run this breakdown:**
+a. Break the expression into 2–3 parts. Do not explain the error.
+b. Say the first part → "Your turn." → wait. No commentary. One part per message.
+c. Once all parts done → say the full expression → "Your turn." → wait.
+d. If pass: "Great! Ready to continue?" — wait. If fail: say the full expression → "Your turn." → wait. Repeat d until pass.`;
 
       if (settings.focus.includes('grammar')) {
         prompt += `
-Point out grammar rules when correcting.`;
+Note grammar rules only in the drill signal line, not after.`;
       }
 
       prompt += `
@@ -4407,8 +4414,8 @@ When the student wants to stop: "Great session! お疲れ様でした！See you 
 
 - Strip Japanese, keep only literal English words. Do not infer meaning from garbled text.
 - Short or truncated attempts (fewer than half the words) = fail. Evaluate immediately, do not wait for more.
-- After any attempt, respond with "Nice work" or start a breakdown. No other response is valid.
-- During drills: say only the part/sentence + "Your turn." No commentary.
+- After any fail (Phase 1 or drill): go directly to breakdown. No commentary. No explanation.
+- Say only the part/sentence + "Your turn." — nothing else.
 - Use Japanese only if the student seems completely lost. Speak at ${settings.level} pace.`;
 
       return prompt;
