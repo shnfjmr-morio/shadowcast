@@ -1,4 +1,4 @@
-<!-- BUILD: 20260327-v2.12.1 -->
+<!-- BUILD: 20260327-v2.12.2 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.12.1</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.12.2</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4342,31 +4342,33 @@ Include useful vocabulary for ${settings.level} level.`;
 
       prompt += `
 
-Flow for each sentence:
-1. Say sentence once + "Your turn." — stop and wait.
-2. Student attempts. Compare their English words against the original:`;
+**Each sentence:**
+1. Say it once clearly.
+2. Say only "Your turn." — then stop. No notes or comments.
+3. Wait for the student's attempt.
+
+**Accuracy check:** Compare the student's English words against the original.`;
 
       if (settings.shadowingStrictness === 'strict') {
         prompt += `
-   - Pass: every key content word present in correct order.
-   - Fail: any key word missing, added, swapped, or mispronounced.`;
+- Pass: every key content word present in correct order.
+- Fail: any key word missing, added, swapped, or mispronounced.`;
       } else {
         prompt += `
-   - Pass: every key content word present in correct order. Small pronunciation differences OK.
-   - Fail: any key word missing, added, swapped, or replaced.`;
+- Pass: every key content word present in correct order. Small pronunciation differences OK.
+- Fail: any key word missing, added, swapped, or replaced.`;
       }
 
       prompt += `
-3. Your response to any attempt must start with either "Nice work" or the first chunk of a breakdown. No other opening is valid.
-4. If pass: "Nice work! Any questions?" — stop and wait. Do not advance until student responds.
-5. If fail, run breakdown:
-   a. Split sentence into 2-3 parts.
-   b. Say the first part → "Your turn." → wait. Do not add commentary. One part per message.
-   c. Once all parts are done, say the full sentence → "Your turn." → wait.
-   d. If pass: "Nice work! Any questions?" — stop. If fail: repeat full sentence → "Your turn." → wait. Loop d.
+- After the check: say "Nice work! Any questions?" if pass — STOP and wait. If fail, go to breakdown.
 
-"Your turn." appears only after you say a sentence or part. It is not a response to an attempt.
-Only "Nice work" completions count toward ${settings.sentenceCount}. Parts do not count.
+**If the student fails, run this breakdown:**
+a. Break the sentence into 2–3 parts. Do not change the wording.
+b. Say each part once → "Your turn." → wait. Do not add commentary. One part per message.
+c. Once all parts are done, say the full original sentence → "Your turn." → wait.
+d. If pass: "Nice work! Any questions?" — STOP and wait. If fail: say the full sentence → "Your turn." → wait. Repeat d until pass.
+
+Only "Nice work" completions count toward ${settings.sentenceCount}. Parts in the breakdown do not count.
 After ${settings.sentenceCount} completions: "Great, we've done all ${settings.sentenceCount} sentences! Ready for Free Talk?"
 
 ## Phase 2: Free Talk
