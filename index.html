@@ -1,4 +1,4 @@
-<!-- BUILD: 20260326-v2.10.7 -->
+<!-- BUILD: 20260327-v2.10.8 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.10.7</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.10.8</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -3015,6 +3015,12 @@
             <button class="btn btn-primary" onclick="openAuthModal()">ログイン / 新規登録</button>
           </div>
           <div class="save-form" id="save-form-inner">
+            <div style="margin-bottom:16px;">
+              <button type="button" class="btn btn-primary" style="width:100%;" onclick="copyEvalPrompt()">
+                <span>📋</span> <span id="copy-eval-prompt-label">評価プロンプトをコピー</span>
+              </button>
+              <p style="font-size:12px; color:var(--text-tertiary); text-align:center; margin-top:6px;">セッション終了後、AIにこれを貼り付けて評価を出力してもらう</p>
+            </div>
             <div>
               <label class="textarea-label">
                 AIの出力を丸ごと貼り付けてください（評価 + 次回プロンプトを自動で分けます）
@@ -3031,12 +3037,6 @@
               </div>
             </div>
 
-            <div style="margin-top:8px; margin-bottom:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <span style="font-size:12px; color:var(--text-tertiary);">セッション後にAIへ貼り付ける →</span>
-              <button type="button" id="copy-eval-prompt-btn" onclick="copyEvalPrompt()" style="display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:8px; border:1px solid var(--border-glass); background:var(--bg-glass); color:var(--text-secondary); font-size:12px; cursor:pointer;">
-                <span>📋</span><span id="copy-eval-prompt-label">評価プロンプトをコピー</span>
-              </button>
-            </div>
 
             <div class="save-extra-fields">
               <div class="save-field-row">
