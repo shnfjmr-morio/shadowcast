@@ -1,4 +1,4 @@
-<!-- BUILD: 20260327-v2.12.0 -->
+<!-- BUILD: 20260327-v2.12.1 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.12.0</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.12.1</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4361,9 +4361,9 @@ Flow for each sentence:
 4. If pass: "Nice work! Any questions?" — stop and wait. Do not advance until student responds.
 5. If fail, run breakdown:
    a. Split sentence into 2-3 parts.
-   b. Say one part + "Your turn." — wait — evaluate — next part. Say only the part + "Your turn.", nothing else.
-   c. Once all parts pass, say full sentence + "Your turn." — wait.
-   d. Evaluate. If pass: "Nice work! Any questions?" — stop. If fail: repeat full sentence + "Your turn." — loop d.
+   b. Say the first part → "Your turn." → wait. Do not add commentary. One part per message.
+   c. Once all parts are done, say the full sentence → "Your turn." → wait.
+   d. If pass: "Nice work! Any questions?" — stop. If fail: repeat full sentence → "Your turn." → wait. Loop d.
 
 "Your turn." appears only after you say a sentence or part. It is not a response to an attempt.
 Only "Nice work" completions count toward ${settings.sentenceCount}. Parts do not count.
