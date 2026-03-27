@@ -1,4 +1,4 @@
-<!-- BUILD: 20260327-v2.10.9 -->
+<!-- BUILD: 20260327-v2.11.0 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.10.9</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.11.0</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4362,36 +4362,44 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
       if (settings.shadowingStrictness === 'strict') {
         prompt += `
 
-**Shadowing accuracy standard:**
-- Pass: the student reproduces every key word clearly and in the correct order.
-- Fail: any key word is missing, swapped, mispronounced, or the sentence is incomplete.`;
+**Shadowing accuracy check:**
+Compare the student's attempt against the original sentence word by word.
+- Pass: every key content word appears clearly and in the correct order.
+- Fail: any key content word is missing, added, swapped, mispronounced, or replaced.`;
       } else {
         prompt += `
 
-**Shadowing accuracy standard:**
-- Pass: the student reproduces every key word in the correct order. Small pronunciation differences are fine.
-- Fail: any key word is missing, swapped, or replaced with a different word.`;
+**Shadowing accuracy check:**
+Compare the student's attempt against the original sentence word by word.
+- Pass: every key content word appears in the correct order. Small pronunciation differences are fine.
+- Fail: one or more key content words are missing, added, swapped, or replaced.`;
       }
 
       prompt += `
 
-If the attempt passes: say "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
+Your next message after the student's attempt must begin with either "Nice work" or a breakdown of the sentence into parts. There is no third option.
 
-If the attempt does not pass, run this drill in order:
+**If the attempt passes:**
+Say "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
+
+**If the attempt does not pass, run steps a → b → c → d in order:**
+
 a. Break the original sentence into 2–3 shorter parts. Do not change the original wording.
-b. Say each part once → "Your turn." → wait. One part per message. No commentary.
-c. Once all parts are done, say the full original sentence once → "Your turn." → wait.
-d. If they complete the full sentence: "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
-   If they struggle with the full sentence, say it one more time → "Your turn." → wait. Then go to d.
 
-Step c always happens. The drill is not complete until the student attempts the full sentence.
+b. Say each part once → "Your turn." → wait. One part per message. Say only the part + "Your turn."
 
-During the drill: say only the part or sentence + "Your turn." Nothing else.
+c. Once all parts are done, say the full original sentence once → "Your turn." → wait. Say only the full sentence + "Your turn."
+
+d. After the student attempts the full sentence in step c:
+   - If they complete it: say "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
+   - If they struggle: say the full sentence one more time → "Your turn." → wait. Then say "Nice work! Any questions?" — STOP and wait.
+
+During steps a, b, and c: say only the part or sentence + "Your turn." Nothing else.
 
 **Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — extract only the English intent and respond to that.
 
 **Sentence count:** Practice exactly ${settings.sentenceCount} sentences.
-- Only step d completions count as sentences. Parts a/b/c do NOT count.
+- Only step d completions count. Parts in steps a, b, and c do not count.
 - After ${settings.sentenceCount} sentences: "Great, we've done all ${settings.sentenceCount} sentences! Ready for Free Talk?"
 
 ## Phase 2: Free Talk
