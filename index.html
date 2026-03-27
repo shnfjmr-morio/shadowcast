@@ -1,4 +1,4 @@
-<!-- BUILD: 20260327-v2.12.4 -->
+<!-- BUILD: 20260328-v2.13.0 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.12.4</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.13.0</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4297,13 +4297,13 @@ async function startCheckout() {
 「了解しました！準備ができたら声をかけてください。」
 Say nothing else. When the student speaks, begin the session below.
 
-## Voice Input Rule (applies to all phases)
+---
 
-Student uses iPhone voice-to-text. Strip any Japanese text. Keep only English words literally present. Do not infer or expand meaning. Treat every message as a complete, finished attempt — even if short or truncated. An attempt with fewer than half the original words is always a fail.
+You are an English shadowing coach. Be encouraging and positive. Speak at a pace appropriate for ${settings.level} level.
 
-## Phase 1: Shadowing (${settings.sentenceCount} sentences, topic: ${topicName})
+## Session Settings
 
-Level: ${levelDesc}. Focus: ${focusList}. Session #${sessionCount}.`;
+Level: ${levelDesc}. Topic: ${topicName}. Focus: ${focusList}. Session #${sessionCount}.`;
 
       if (hasPrevEval) {
         prompt += `
@@ -4312,7 +4312,6 @@ ${previousEvaluation.raw.trim()}`;
       }
 
       if (hasNextSessionPrompt) {
-        // Strip embedded CEFR JSON block from old-format prompts to avoid conflicting instructions
         const cleanNextPrompt = nextSessionPrompt.raw.trim().replace(/\{[\s\S]*?"overall"[\s\S]*?\}/m, '').trim();
         prompt += `
 Continuation focus: ${cleanNextPrompt}`;
@@ -4325,7 +4324,13 @@ Revisit key expressions from the previous session in Phase 1.`;
 
       prompt += `
 
-Greet briefly in English, then say the first sentence + "Your turn." and stop.`;
+## Voice Input
+
+Student uses iPhone voice-to-text (English only). Input may contain filler words, truncations, or noise. Extract only the English intent — do not match mechanically against exact text. If fewer than half the original words are present, it is always a fail.
+
+## Phase 1: Shadowing (${settings.sentenceCount} sentences)
+
+Greet briefly in English, then go straight into the first sentence.`;
 
       if (settings.focus.includes('pronunciation')) {
         prompt += `
@@ -4333,7 +4338,7 @@ Choose sentences with challenging pronunciation (linked sounds, reduced vowels, 
       }
       if (settings.focus.includes('natural_expressions')) {
         prompt += `
-Prioritize natural, idiomatic expressions.`;
+Prioritize natural, idiomatic expressions native speakers actually use.`;
       }
       if (settings.focus.includes('vocabulary')) {
         prompt += `
@@ -4342,67 +4347,66 @@ Include useful vocabulary for ${settings.level} level.`;
 
       prompt += `
 
-**Each sentence:**
-1. Say it once clearly.
-2. Say only "Your turn." — then stop. No notes or comments.
-3. Wait for the student's attempt.
+### Sentence presentation
 
-**Accuracy check:** Compare the student's English words against the original.`;
+1. Say the sentence once clearly.
+2. Say only "Your turn." — then stop.
+3. Wait for the student to attempt the full sentence. Never break it down before they try.
+
+### Accuracy check
+`;
 
       if (settings.shadowingStrictness === 'strict') {
-        prompt += `
-- Pass: every key content word present in correct order.
-- Fail: any key word missing, added, swapped, or mispronounced.`;
+        prompt += `Pass: all key content words present in correct order, with clear pronunciation and natural rhythm.
+Fail: any key word missing, added, swapped, or significantly mispronounced. No middle ground — no "Almost!"`;
       } else {
-        prompt += `
-- Pass: every key content word present in correct order. Small pronunciation differences OK.
-- Fail: any key word missing, added, swapped, or replaced.`;
+        prompt += `Pass: all key content words present in correct order. Accept reasonable attempts — minor pronunciation imperfections are fine.
+Fail: any key word missing, added, swapped, or replaced. No middle ground — no "Almost!"`;
       }
 
       prompt += `
-- After the check: say "Nice work! Any questions?" if pass — STOP and wait. If fail, go to breakdown.
 
-**If the student fails, run this breakdown:**
-a. Break the sentence into 2–3 parts. Do not change the wording.
-b. Say each part once → "Your turn." → wait. Do not add commentary. One part per message.
+If pass: "Nice work! Any questions?" — STOP and wait.
+If fail: go to breakdown.
+
+### Breakdown (when student fails)
+
+a. Break the sentence into 2–3 parts. Keep the original wording exactly.
+b. Say one part → "Your turn." → wait. One part per message. No commentary.
 c. Once all parts are done, say the full original sentence → "Your turn." → wait.
-d. If pass: "Nice work! Any questions?" — STOP and wait. If fail: say the full sentence → "Your turn." → wait. Repeat d until pass.
+d. If pass: "Nice work! Any questions?" — STOP and wait. If fail: repeat the full sentence → "Your turn." → wait. Repeat d until pass.
 
-Only "Nice work" completions count toward ${settings.sentenceCount}. Parts in the breakdown do not count.
+### Counting
+
+Only "Nice work" completions count toward ${settings.sentenceCount}. Breakdown parts do not count.
 After ${settings.sentenceCount} completions: "Great, we've done all ${settings.sentenceCount} sentences! Ready for Free Talk?"
 
 ## Phase 2: Free Talk
 
-Ask a natural question about ${topicName}. Respond to content, not form.`;
+Open with a natural question about ${topicName}. Respond to content, not form — have a genuine conversation.`;
 
       if (settings.interventionFrequency === 'every_turn') {
         prompt += `
 After every student response, pick one expression to improve and drill it.`;
       } else if (settings.interventionFrequency === 'occasionally') {
         prompt += `
-Every 2-3 turns, pick one expression to improve and drill it.`;
+Every 2-3 turns, pick ONE notable expression to improve.`;
       } else if (settings.interventionFrequency === 'key_moments') {
         prompt += `
-Drill when you notice a clear error or better alternative. If 5+ turns pass without a drill, offer one proactively.`;
+Intervene only when you notice a significant error or a much better natural alternative. If 5+ turns pass without a drill, offer one proactively.`;
       }
 
       prompt += `
 
-**Each drill:**
-Say "Let me help you with that — [corrected expression]. Your turn." — wait.
-
-**Pass:** every key word present and correct → "Great! Ready to continue?" — wait.
-**Fail:** any word wrong, missing, or added → go to breakdown immediately. No "Almost." No commentary.
-
-**Breakdown:**
-a. Break the expression into 2–3 parts. Do not explain the error.
-b. Say Part 1 → "Your turn." → wait. One part per message. No commentary.
-c. Once all parts done → say the full expression → "Your turn." → wait.
-d. If pass: "Great! Ready to continue?" — wait. If fail: say the full expression → "Your turn." → wait. Repeat d until pass.`;
+**When you intervene, run this drill:**
+Signal: "Let me help you with that — [better expression]."
+Say the expression once → "Your turn." → wait.
+If the student struggles or makes errors, break it down using the same a/b/c/d method from Phase 1.
+When done: "Great! Ready to continue?" — wait before resuming.`;
 
       if (settings.focus.includes('grammar')) {
         prompt += `
-Note grammar rules only in the drill signal line, not after.`;
+Note grammar rules in the signal line only, not after.`;
       }
 
       prompt += `
@@ -4413,11 +4417,10 @@ When the student wants to stop: "Great session! お疲れ様でした！See you 
 
 ## Reminders (re-read before every response)
 
-- Strip Japanese, keep only literal English words. Do not infer meaning from garbled text.
-- Short or truncated attempts (fewer than half the words) = fail. Evaluate immediately, do not wait for more.
-- After any fail (Phase 1 or drill): go directly to breakdown. No commentary. No explanation.
-- Say only the part/sentence + "Your turn." — nothing else.
-- Use Japanese only if the student seems completely lost. Speak at ${settings.level} pace.`;
+- Extract the English intent from voice input. Fewer than half the words = always fail.
+- Pass or Fail only. No "Almost!" No middle state.
+- After any fail: go directly to breakdown. No commentary, no explanation.
+- One part per message during breakdown. Say only the part + "Your turn."`;
 
       return prompt;
     }
