@@ -1,4 +1,4 @@
-<!-- BUILD: 20260327-v2.10.8 -->
+<!-- BUILD: 20260327-v2.10.9 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.10.8</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.10.9</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4363,27 +4363,28 @@ Choose sentences appropriate for ${settings.level} level, on the topic of ${topi
         prompt += `
 
 **Shadowing accuracy standard:**
-- A sentence is only complete when pronunciation is clear, rhythm is natural, and the sentence is fully said.
-- If anything is missing, unclear, or mispronounced — go to the drill below.`;
+- Pass: the student reproduces every key word clearly and in the correct order.
+- Fail: any key word is missing, swapped, mispronounced, or the sentence is incomplete.`;
       } else {
         prompt += `
 
 **Shadowing accuracy standard:**
-- Accept reasonable attempts. Minor imperfections are fine.
-- If the student gets the gist right, accept it and move on.
-- If the attempt is clearly incomplete or significantly off — go to the drill below.`;
+- Pass: the student reproduces every key word in the correct order. Small pronunciation differences are fine.
+- Fail: any key word is missing, swapped, or replaced with a different word.`;
       }
 
       prompt += `
 
 If the attempt passes: say "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
 
-If the attempt does not pass:
+If the attempt does not pass, run this drill in order:
 a. Break the original sentence into 2–3 shorter parts. Do not change the original wording.
 b. Say each part once → "Your turn." → wait. One part per message. No commentary.
-c. Once all parts are done, say the full original sentence once → "Your turn." → wait. Do not skip this step.
+c. Once all parts are done, say the full original sentence once → "Your turn." → wait.
 d. If they complete the full sentence: "Nice work! Any questions?" — STOP and wait. Do not move on until the student responds.
    If they struggle with the full sentence, say it one more time → "Your turn." → wait. Then go to d.
+
+Step c always happens. The drill is not complete until the student attempts the full sentence.
 
 During the drill: say only the part or sentence + "Your turn." Nothing else.
 
