@@ -1,4 +1,4 @@
-<!-- BUILD: 20260328-v2.14.0 -->
+<!-- BUILD: 20260328-v2.14.1 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.14.0</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.14.1</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4360,7 +4360,7 @@ Include useful vocabulary words appropriate for ${settings.level} level.`;
       if (settings.shadowingStrictness === 'strict') {
         prompt += `A sentence is only "completed" when the student produces it clearly and accurately — correct pronunciation, natural rhythm, and full completeness. Do NOT accept mumbled, shortened, or significantly mispronounced attempts as a pass.`;
       } else {
-        prompt += `Accept reasonable attempts. Minor pronunciation imperfections are fine. Focus on overall rhythm and intent rather than perfection.`;
+        prompt += `Accept reasonable attempts. Minor pronunciation imperfections are fine. Focus on overall rhythm and intent rather than perfection. Pass or fail — no "Almost!".`;
       }
 
       prompt += `
