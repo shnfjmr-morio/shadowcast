@@ -1,4 +1,4 @@
-<!-- BUILD: 20260328-v2.14.5 -->
+<!-- BUILD: 20260328-v2.15.0 -->
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -2267,7 +2267,7 @@
        NAVIGATION
   ============================================================ -->
   <nav id="main-nav">
-    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.14.5</small></div>
+    <div class="nav-logo">Shadow<span>Cast</span> <small style="font-size:9px;opacity:0.4;font-weight:400;letter-spacing:0">v2.15.0</small></div>
     <div class="nav-right">
       <div class="nav-auth" id="nav-auth">
         <button class="btn-auth-login" id="btn-login" onclick="openAuthModal()">ログイン</button>
@@ -4367,18 +4367,16 @@ Include useful vocabulary words appropriate for ${settings.level} level.`;
 
 **If the student struggles or makes errors:**
 Pass or Fail only — no "Almost!", no soft encouragement.
-Say "Let's break it down." then:
-a. Break the original sentence into 2–3 parts. NEVER change the wording of the original sentence.
-b. Say each part once → "Your turn." → wait. One part per message. No commentary.
-c. Once all parts are done, say the full original sentence once → "Your turn." → wait.
-d. If pass: judge mastery. If a breakdown was needed, one pass is not enough — say "One more time." → repeat the full sentence → "Your turn." → wait, until the student produces it naturally and confidently. Only then: "Nice work! Any questions?" — STOP and wait. If fail: say "Let's try again." → repeat the full sentence → "Your turn." → wait. Repeat d until pass.
+Break the sentence into 2–3 parts. Say each part once → "Your turn." → wait. One part per message.
+Once all parts are done, say the full original sentence → "Your turn." → wait.
+Judge mastery — if a breakdown was needed, practice the full sentence until the student produces it naturally and confidently. Only when you are satisfied, check if they have questions before moving on.
 
 **Voice input:** Student uses voice-to-text on iPhone. Garbled Japanese text is noise — extract only the English intent. If fewer than half the original words are present, treat it as a fail.
 
 **Sentence count:** Practice exactly ${settings.sentenceCount} sentences.
-- Only step d completions count. Parts a/b/c do NOT count.
-- After each completed sentence: "Nice work! Any questions?" — STOP and wait. Confirmation required before moving on.
-- After ${settings.sentenceCount} sentences: "Great, we've done all ${settings.sentenceCount} sentences! Ready for Free Talk?"
+- Only full-sentence mastery counts. Breakdown parts do not count as a completed sentence.
+- After each completed sentence, pause to check for questions before moving on.
+- After ${settings.sentenceCount} sentences, transition naturally to Phase 2.
 
 ## Phase 2: Free Talk
 
@@ -4400,11 +4398,10 @@ Intervene only when you notice a significant error or a much better natural alte
       prompt += `
 
 **When you intervene, always run this drill:**
-- Signal: "Let me help you with that — [better expression]."
-- Say the expression once → "Your turn." → wait silently.
+- Signal the correction naturally, then say the target expression once → "Your turn." → wait silently.
 - Pass or Fail only — no "Almost!", no commentary.
-- If they fail: say "Let's break it down." then break into 2–3 parts (same as Phase 1 method).
-- When done: "Great! Ready to continue?" — WAIT before resuming.`;
+- If they fail, break into 2–3 parts using the same Phase 1 method.
+- Once mastered, check with the student before resuming conversation.`;
 
       if (settings.focus.includes('grammar')) {
         prompt += `
@@ -4415,7 +4412,7 @@ Intervene only when you notice a significant error or a much better natural alte
 
 ## Phase 3: Session End
 
-When the student says they want to end: "Great session! お疲れ様でした！See you next time." — stop. No evaluation.
+When the student says they want to end: close the session warmly in English and Japanese — brief goodbye only. No evaluation, no summary.
 
 ## General Rules
 - Always speak clearly and at a pace appropriate for ${settings.level} level.
